@@ -161,7 +161,7 @@ namespace SAIN.SAINComponent.Classes
                 }
             }
 
-            if (SoundRemoved)
+            if (SoundRemoved && SoundDataToReactTo.Capacity > SoundDataToReactTo.Count * 3)
                 SoundDataToReactTo.TrimExcess();
             if (DeafeningShot)
                 _BotDeafedTime = Time.time + BOT_DEAF_TIME_INTERVAL;

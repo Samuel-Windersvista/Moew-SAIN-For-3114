@@ -129,6 +129,9 @@ namespace SAIN.SAINComponent.Classes.Mover
         private readonly BotPathDataManual _preparedPath1;
         private readonly BotPathDataManual _preparedPath2;
 
+        [ThreadStatic]
+        private static NavMeshPath _cachedGoToPath;
+
         public bool RunToPoint(Vector3 point, bool mustHaveCompletePath = true, float reachDist = -1, ESprintUrgency urgency = ESprintUrgency.Low, bool checkSameWay = true)
         {
             if (reachDist <= 0) reachDist = BASE_DESTINATION_REACH_DIST;
@@ -307,7 +310,10 @@ namespace SAIN.SAINComponent.Classes.Mover
             }
             if (NavMesh.SamplePosition(point, out NavMeshHit targetHit, navSampleRange, -1))
             {
-                path = new NavMeshPath();
+                if (_cachedGoToPath == null)
+                    _cachedGoToPath = new NavMeshPath();
+                _cachedGoToPath.ClearCorners();
+                path = _cachedGoToPath;
                 if (NavMesh.CalculatePath(navData.Position, targetHit.position, -1, path) && path.corners.Length > 1)
                 {
                     if (mustHaveCompletePath

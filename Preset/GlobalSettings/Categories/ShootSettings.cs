@@ -7,78 +7,76 @@ namespace SAIN.Preset.GlobalSettings
     // note for later: Need to find a way to remove the clunky duplicates of the dictionaries here, as its a hold over from a previous system of getting the default values for different config options.
     public class ShootSettings : SAINSettingsBase<ShootSettings>, ISAINSettings
     {
-        [Name("Base Minimum Time Between Shots")]
-        [Category("General")]
+        [Name("基础射击间隔最小值")]
+        [Category("通用")]
         [MinMax(0.0f, 2f, 100f)]
         public float MIN_FIRE_RATE_INTERVAL = 0.1f; // minimum time between shots
 
-        [Name("Base Maximum Time Between Shots")]
-        [Category("General")]
+        [Name("基础射击间隔最大值")]
+        [Category("通用")]
         [MinMax(0.0f, 8f, 100f)]
         public float MAX_FIRE_RATE_INTERVAL = 4f; // maximum time between shots
 
-        [Name("Fullauto Wait Multiplier")]
-        [Description("If a bot is on fullauto, the time between shots will be multiplied by this value")]
-        [Category("General")]
+        [Name("全自动射击间隔乘数")]
+        [Description("Bot处于全自动模式时射击间隔乘以此值。")]
+        [Category("通用")]
         [MinMax(0.0f, 1f, 100f)]
         public float MAX_FIRE_RATE_COEF_FULLAUTO = 0.25f; // maximum time between shots
 
-        [Name("Firerate Randomization")]
-        [Description("Randomize the time a bot waits between shots to make it less robotic. A value of 0.25 means it will multiply it by a random value between 0.75x - 1.25x")]
-        [Category("General")]
+        [Name("射速随机化")]
+        [Description("随机化Bot射击间隔使其表现不那么机械。0.25=射击间隔随机乘0.75-1.25。")]
+        [Category("通用")]
         [MinMax(0.0f, 1f, 100f)]
         public float FIRERATE_RANDOMIZATION_COEF = 0.25f; // randomization coefficient for firerate
 
-        [Name("Bots only use Semi Auto")]
-        [Description("If enabled, bots will never be able to use full auto at close/mid range.")]
-        [Category("General")]
+        [Name("Bot仅使用半自动")]
+        [Description("开启后Bot在近/中距离无法使用全自动。")]
+        [Category("通用")]
         public bool ONLY_SEMIAUTO_TOGGLE = false;
 
-        [Name("Global Recoil Multiplier")]
-        [Description("Higher = more recoil. Modifies SAIN's recoil scatter feature. 1.5 = 1.5x more recoilfrom a single gunshot")]
-        [Category("Bot Recoil")]
+        [Name("全局后坐力乘数")]
+        [Description("数值越高=后坐力越大。修改SAIN后坐力散布功能。1.5=单发后坐力1.5倍。")]
+        [Category("Bot后坐力")]
         [MinMax(0.01f, 3f, 100f)]
         public float BOT_RECOIL_COEF = 0.5f;
 
-        [Name("Add or Subtract Recoil")]
-        [Description("Linearly add or subtract from the final recoil result")]
-        [Category("Bot Recoil")]
+        [Name("后坐力加减值")]
+        [Description("线性加减最终后坐力结果。")]
+        [Category("Bot后坐力")]
         [MinMax(-20f, 20f, 100f)]
         [Advanced]
         public float BOT_RECOIL_ADD = 0f;
 
-        [Name("Recoil Decay Coefficient")]
-        [Description("Controls the speed that bots will recover from a weapon's recoil. Higher = faster decay")]
-        [Category("Bot Recoil")]
+        [Name("后坐力衰减系数")]
+        [Description("控制Bot从后坐力中恢复的速度。数值越高=衰减越快。")]
+        [Category("Bot后坐力")]
         [MinMax(0.01f, 1f, 100f)]
         [Advanced]
         public float BOT_RECOIL_DECAY_COEF = 0.3f;
 
-        [Name("Bot Weapon Recoil Baseline")]
-        [Description("A Bot's weapon's recoil will get divided by this to calculate how much to rotate their view on each shot, so, for example, " +
-            "with a baseline of 100 - if a bot has 250 total recoil, that number gets divided by this to produce 2.5. Higher = Less recoil for bots. " +
-            "This is basically an average recoil of all possible weapons.")]
-        [Category("Bot Recoil")]
+        [Name("Bot武器后坐力基准值")]
+        [Description("Bot武器后坐力除以此值计算每发射击视角旋转量。基准值100时，总后坐力250/100=2.5。数值越高=后坐力越小。")]
+        [Category("Bot后坐力")]
         [MinMax(25f, 300f, 1f)]
         [Advanced]
         public float BOT_RECOIL_BASELINE = 100;
 
-        [Name("Bot Weapon Recoil Baseline - Realism Mod")]
-        [Description("A Bot's weapon's recoil will get divided by this to calculate how much to rotate their view on each shot. This value is used if Realism mod is on to reflect different recoil numbers.")]
-        [Category("Bot Recoil")]
+        [Name("Bot武器后坐力基准值-Realism模组")]
+        [Description("Bot武器后坐力除以此值计算每发射击视角旋转量。Realism模组开启时使用此值。")]
+        [Category("Bot后坐力")]
         [MinMax(25f, 300f, 1f)]
         [Advanced]
         public float BOT_RECOIL_BASELINE_REALISM = 125f;
 
-        [Name("Ammo Shootability")]
+        [Name("弹药射击可行性")]
         [Description(
-            "Lower is BETTER. " +
-            "How Shootable this ammo type is, affects semi auto firerate and full auto burst length." +
-            "Value is scaled but roughly gives a plus or minus 20% to firerate depending on the value set here." +
-            "For Example. 9x19 will shoot about 20% faster fire-rate on semi-auto at 50 meters" +
-            ", and fire 20% longer bursts when on full auto"
+            "数值越低越好。 " +
+            "表示此弹药类型的射击可行性，影响半自动射速和全自动连射时长。" +
+            "该值缩放后大约给射速带来正负20%的影响。" +
+            "例如9x19在50米半自动时射速约快20%" +
+            "，全自动时连射时长增加20%。"
             )]
-        [Category("Bot Weapon Control")]
+        [Category("Bot武器控制")]
         [Percentage0to1(0.01f)]
         [Advanced]
         [DefaultDictionary(nameof(AmmoCaliberShootabilityDefaults))]
@@ -148,9 +146,9 @@ namespace SAIN.Preset.GlobalSettings
             { ECaliber.Default, 0.5f },
         };
 
-        [Name("Max FullAuto Distances")]
-        [Description("The maximum distance a bot using this caliber can fire it full auto. Not all values are used since some calibers don't have any full auto weapons that use it.")]
-        [Category("Bot Weapon Control")]
+        [Name("最大全自动距离")]
+        [Description("Bot使用该口径全自动射击的最大距离。部分口径无全自动武器因此不使用。")]
+        [Category("Bot武器控制")]
         [MinMax(10f, 150f)]
         [Advanced]
         [DefaultDictionary(nameof(AmmoCaliberFullAutoMaxDistancesDefaults))]
@@ -220,15 +218,15 @@ namespace SAIN.Preset.GlobalSettings
             { ECaliber.Default, 55f },
         };
 
-        [Name("Weapon Shootability")]
+        [Name("武器射击可行性")]
         [Description(
-            "Lower is BETTER. " +
-            "How Shootable this weapon type is, affects semi auto firerate and full auto burst length." +
-            "Value is scaled but roughly gives a plus or minus 20% to firerate depending on the value set here." +
-            "For Example. SMGs will shoot about 20% faster fire-rate on semi-auto at 50 meters" +
-            ", and fire 20% longer bursts when on full auto"
+            "数值越低越好。 " +
+            "表示此武器类型的射击可行性，影响半自动射速和全自动连射时长。" +
+            "该值缩放后大约给射速带来正负20%的影响。" +
+            "例如冲锋枪在50米半自动时射速约快20%" +
+            "，全自动时连射时长增加20%。"
             )]
-        [Category("Bot Weapon Control")]
+        [Category("Bot武器控制")]
         [Percentage0to1(0.01f)]
         [Advanced]
         [DefaultDictionary(nameof(WeaponClassShootabilityDefaults))]
@@ -264,17 +262,16 @@ namespace SAIN.Preset.GlobalSettings
             { EWeaponClass.specialWeapon, 1f },
         };
 
-        [Name("Weapon Firerate Wait Time")]
+        [Name("武器射速等待时间")]
         [Description(
-            "HIGHER is BETTER. " +
-            "This is the time to wait inbetween shots for every meter." +
-            "the number is divided by the distance to their target, to get a wait period between shots." +
-            "For Example. With a setting of 100: " +
-            "if a target is 50m away, they will wait 0.5 sec between shots because 50 / 100 is 0.5." +
-            "This number is later modified by the Shootability multiplier, to get a final fire-rate that gets sent to a bot."
+            "数值越高越好。 " +
+            "每米距离的射击等待时间。" +
+            "该值除以到目标的距离得到射击间隔。" +
+            "例如设为100：目标距离50米，则射击间隔50/100=0.5秒。" +
+            "此值随后被射击可行性乘数修正，得到最终射速。"
             )]
         [MinMax(30f, 250f, 1f)]
-        [Category("Bot Weapon Control")]
+        [Category("Bot武器控制")]
         [Advanced]
         [DefaultDictionary(nameof(WeaponPerMeterDefaults))]
         public Dictionary<EWeaponClass, float> WeaponPerMeter = new()
@@ -309,13 +306,13 @@ namespace SAIN.Preset.GlobalSettings
             { EWeaponClass.specialWeapon, 80 },
         };
 
-        [Name("Bot Preferred Shoot Distances")]
+        [Name("Bot首选射击距离")]
         [Description(
-            "The distances that a bot prefers to shoot a particular weapon class. " +
-            "Bots will try to close the distance if further than this."
+            "Bot对特定武器类型的偏好射击距离。 " +
+            "超出此距离时Bot会尝试拉近距离。"
             )]
         [MinMax(10f, 250f, 1f)]
-        [Category("Bot Weapon Control")]
+        [Category("Bot武器控制")]
         [Advanced]
         [DefaultDictionary(nameof(EngagementDistanceDefaults))]
         public Dictionary<EWeaponClass, float> EngagementDistance = new()
@@ -352,42 +349,48 @@ namespace SAIN.Preset.GlobalSettings
 
         [JsonIgnore]
         [Hidden]
-        private const string Shootability = "Affects Weapon Shootability Calculations, which tells a bot how fast they should shoot, how long they should hold down full auto fire, and how far they will decide to fire full auto or swap to only semi-auto.. ";
+        private const string Shootability = "影响武器射击可行性计算，它决定Bot该以多快速度射击、连射多久、以及全自动切换到半自动的距离判定。";
 
-        private const string Scaling = "Affects how much this type of effect has on how Shootable a bot's weapon is considered. Higher = More effect. So if you set RecoilScaling to 0, recoil will play no part in how fast or slow a bot shoots.";
+        private const string Scaling = "影响该类型对Bot武器射击可行性的作用程度。数值越高=影响越大。例如将后坐力缩放设为0，后坐力将完全不影响Bot的射速。";
 
+        [Name("武器类型缩放")]
         [Description(Shootability + Scaling)]
-        [Category("Bot Weapon Control")]
+        [Category("Bot武器控制")]
         [Advanced]
         [Percentage01to99]
         public float WeaponClassScaling = 0.25f;
 
+        [Name("后坐力缩放")]
         [Description(Shootability + Scaling)]
-        [Category("Bot Weapon Control")]
+        [Category("Bot武器控制")]
         [Advanced]
         [Percentage01to99]
         public float RecoilScaling = 0.35f;
 
+        [Name("人机工效缩放")]
         [Description(Shootability + Scaling)]
-        [Category("Bot Weapon Control")]
+        [Category("Bot武器控制")]
         [Advanced]
         [Percentage01to99]
         public float ErgoScaling = 0.08f;
 
+        [Name("口径缩放")]
         [Description(Shootability + Scaling)]
-        [Category("Bot Weapon Control")]
+        [Category("Bot武器控制")]
         [Advanced]
         [Percentage01to99]
         public float AmmoCaliberScaling = 0.3f;
 
+        [Name("武器熟练度缩放")]
         [Description(Shootability + Scaling)]
-        [Category("Bot Weapon Control")]
+        [Category("Bot武器控制")]
         [Advanced]
         [Percentage01to99]
         public float WeaponProficiencyScaling = 0.3f;
 
+        [Name("难度缩放")]
         [Description(Shootability + Scaling)]
-        [Category("Bot Weapon Control")]
+        [Category("Bot武器控制")]
         [Advanced]
         [Percentage01to99]
         public float DifficultyScaling = 0.3f;

@@ -15,8 +15,7 @@ namespace SAIN.Editor.GUISections
 
         public static void PersonalityMenu()
         {
-            string toolTip = $"Apply Values set below to Personalities. " +
-                $"Exports edited values to SAIN/Presets/{SAINPlugin.LoadedPreset.Info.Name}/Personalities folder";
+            string toolTip = $"将下方设定应用到所选个性。已编辑的值将导出到 SAIN/Presets/{SAINPlugin.LoadedPreset.Info.Name}/Personalities 文件夹";
 
             if (BuilderClass.SaveChanges(ConfigEditingTracker.GetUnsavedValuesString(), 35))
             {

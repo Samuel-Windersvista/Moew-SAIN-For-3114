@@ -5,152 +5,145 @@ namespace SAIN.Preset.GlobalSettings
 {
     public class AimSettings : SAINSettingsBase<AimSettings>, ISAINSettings
     {
-        [Category("Aim Target")]
+        [Category("瞄准目标")]
         public HitEffectSettings HitEffects = new();
 
-        [Name("Always Aim Center Mass Global")]
-        [Description("Force Bots to aim for center of mass. If this is disabled, all bots will have Always Aim Center Mass turned OFF, so their individual settings will be ignored.")]
-        [Category("Aim Target")]
+        [Name("全局始终瞄准躯干中央")]
+        [Description("强制Bot瞄准躯干中央。关闭后所有Bot的此选项将被设为关，个人设置将被忽略。")]
+        [Category("瞄准目标")]
         public bool AimCenterMassGlobal = true;
 
-        [Category("Scatter Modifiers")]
-        [Name("Enemy Move Scatter Max Buff")]
-        [Description("The max buff to bot scatter, so if their enemy is standing still. Scales with velocity. A value of 1 is disabled")]
+        [Category("散布修正")]
+        [Name("敌人移动散布最大增益")]
+        [Description("敌人静止时Bot散布的最大增益。随敌人速度缩放。值1=禁用。")]
         [MinMax(1f, 1.5f, 100f)]
         public float EnemyVelocityMaxBuff = 1.2f;
 
-        [Category("Scatter Modifiers")]
-        [Name("Enemy Move Scatter Max Debuff")]
-        [Description("The minimum debuff to bot scatter, so if their enemy is moving at full speed, but not sprinting. Scales with velocity. A value of 1 is disabled")]
+        [Category("散布修正")]
+        [Name("敌人移动散布最大减益")]
+        [Description("敌人全速移动(不冲刺)时Bot散布的最大减益。随敌人速度缩放。值1=禁用。")]
         [MinMax(0.5f, 1f, 100f)]
         public float EnemyVelocityMaxDebuff = 0.8f;
 
-        [Category("Scatter Modifiers")]
-        [Name("Enemy Move Scatter Sprint Debuff")]
-        [Description("How much to divide bot scatter by if their enemy is sprinting. So the lower the number, the worse their aim will be. A value of 1 is disabled")]
+        [Category("散布修正")]
+        [Name("敌人冲刺散布减益")]
+        [Description("敌人冲刺时Bot散布除以此值。数值越小=瞄准越差。值1=禁用。")]
         [MinMax(0.25f, 1f, 100f)]
         public float EnemySprintingScatterMulti = 0.66f;
 
-        [Category("Scatter Modifiers")]
-        [Name("Pose Scatter Multiplier")]
-        [Description("Lower is more scatter. If a bot is crouching, reduce their scatter up to X. 1.2 would result in 20% less scatter.")]
+        [Category("散布修正")]
+        [Name("姿态散布乘数")]
+        [Description("数值越低=散布越小。Bot蹲下时散布最多减少到此乘数。1.2=散布减少20%。")]
         [Advanced]
         [MinMax(1f, 2f, 100f)]
         public float ScatterMulti_PoseLevel = 1.2f;
 
-        [Category("Scatter Modifiers")]
-        [Name("Prone Scatter Multiplier")]
-        [Description("Lower is more scatter. If a bot is prone, reduce their scatter up to X. 1.3 would result in 30% less scatter.")]
+        [Category("散布修正")]
+        [Name("趴下散布乘数")]
+        [Description("数值越低=散布越小。Bot趴下时散布最多减少到此乘数。1.3=散布减少30%。")]
         [Advanced]
         [MinMax(1f, 2f, 100f)]
         public float ScatterMulti_Prone = 1.3f;
 
-        [Category("Scatter Modifiers")]
-        [Name("Body Part Visibility Scatter Multiplier")]
-        [Description("Lower is more scatter. If all body parts on an enemy are visible, reduce their scatter up to X. 1.25 would result in 25% less scatter.")]
+        [Category("散布修正")]
+        [Name("身体部位可见度散布乘数")]
+        [Description("数值越低=散布越小。敌人所有身体部位可见时散布最多减少到此乘数。1.25=散布减少25%。")]
         [Advanced]
         [MinMax(1f, 2f, 100f)]
         public float ScatterMulti_PartVis = 1.25f;
 
-        [Category("Scatter Modifiers")]
-        [Name("Magnified Optic - Ideal Range - Max Buff")]
-        [Description("Lower is more scatter. If a target is further than or equal to Optic Ideal Distance, reduce their scatter by X. 1.2 = 20% less scatter")]
+        [Category("散布修正")]
+        [Name("倍镜-理想距离-最大增益")]
+        [Description("数值越低=散布越小。目标距离>=倍镜理想距离时散布减少到此乘数。1.2=散布减少20%。")]
         [Advanced]
         [MinMax(1f, 1.5f, 100f)]
         public float OpticFarMulti = 1.2f;
 
-        [Category("Scatter Modifiers")]
-        [Name("Magnified Optic - Ideal Range - Distance")]
-        [Description("The distance, in meters, that is considered ideal for a magnified optic, if shooting at a target further than or equal to this, reduce scatter.")]
+        [Category("散布修正")]
+        [Name("倍镜-理想距离-距离值")]
+        [Description("倍镜的理想射击距离(米)。目标在此距离或以上时减小散布。")]
         [Advanced]
         [MinMax(25f, 150f, 10f)]
         public float OpticFarDistance = 100f;
 
-        [Category("Scatter Modifiers")]
-        [Name("Magnified Optic - Too Close - Max Debuff")]
-        [Description("Lower is more scatter. If a target is closer than or equal to Optic Too Close Distance, increase their scatter by X. 0.8 = 20% more scatter")]
+        [Category("散布修正")]
+        [Name("倍镜-过近距离-最大减益")]
+        [Description("数值越低=散布越大。目标距离<=倍镜过近距离时散布增加到此乘数。0.8=散布增大20%。")]
         [Advanced]
         [MinMax(0.5f, 1f, 100f)]
         public float OpticCloseMulti = 0.8f;
 
-        [Category("Scatter Modifiers")]
-        [Name("Magnified Optic - Too Close - Distance")]
-        [Description("The distance, in meters, that is considered too close for a magnified optic. " +
-            "If shooting at a target closer than or equal to this, increase scatter.")]
+        [Category("散布修正")]
+        [Name("倍镜-过近距离-距离值")]
+        [Description("定义倍镜过近的距离(米)。目标距离小于等于此值时散布增大。")]
         [Advanced]
         [MinMax(25f, 150f, 10f)]
         public float OpticCloseDistance = 75f;
 
-        [Category("Scatter Modifiers")]
-        [Name("Red-dot / Holo - Out of Range - Max Debuff")]
-        [Description("Lower is more scatter. If a target is further than or equal to Red-dot / Holo - **Out of Range** - Distance, increase their scatter by X. 0.85 = 15% more scatter")]
+        [Category("散布修正")]
+        [Name("红点/全息-超距-最大减益")]
+        [Description("数值越低=散布越大。目标距离>=红点/全息超距距离时散布增加到此乘数。0.85=散布增大15%。")]
         [Advanced]
         [MinMax(0.5f, 1f, 100f)]
         public float RedDotFarMulti = 0.85f;
 
-        [Category("Scatter Modifiers")]
-        [Name("Red-dot / Holo - Out of Range - Distance")]
-        [Description("The distance, in meters, that is considered **Out of Range** for a Red-dot / Holo. " +
-            "If shooting at a target further than or equal to this, increase scatter by **Red-dot / Holo - Out of Range - Max Debuff.**")]
+        [Category("散布修正")]
+        [Name("红点/全息-超距-距离值")]
+        [Description("定义为红点/全息超距的距离(米)。目标距离大于等于此值时散布按超距最大减益增加。")]
         [Advanced]
         [MinMax(25f, 150f, 10f)]
         public float RedDotFarDistance = 100f;
 
-        [Category("Scatter Modifiers")]
-        [Name("Red-dot / Holo - Ideal Range - Max Buff")]
-        [Description("Lower is more scatter. If a target is further than or equal to Optic Ideal Distance, reduce their scatter by X. 1.15 = 15% less scatter")]
+        [Category("散布修正")]
+        [Name("红点/全息-理想距离-最大增益")]
+        [Description("数值越低=散布越小。目标距离>=理想距离时散布减少到此乘数。1.15=散布减少15%。")]
         [Advanced]
         [MinMax(1f, 1.5f, 100f)]
         public float RedDotCloseMulti = 1.15f;
 
-        [Category("Scatter Modifiers")]
-        [Name("Red-dot / Holo - Ideal Range - Distance")]
-        [Description("The distance, in meters, that is considered **Ideal Range** for a Red-dot / Holo. " +
-            "If shooting at a target closer than or equal to this, reduce scatter by **Red-dot / Holo - Ideal Range - Max Buff.**")]
+        [Category("散布修正")]
+        [Name("红点/全息-理想距离-距离值")]
+        [Description("定义为红点/全息理想范围的距离(米)。目标距离小于等于此值时散布按理想距离最大增益减小。")]
         [Advanced]
         [MinMax(25f, 150f, 10f)]
         public float RedDotCloseDistance = 50f;
 
-        [Category("Scatter Modifiers")]
-        [Name("Ironsights - Out of Range - Max Debuff")]
-        [Description("Lower is more scatter. If a target is further than or equal to Optic Ideal Distance, reduce their scatter by X. 0.7 = 30% more scatter")]
+        [Category("散布修正")]
+        [Name("机瞄-超距-最大减益")]
+        [Description("数值越低=散布越大。目标距离>=理想距离时散布增加到此乘数。0.7=散布增大30%。")]
         [Advanced]
         [MinMax(0.5f, 1f, 100f)]
         public float IronSightFarMulti = 0.7f;
 
-        [Category("Scatter Modifiers")]
-        [Name("Ironsights - Out of Range - Distance - Scale Start")]
-        [Description("The distance, in meters, that is considered **Out of Range** for a ironsights. " +
-            "If shooting at a target further than or equal to this, start increasing scatter linearly up to **Ironsights - Out of Range - Distance - Scale End** by **Ironsights - Out of Range - Max Debuff.**")]
+        [Category("散布修正")]
+        [Name("机瞄-超距-缩放起始距离")]
+        [Description("定义为机瞄超距缩放起始距离(米)。目标距离大于等于此值时开始线性增加散布至结束距离。")]
         [Advanced]
         [MinMax(25f, 200f, 10f)]
         public float IronSightScaleDistanceStart = 40f;
 
-        [Category("Scatter Modifiers")]
-        [Name("Ironsights - Out of Range - Distance - Scale End")]
-        [Description("The distance, in meters, that is considered **Out of Range** for a ironsights. " +
-            "If shooting at a target further than or equal to this, increase scatter by **Ironsights - Out of Range - Max Debuff.**")]
+        [Category("散布修正")]
+        [Name("机瞄-超距-缩放结束距离")]
+        [Description("定义为机瞄超距缩放结束距离(米)。目标距离大于等于此值时散布增加至机瞄超距最大减益。")]
         [Advanced]
         [MinMax(25f, 200f, 10f)]
         public float IronSightScaleDistanceEnd = 75f;
 
-        [Name("Center Mass Point")]
-        [Description("The maximum height that bots will target if Always Aim Center Mass is on. " +
-            "A value of 0 will be directly on the center your head, a value of 1 will be directly at the floor below you at your feet. " +
-            "If their aim target is above this, the height will be adjusted to be where this point is.")]
-        [Category("Aim Target")]
+        [Name("躯干中央瞄准点")]
+        [Description("全局始终瞄准躯干中央开启时Bot瞄准的最大高度。0=头部正中心，1=脚下地面。若目标高于此点则调整为该点高度。")]
+        [Category("瞄准目标")]
         [Advanced]
         [MinMax(0f, 1f, 10000f)]
         public float CenterMassVal = 0.3f;
 
-        [Category("Time To Aim")]
-        [Name("Global Faster CQB Reactions")]
-        [Description("if this toggle is disabled, all bots will have Faster CQB Reactions turned OFF, so their individual settings will be ignored.")]
+        [Category("瞄准时间")]
+        [Name("全局快速近战反应")]
+        [Description("如果此开关关闭，所有Bot的快速近战反应将被设为关，个人设置将被忽略。")]
         public bool FasterCQBReactionsGlobal = true;
 
-        [Category("Time To Aim")]
-        [Name("Aim Down Sight Aim Time Multiplier")]
-        [Description("If a bot is aiming down sights, their time to aim will be multiplied by this number")]
+        [Category("瞄准时间")]
+        [Name("开镜瞄准时间乘数")]
+        [Description("Bot处于开镜状态时，瞄准时间将乘以此值。")]
         [MinMax(0.01f, 1f, 100f)]
         public float AimDownSightsAimTimeMultiplier = 0.7f;
 

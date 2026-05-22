@@ -12,35 +12,35 @@ namespace SAIN.Preset.Personalities
         {
             {
                     EPersonality.Normal,
-                    "An Average Tarkov Enjoyer"
+                    "一个普通的塔科夫玩家"
                 },
             {
                     EPersonality.GigaChad,
-                    "A true alpha threat. Hyper Aggressive and typically wearing high tier equipment."
+                    "真正的顶级威胁。极度激进，通常穿戴高级装备。"
                 },
             {
                     EPersonality.Wreckless,
-                    "This personality tends to sprint at their enemies, and will very frequently scream at everyone - Usually both at the same time. More Aggressive than Gigachads."
+                    "倾向于向敌人直线冲刺，经常对所有人咆哮——通常同时做这两件事。比超级猛男更具进攻性。"
                 },
             {
                     EPersonality.SnappingTurtle,
-                    "A player who finds the balance between rat and chad, yin and yang. Will rat you out but can spring out at any moment."
+                    "在老鼠与猛男之间取得平衡的玩家。会蹲坑阴你，但随时可能暴起冲锋。"
                 },
             {
                     EPersonality.Chad,
-                    "An aggressive player. Typically wearing high tier equipment, and is more aggressive than usual."
+                    "激进的玩家。通常穿戴高级装备，比普通更具进攻性。"
                 },
             {
                     EPersonality.Rat,
-                    "Scum of Tarkov. Rarely Seeks out enemies, and when they do - they will crab walk all the way there"
+                    "塔科夫的败类。很少主动寻找敌人，一旦去找，全程蹲着挪过去。"
                 },
             {
                     EPersonality.Timmy,
-                    "A New Player, terrified of everything."
+                    "新手玩家，见什么怕什么。"
                 },
             {
                     EPersonality.Coward,
-                    "A player who is more passive and afraid than usual. Will never seek out enemies and will hide in a closet until the scary thing goes away."
+                    "比普通玩家更懦弱被动。永远不会主动找敌人，会躲在柜子里直到危险消失。"
                 },
         };
     }

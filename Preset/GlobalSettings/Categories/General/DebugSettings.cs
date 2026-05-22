@@ -20,46 +20,46 @@ namespace SAIN.Preset.GlobalSettings
 
     public class DebugGizmoSettings : SAINSettingsBase<DebugGizmoSettings>
     {
-        [Name("Draw Debug Gizmos")]
+        [Name("绘制调试Gizmos")]
         public bool DrawDebugGizmos;
 
-        [Name("Draw Transform Gizmos")]
+        [Name("绘制Transform Gizmos")]
         public bool DrawTransformGizmos;
 
-        [Name("Draw Player Navmesh Sampling Gizmos")]
+        [Name("绘制玩家导航网格采样Gizmos")]
         public bool DrawNavMeshSamplingGizmos;
 
-        [Name("Draw Line of Sight Checks")]
+        [Name("绘制视线检查")]
         public bool DrawLineOfSightGizmos;
 
-        [Name("Draw Volumetric Light Gizmos")]
+        [Name("绘制体积光Gizmos")]
         public bool DrawLightGizmos;
 
-        [Name("Draw Door Links")]
+        [Name("绘制门链接")]
         public bool DrawDoorLinks;
 
-        [Name("Draw Recoil Gizmos")]
+        [Name("绘制后坐力Gizmos")]
         public bool DebugDrawRecoilGizmos = false;
 
-        [Name("Draw Aim Gizmos")]
+        [Name("绘制瞄准Gizmos")]
         public bool DebugDrawAimGizmos = false;
 
-        [Name("Draw Blind Corner Raycasts")]
+        [Name("绘制盲角射线检测")]
         public bool DebugDrawBlindCorner = false;
 
-        [Name("Draw Debug Suppression Points")]
+        [Name("绘制压制点调试")]
         [Hidden]
         public bool DebugDrawProjectionPoints = false;
 
-        [Name("Draw Search Peek Start and End Gizmos")]
+        [Name("绘制搜索窥视起终点Gizmos")]
         public bool DebugSearchGizmos = false;
 
-        [Name("Draw Debug Path Safety Tester")]
+        [Name("绘制路径安全测试器调试")]
         [Hidden]
         [JsonIgnore]
         public bool DebugDrawSafePaths = false;
 
-        [Name("Path Safety Tester")]
+        [Name("路径安全测试器")]
         [Hidden]
         [JsonIgnore]
         public bool DebugEnablePathTester = false;
@@ -71,41 +71,41 @@ namespace SAIN.Preset.GlobalSettings
 
     public class DebugLogSettings : SAINSettingsBase<DebugLogSettings>
     {
-        [Name("Global Debug Mode")]
+        [Name("全局调试模式")]
         public bool GlobalDebugMode;
 
-        [Name("Global Performance Profiling Mode")]
-        [Description("Enables function sampling for Unity Profiling.")]
+        [Name("全局性能分析模式")]
+        [Description("启用Unity性能分析器函数采样。")]
         public bool GlobalProfilingToggle;
 
-        [Name("Test Bot Sprint Pathfinder")]
+        [Name("测试Bot冲刺寻路")]
         public bool ForceBotsToRunAround;
 
-        [Name("Test Bot Crawling")]
+        [Name("测试Bot爬行")]
         public bool ForceBotsToTryCrawl;
 
-        [Name("Test Grenade Throw")]
+        [Name("测试手雷投掷")]
         public bool TestGrenadeThrow;
 
-        [Name("Draw Debug Labels")]
+        [Name("绘制调试标签")]
         public bool DrawDebugLabels;
 
-        [Name("Debug External")]
+        [Name("调试外部")]
         public bool DebugExternal;
 
-        [Name("Debug Recoil Calculations")]
+        [Name("调试后坐力计算")]
         public bool DebugRecoilCalculations = false;
 
-        [Name("Debug Aim Calculations")]
+        [Name("调试瞄准计算")]
         public bool DebugAimCalculations = false;
 
-        [Name("Debug Hearing Calc Results")]
+        [Name("调试听觉计算结果")]
         public bool DebugHearing = false;
 
-        [Name("Debug Extracts")]
+        [Name("调试撤离")]
         public bool DebugExtract = false;
 
-        [Name("Collect and Export Bot Layer and Brain Info")]
+        [Name("收集并导出Bot层与大脑信息")]
         [Hidden]
         [JsonIgnore]
         public bool CollectBotLayerBrainInfo = false;

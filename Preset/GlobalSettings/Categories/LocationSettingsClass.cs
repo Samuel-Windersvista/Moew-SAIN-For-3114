@@ -49,8 +49,8 @@ namespace SAIN.Preset.GlobalSettings
             return null;
         }
 
-        [Name("Location Specific Modifiers")]
-        [Description("These modifiers only apply to bots on the location they are assigned to. Applies to all bots equally.")]
+        [Name("地点特定修正值")]
+        [Description("这些修正值仅对位于指定地点的Bot生效，对所有Bot平等适用。")]
         [MinMax(0.01f, 5f, 100f)]
         public Dictionary<ELocation, DifficultySettings> LocationSettings = new();
 

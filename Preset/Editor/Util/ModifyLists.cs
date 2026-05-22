@@ -109,7 +109,15 @@ namespace SAIN.Editor.Util
             };
             foreach (var dificulty in EnumValues.Difficulties)
             {
-                AddOrRemove(dificulty, list, out bool newEdit, null, null, dimensions);
+                string diffName = dificulty switch
+                {
+                    BotDifficulty.easy => "简单",
+                    BotDifficulty.normal => "普通",
+                    BotDifficulty.hard => "困难",
+                    BotDifficulty.impossible => "不可能",
+                    _ => dificulty.ToString(),
+                };
+                AddOrRemove(dificulty, list, out bool newEdit, diffName, null, dimensions);
                 if (newEdit)
                     wasEdited = true;
             }

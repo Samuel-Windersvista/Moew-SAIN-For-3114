@@ -4,9 +4,8 @@ namespace SAIN.Preset.GlobalSettings
 {
     public class PerformanceSettings : SAINSettingsBase<PerformanceSettings>, ISAINSettings
     {
-        [Name("Performance Mode")]
-        [Description("Limits the cover finder to maximize performance. Reduces frequency on some raycasts. " +
-            "If your PC is CPU limited, this might let you regain some frames lost while using SAIN. Can cause bots to take too long to find cover to go to.")]
+        [Name("性能模式")]
+        [Description("限制掩体搜索以最大化性能。降低部分射线检测频率。如果CPU受限，可挽回SAIN消耗的部分帧率。可能导致Bot寻找掩体时间过长。")]
         public bool PerformanceMode = false;
     }
 }

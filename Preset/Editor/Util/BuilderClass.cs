@@ -25,7 +25,7 @@ namespace SAIN.Editor
             config = config ?? new SearchParams { optionHeight = height };
             config.Start();
 
-            Label("Search", config.Label);
+            Label("搜索", config.Label);
 
             config.Spacing();
 
@@ -33,7 +33,7 @@ namespace SAIN.Editor
 
             config.Spacing();
 
-            if (Button("Clear", EUISoundType.MenuContextMenu, config.Clear))
+            if (Button("清除", EUISoundType.MenuContextMenu, config.Clear))
             {
                 search = string.Empty;
             }
@@ -163,7 +163,7 @@ namespace SAIN.Editor
             BeginHorizontal();
 
             bool result = false;
-            if (Button("Save and Export", toolTip, EUISoundType.InsuranceInsured, Height(height), Width(500)))
+            if (Button("保存并导出", toolTip, EUISoundType.InsuranceInsured, Height(height), Width(500)))
             {
                 result = true;
             }

@@ -35,7 +35,7 @@ namespace SAIN.Preset
             return new SAINPresetDefinition
             {
                 Name = difficulty,
-                Description = description ?? $"The Default {difficulty} SAIN Preset.",
+                Description = description ?? $"默认{difficulty}难度的SAIN预设。",
                 Creator = "Solarint",
                 SAINVersion = AssemblyInfoClass.SAINVersion,
                 SAINPresetVersion = AssemblyInfoClass.SAINPresetVersion,

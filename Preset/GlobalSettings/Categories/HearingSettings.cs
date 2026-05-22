@@ -67,57 +67,56 @@ namespace SAIN.Preset.GlobalSettings
             Helpers.ListHelpers.PopulateKeys(HearingDistancesDefaults, defaultDistance);
         }
         
-        [Name("Door Open Sound Range")]
-        [Description("The Maximum range a bot can hear a door opening")]
-        [Category("Hearing Distance")]
+        [Name("开门声音范围")]
+        [Description("Bot能听到开门声的最大范围。")]
+        [Category("听觉距离")]
         [MinMax(0, 100, 1)]
         public float DOOR_OPEN_SOUND_RANGE = 40;
 
-        [Name("Door Kick Sound Range")]
-        [Description("The Maximum range a bot can hear a door being kicked")]
-        [Category("Hearing Distance")]
+        [Name("踹门声音范围")]
+        [Description("Bot能听到踹门声的最大范围。")]
+        [Category("听觉距离")]
         [MinMax(0, 100, 1)]
         public float DOOR_KICK_SOUND_RANGE = 65;
 
-        [Name("Jump Sound Range")]
-        [Description("The Maximum range a bot can hear someone jumping")]
-        [Category("Hearing Distance")]
+        [Name("跳跃声音范围")]
+        [Description("Bot能听到跳跃声的最大范围。")]
+        [Category("听觉距离")]
         [MinMax(0, 100, 1)]
         public float JUMP_SOUND_RANGE = 65;
 
+        [Name("跳跃声音间隔")]
         [MinMax(0.1f, 1f, 100f)]
         [Advanced]
         public float JUMP_SOUND_INTERVAL = 0.5f;
 
-        [Name("Rain Sound Multiplier - Outdoors")]
-        [Description("If it is raining, reduce heard distances by up to X amount. Depending on intensity of rain. Scales linearly with rain value.")]
-        [Category("Hearing Distance")]
+        [Name("雨中声音乘数-室外")]
+        [Description("下雨时Bot听觉范围最多缩减到此乘数。取决于雨势强度，随雨量线性缩放。")]
+        [Category("听觉距离")]
         [MinMax(0.01f, 1f, 1000f)]
         public float RAIN_SOUND_COEF_OUTSIDE = 0.5f;
 
-        [Name("Rain Sound Multiplier - Inside Building")]
-        [Description("If it is raining, reduce heard distances by up to X amount. Depending on intensity of rain. Scales linearly with rain value.")]
-        [Category("Hearing Distance")]
+        [Name("雨中声音乘数-室内")]
+        [Description("下雨时Bot听觉范围最多缩减到此乘数。取决于雨势强度，随雨量线性缩放。")]
+        [Category("听觉距离")]
         [MinMax(0.01f, 1f, 1000f)]
         public float RAIN_SOUND_COEF_INSIDE = 0.75f;
 
-        [Name("Max Footstep Audio Distance")]
-        [Description("The Maximum Range that a bot can hear footsteps, sprinting, and jumping, turning, gear sounds, and any movement related sounds, in meters. " +
-            "This is a theoretical max range, actual range heavily changes depending on conditions.")]
-        [Category("Hearing Distance")]
+        [Name("最大脚步声听觉距离")]
+        [Description("Bot能听到脚步声、冲刺、跳跃、转身、装备声等所有移动相关声音的最大范围(米)。此为理论最大值，实际范围因条件变化而不同。")]
+        [Category("听觉距离")]
         [MinMax(10f, 150f, 100f)]
         public float MaxFootstepAudioDistance = 70f;
 
-        [Name("Max Footstep Audio Distance without Headphones")]
-        [Description("The Maximum Range that a bot can hear footsteps, sprinting, and jumping, turning, gear sounds, and any movement related sounds, in meters. " +
-            "This is a theoretical max range, actual range heavily changes depending on conditions.")]
-        [Category("Hearing Distance")]
+        [Name("无耳机时最大脚步声听觉距离")]
+        [Description("Bot能听到脚步声、冲刺、跳跃、转身、装备声等所有移动相关声音的最大范围(米)无耳机时。此为理论最大值，实际范围因条件变化而不同。")]
+        [Category("听觉距离")]
         [MinMax(10f, 150f, 100f)]
         public float MaxFootstepAudioDistanceNoHeadphones = 50f;
 
-        [Name("Hearing Randomization and Estimation")]
+        [Name("听觉随机化与估算")]
         [Description(_dispersion_descr)]
-        [Category("Position Randomization")]
+        [Category("位置随机化")]
         [Advanced]
         [MinMax(1f, 100f, 1000f)]
         [DefaultDictionary(nameof(HEAR_DISPERSION_VALUES_Defaults))]
@@ -132,329 +131,327 @@ namespace SAIN.Preset.GlobalSettings
         [Hidden]
         public static readonly Dictionary<SAINSoundType, float> HEAR_DISPERSION_VALUES_Defaults;
 
-        [Name("Unheard Shot Bullet Fly-by Modifier")]
-        [Description("When a bot has a bullet fly by them, the dispersion on the source of the gunshot will be X times more random, " +
-            "so a value of 2 will mean that it will multiply the randomized position to be 2x as far as originally calculated.")]
-        [Category("Position Randomization")]
+        [Name("未听到枪声的子弹飞过修正值")]
+        [Description("当Bot有子弹飞过时，枪声源头的散布将增大X倍。例如值2=随机化位置距离为原计算的2倍。")]
+        [Category("位置随机化")]
         [Advanced]
         [MinMax(1f, 10f, 100f)]
         public float HEAR_DISPERSION_BULLET_FELT_MOD = 2f;
 
-        [Name("Minimum Hearing Randomization")]
-        [Description("Higher = More Randomization, less accuracy in position prediction. Minimum Dispersion of a bot's estimated position from a sound they heard. In Meters. ")]
-        [Category("Position Randomization")]
+        [Name("最小听觉随机偏差")]
+        [Description("数值越高=随机偏差越大、位置预测越不准。Bot估算声源位置的最小偏差距离(米)。")]
+        [Category("位置随机化")]
         [Advanced]
         [MinMax(0.0f, 2f, 1000f)]
         public float HEAR_DISPERSION_MIN = 0.5f;
 
-        [Name("No Randomization Distance")]
-        [Description("If the distance to a sound is less and or equal to this number, a bot will perfectly predict the source position, so no randomization or dispersion at all. " +
-            "A value of 0 will disable this.")]
-        [Category("Position Randomization")]
+        [Name("无随机化距离")]
+        [Description("声音距离小于等于此值时Bot完美预测声源位置，无随机化或散布。值0=禁用。")]
+        [Category("位置随机化")]
         [Advanced]
         [MinMax(0f, 50f, 1000f)]
         public float HEAR_DISPERSION_MIN_DISTANCE_THRESH = 10f;
 
-        [Name("Max Randomization Distance")]
-        [Description("The max cap, in meters, that an estimated position can be from the real position that a sound is played from. ")]
-        [Category("Position Randomization")]
+        [Name("最大随机化距离")]
+        [Description("估算位置与实际声源位置之间允许的最大偏差距离上限(米)。")]
+        [Category("位置随机化")]
         [Advanced]
         [MinMax(10f, 250f, 1000f)]
         public float HEAR_DISPERSION_MAX_DISPERSION = 50f;
 
-        [Name("Hearing Randomization Angle - Maximum")]
+        [Name("听觉随机化角度-最大值")]
         [Description(_hear_angle_descr)]
-        [Category("Position Randomization")]
+        [Category("位置随机化")]
         [Advanced]
         [MinMax(0.1f, 3f, 1000f)]
         public float HEAR_DISPERSION_ANGLE_MULTI_MAX = 1.5f;
 
-        [Name("Hearing Randomization Angle - Minimum")]
+        [Name("听觉随机化角度-最小值")]
         [Description(_hear_angle_descr)]
-        [Category("Position Randomization")]
+        [Category("位置随机化")]
         [Advanced]
         [MinMax(0.1f, 3f, 1000f)]
         public float HEAR_DISPERSION_ANGLE_MULTI_MIN = 0.5f;
 
-        [Name("Bunker Audio Range")]
-        [Description("Reduces audio range if a bot and an enemy are not in the same bunker")]
-        [Category("Hearing Environment Modifiers")]
+        [Name("地堡音频范围")]
+        [Description("Bot和敌人不在同一地堡内时缩减听觉范围。")]
+        [Category("听觉环境修正")]
         [Advanced]
         [MinMax(0.01f, 1f, 1000f)]
         public float BUNKER_REDUCTION_COEF = 0.2f;
 
-        [Name("Bunker Elevation Range")]
-        [Description("Reduces audio range if a bot and an enemy are both in a bunker, but at different levels")]
-        [Category("Hearing Environment Modifiers")]
+        [Name("地堡楼层范围")]
+        [Description("Bot和敌人同在地堡但不同楼层时缩减听觉范围。")]
+        [Category("听觉环境修正")]
         [Advanced]
         [MinMax(0.01f, 1f, 100f)]
         public float BUNKER_ELEV_DIFF_COEF = 0.66f;
 
-        [Name("Gunshot Occlusion")]
-        [Description("If an obstacle is inbetween a bot's head and the position of a sound, reduce its range by this amount")]
-        [Category("Hearing Environment Modifiers")]
+        [Name("枪声遮挡")]
+        [Description("Bot头部与声源之间有障碍物时听觉范围缩减到此值。")]
+        [Category("听觉环境修正")]
         [Advanced]
         [MinMax(0.01f, 1f, 1000f)]
         public float GUNSHOT_OCCLUSION_MOD = 0.8f;
 
-        [Name("Suppressed Gunshot Occlusion")]
-        [Description("If an obstacle is inbetween a bot's head and the position of a sound, reduce its range by this amount")]
-        [Category("Hearing Environment Modifiers")]
+        [Name("消音枪声遮挡")]
+        [Description("Bot头部与声源之间有障碍物时听觉范围缩减到此值。")]
+        [Category("听觉环境修正")]
         [Advanced]
         [MinMax(0.01f, 1f, 100f)]
         public float GUNSHOT_OCCLUSION_MOD_SUPP = 0.65f;
 
-        [Name("Footstep Occlusion")]
-        [Description("If an obstacle is inbetween a bot's head and the position of a sound, reduce its range by this amount")]
-        [Category("Hearing Environment Modifiers")]
+        [Name("脚步声遮挡")]
+        [Description("Bot头部与声源之间有障碍物时听觉范围缩减到此值。")]
+        [Category("听觉环境修正")]
         [Advanced]
         [MinMax(0.01f, 1f, 1000f)]
         public float FOOTSTEP_OCCLUSION_MOD = 0.6f;
 
-        [Name("Sprint Occlusion")]
-        [Description("If an obstacle is inbetween a bot's head and the position of a sound, reduce its range by this amount")]
-        [Category("Hearing Environment Modifiers")]
+        [Name("冲刺声遮挡")]
+        [Description("Bot头部与声源之间有障碍物时听觉范围缩减到此值。")]
+        [Category("听觉环境修正")]
         [Advanced]
         [MinMax(0.01f, 1f, 100f)]
         public float FOOTSTEP_OCCLUSION_MOD_SPRINT = 0.8f;
 
-        [Name("Other Occlusion")]
-        [Description("If an obstacle is inbetween a bot's head and the position of a sound, reduce its range by this amount")]
-        [Category("Hearing Environment Modifiers")]
+        [Name("其他声音遮挡")]
+        [Description("Bot头部与声源之间有障碍物时听觉范围缩减到此值。")]
+        [Category("听觉环境修正")]
         [Advanced]
         [MinMax(0.01f, 1f, 100f)]
         public float OTHER_OCCLUSION_MOD = 0.6f;
 
-        [Name("Indoor / Outdoor Difference - Gunfire")]
-        [Description("If bots are not in the same area as the source of a sound, reduce audio range by this amount")]
-        [Category("Hearing Environment Modifiers")]
+        [Name("室内外差异-枪声")]
+        [Description("Bot与声源不在同一区域(室内/室外)时听觉范围缩减到此值。")]
+        [Category("听觉环境修正")]
         [Advanced]
         [MinMax(0.01f, 1f, 1000f)]
         public float GUNSHOT_ENVIR_MOD = 0.65f;
 
-        [Name("Indoor / Outdoor Difference - Footsteps/Other")]
-        [Description("If bots are not in the same area as the source of a sound, reduce audio range by this amount")]
-        [Category("Hearing Environment Modifiers")]
+        [Name("室内外差异-脚步/其他")]
+        [Description("Bot与声源不在同一区域(室内/室外)时听觉范围缩减到此值。")]
+        [Category("听觉环境修正")]
         [Advanced]
         [MinMax(0.01f, 1f, 100f)]
         public float FOOTSTEP_ENVIR_MOD = 0.7f;
 
-        [Name("Environment Modifier Minimum")]
+        [Name("环境修正最小值")]
         [Description("")]
-        [Category("Hearing Environment Modifiers")]
+        [Category("听觉环境修正")]
         [DeveloperOption]
         [MinMax(0.01f, 1f, 1000f)]
         public float MIN_ENVIRONMENT_MOD = 0.05f;
 
-        [Name("No Headphones")]
-        [Description("If a bot does not have headphones, reduce audible range of all sounds by this amount.")]
-        [Category("Hearing Modifiers")]
+        [Name("无耳机")]
+        [Description("Bot未佩戴耳机时所有声音听觉范围缩减到此值。")]
+        [Category("听觉修正")]
         [MinMax(0.01f, 1f, 1000f)]
         public float HEAR_MODIFIER_NO_EARS = 0.6f;
 
-        [Name("Heavy Helmet")]
-        [Description("If a bot is wearing a heavy helmet, reduce audible range of all sounds by this amount.")]
-        [Category("Hearing Modifiers")]
+        [Name("重型头盔")]
+        [Description("Bot佩戴重型头盔时所有声音听觉范围缩减到此值。")]
+        [Category("听觉修正")]
         [MinMax(0.01f, 1f, 100f)]
         public float HEAR_MODIFIER_HEAVY_HELMET = 0.8f;
 
-        [Name("Dying")]
-        [Description("If a bot is dying or seriously injured, reduce audible range of all sounds by this amount.")]
-        [Category("Hearing Modifiers")]
+        [Name("濒死状态")]
+        [Description("Bot濒死或重伤时所有声音听觉范围缩减到此值。")]
+        [Category("听觉修正")]
         [MinMax(0.01f, 1f, 1000f)]
         public float HEAR_MODIFIER_DYING = 0.8f;
 
-        [Name("Sprinting")]
-        [Description("If a bot is sprinting, reduce audible range of all sounds by this amount.")]
-        [Category("Hearing Modifiers")]
+        [Name("冲刺中")]
+        [Description("Bot正在冲刺时所有声音听觉范围缩减到此值。")]
+        [Category("听觉修正")]
         [Advanced]
         [MinMax(0.01f, 1f, 1000f)]
         public float HEAR_MODIFIER_SPRINT = 0.85f;
 
-        [Name("Heavy Breathing")]
-        [Description("If a bot is breathing heavily, reduce audible range of all sounds by this amount.")]
-        [Category("Hearing Modifiers")]
+        [Name("剧烈喘息")]
+        [Description("Bot剧烈喘息时所有声音听觉范围缩减到此值。")]
+        [Category("听觉修正")]
         [Advanced]
         [MinMax(0.01f, 1f, 1000f)]
         public float HEAR_MODIFIER_HEAVYBREATH = 0.65f;
 
-        [Name("Minimum Hear Modifier")]
-        [Description("Final Multiplier will not go below this value.")]
-        [Category("Hearing Modifiers")]
+        [Name("最低听觉修正值")]
+        [Description("最终乘数不会低于此值。")]
+        [Category("听觉修正")]
         [DeveloperOption]
         [MinMax(0.01f, 1f, 1000f)]
         public float HEAR_MODIFIER_MIN_CLAMP = 0.01f;
 
-        [Name("Maximum Hear Modifier")]
-        [Description("Final Multiplier will not go above this value.")]
-        [Category("Hearing Modifiers")]
+        [Name("最高听觉修正值")]
+        [Description("最终乘数不会高于此值。")]
+        [Category("听觉修正")]
         [DeveloperOption]
         [MinMax(1f, 5f, 1000f)]
         public float HEAR_MODIFIER_MAX_CLAMP = 5f;
 
-        [Name("Minimum Hearing Modifier Distance")]
-        [Description("Sounds that originate closer than this have a 100% chance of being heard.")]
-        [Category("Hearing Modifiers")]
+        [Name("最低听觉修正距离")]
+        [Description("距离小于此值的声音Bot有100%概率听到。")]
+        [Category("听觉修正")]
         [Advanced]
         [MinMax(0f, 50f, 100f)]
         public float HEAR_MODIFIER_MAX_AFFECT_DIST = 3f;
 
-        [Name("Scale Start Distance - No Headphones")]
-        [Description("Sounds that originate closer than this have a 100% chance of being heard.")]
-        [Category("Hearing Chance")]
+        [Name("缩放起始距离-无耳机")]
+        [Description("距离小于此值的声音Bot有100%概率听到。")]
+        [Category("听觉概率")]
         [Advanced]
         [MinMax(0, 10, 100)]
         public float HEAR_CHANCE_MIN_DIST = 0.25f;
 
-        [Name("Scale Start Distance - Headphones")]
-        [Description("Sounds that originate closer than this have a 100% chance of being heard.")]
-        [Category("Hearing Chance")]
+        [Name("缩放起始距离-有耳机")]
+        [Description("距离小于此值的声音Bot有100%概率听到。")]
+        [Category("听觉概率")]
         [Advanced]
         [MinMax(0, 100, 100)]
         public float HEAR_CHANCE_MIN_DIST_HEADPHONES = 1;
 
-        [Name("Midrange Coefficient")]
-        [Description("If the distance between a sound and the bot is X distance of its max range, increase its chance to hear slightly. So if a sound has a range of 50 meters, and the distance to a bot hears is 25 meters away, that would result in 25 / 50, so 0.5, which is below this mid range value.")]
-        [Category("Hearing Chance")]
+        [Name("中距离系数")]
+        [Description("当声音与Bot之间的距离低于最大范围的该比例时，轻微提升听觉概率。")]
+        [Category("听觉概率")]
         [Advanced]
         [MinMax(0.00f, 1f, 1000f)]
         public float HEAR_CHANCE_MIDRANGE_COEF = 0.66f;
 
-        [Name("Mid range Minimum Chance - Headphones")]
-        [Description("If a sound is within mid-range. Increase the minimum chance by this amount")]
-        [Category("Hearing Chance")]
+        [Name("中距离最低概率-有耳机")]
+        [Description("声音在中距离范围内时最低听觉概率提升此值。")]
+        [Category("听觉概率")]
         [Advanced]
         [MinMax(0, 100, 1)]
         public float HEAR_CHANCE_MIDRANGE_MINCHANCE_HEADPHONES = 3;
 
-        [Name("Long range Minimum Chance - Headphones")]
-        [Description("If a sound is further than mid-range. Increase the minimum chance by this amount")]
-        [Category("Hearing Chance")]
+        [Name("远距离最低概率-有耳机")]
+        [Description("声音超出中距离范围时最低听觉概率提升此值。")]
+        [Category("听觉概率")]
         [Advanced]
         [MinMax(0, 100, 1)]
         public float HEAR_CHANCE_LONGRANGE_MINCHANCE_HEADPHONES = 1;
 
-        [Name("Standing Still Velocity")]
-        [Description("Boost Hearing chance slightly if a bot's velocity is under this value.")]
-        [Category("Hearing Chance")]
+        [Name("静止速度阈值")]
+        [Description("Bot速度低于此值时轻微提升听觉概率。")]
+        [Category("听觉概率")]
         [Advanced]
         [MinMax(0.0f, 1f, 1000f)]
         public float HEAR_CHANCE_NOTMOVING_VELOCITY = 0.05f;
 
-        [Name("Standing Still Min Chance - No Headphones")]
-        [Description("If a bot is standing still, add X percent to a bot minimum hear chance for sounds that aren't gunshots.")]
-        [Category("Hearing Chance")]
+        [Name("静止最低概率-无耳机")]
+        [Description("Bot静止时非枪声类声音的最低听觉概率提升此百分比。")]
+        [Category("听觉概率")]
         [Advanced]
         [MinMax(0, 100, 1)]
         public float HEAR_CHANCE_NOTMOVING_MINCHANCE = 2;
 
-        [Name("Standing Still Min Chance - Headphones")]
-        [Description("If a bot is standing still, add X percent to a bot minimum hear chance for sounds that aren't gunshots.")]
-        [Category("Hearing Chance")]
+        [Name("静止最低概率-有耳机")]
+        [Description("Bot静止时非枪声类声音的最低听觉概率提升此百分比。")]
+        [Category("听觉概率")]
         [MinMax(0, 100, 1)]
         public float HEAR_CHANCE_NOTMOVING_MINCHANCE_HEADPHONES = 4;
 
-        [Name("Other Sounds Min Chance - Headphones")]
-        [Description("If the type of sound is not footsteps or gunfire, add X percent to a bot minimum hear chance.")]
-        [Category("Hearing Chance")]
+        [Name("其他声音最低概率-有耳机")]
+        [Description("声音类型非脚步声或枪声时最低听觉概率提升此百分比。")]
+        [Category("听觉概率")]
         [Advanced]
         [MinMax(0, 100, 1)]
         public float HEAR_CHANCE_HEADPHONES_OTHERSOUNDS = 3;
 
-        [Name("Active Enemy Min Chance - No Headphones")]
-        [Description("If the source of a sound is from a bot's active primary enemy, add X percent to a bot minimum hear chance for sounds that aren't gunshots.")]
-        [Category("Hearing Chance")]
+        [Name("当前敌人最低概率-无耳机")]
+        [Description("声音来源为Bot当前主要敌人时非枪声类声音的最低听觉概率提升此百分比。")]
+        [Category("听觉概率")]
         [Advanced]
         [MinMax(0, 100, 1)]
         public float HEAR_CHANCE_CURRENTENEMY_MINCHANCE = 2;
 
-        [Name("Active Enemy Min Chance - Headphones")]
-        [Description("If the source of a sound is from a bot's active primary enemy, add X percent to a bot minimum hear chance for sounds that aren't gunshots.")]
-        [Category("Hearing Chance")]
+        [Name("当前敌人最低概率-有耳机")]
+        [Description("声音来源为Bot当前主要敌人时非枪声类声音的最低听觉概率提升此百分比。")]
+        [Category("听觉概率")]
         [Advanced]
         [MinMax(0, 100, 1)]
         public float HEAR_CHANCE_CURRENTENEMY_MINCHANCE_HEADPHONES = 3;
 
         [MinMax(1f, 150f, 100f)]
-        [Category("Hearing Distance")]
-        [Name("Looting Sound")]
+        [Category("听觉距离")]
+        [Name("舔包声音")]
         [Advanced]
         public float BaseSoundRange_Looting = 40f;
 
         [MinMax(1f, 150f, 100f)]
-        [Category("Hearing Distance")]
-        [Name("Footstep Skid and Turn")]
+        [Category("听觉距离")]
+        [Name("脚步声(急刹/转身)")]
         [Advanced]
         public float BaseSoundRange_MovementTurnSkid = 30f;
 
         [MinMax(1f, 150f, 100f)]
-        [Category("Hearing Distance")]
-        [Name("Grenade Pullout and Pin Pull")]
+        [Category("听觉距离")]
+        [Name("拔手雷/拉环声")]
         [Advanced]
         public float BaseSoundRange_GrenadePinDraw = 35f;
 
         [MinMax(1f, 150f, 100f)]
-        [Category("Hearing Distance")]
-        [Name("Prone Sound")]
+        [Category("听觉距离")]
+        [Name("趴下声音")]
         [Advanced]
         public float BaseSoundRange_Prone = 50f;
 
         [MinMax(1f, 150f, 100f)]
-        [Category("Hearing Distance")]
-        [Name("Healing Sound")]
+        [Category("听觉距离")]
+        [Name("治疗声音")]
         [Advanced]
         public float BaseSoundRange_Healing = 40f;
 
         [MinMax(1f, 150f, 100f)]
-        [Category("Hearing Distance")]
-        [Name("Reload Sound")]
+        [Category("听觉距离")]
+        [Name("换弹声音")]
         [Advanced]
         public float BaseSoundRange_Reload = 30f;
 
         [MinMax(1f, 150f, 100f)]
-        [Category("Hearing Distance")]
-        [Name("Surgery Sound")]
+        [Category("听觉距离")]
+        [Name("手术声音")]
         [Advanced]
         public float BaseSoundRange_Surgery = 55f;
 
         [MinMax(1f, 150f, 100f)]
-        [Category("Hearing Distance")]
-        [Name("Dryfire Sound")]
+        [Category("听觉距离")]
+        [Name("空仓声音")]
         [Advanced]
         public float BaseSoundRange_DryFire = 10f;
 
         [MinMax(1f, 150f, 100f)]
-        [Category("Hearing Distance")]
-        [Name("Fall Landing Sound")]
+        [Category("听觉距离")]
+        [Name("落地声音")]
         [Advanced]
         public float MaxSoundRange_FallLanding = 70;
 
         [MinMax(1f, 150f, 100f)]
-        [Category("Hearing Distance")]
-        [Name("Aim Down Sights Sound")]
+        [Category("听觉距离")]
+        [Name("开镜声音")]
         [Advanced]
         public float BaseSoundRange_AimingandGearRattle = 35f;
 
         [MinMax(1f, 150f, 100f)]
-        [Category("Hearing Distance")]
-        [Name("Eat and Drink Sound")]
+        [Category("听觉距离")]
+        [Name("吃喝声音")]
         [Advanced]
         public float BaseSoundRange_EatDrink = 40f;
 
         [MinMax(1f, 150f, 100f)]
-        [Category("Hearing Distance")]
-        [Name("Max Squad Communication Range - No Headphones")]
+        [Category("听觉距离")]
+        [Name("最大小队通讯范围-无耳机")]
         public float MaxRangeToReportEnemyActionNoHeadset = 50f;
         
-        [Name("Base Hearing Delay Settings")]
+        [Name("基础听觉延迟设置")]
         [MinMax(0.0f, 1f, 100f)]
-        [Category("Hearing Delay / Reaction Delay")]
+        [Category("听觉延迟/反应延迟")]
         public HearingDelaySettings BaseHearingDelaySettings = new(0.5f, 0.1f, 0.25f, 0.66f);
 
-        [Name("Sound Type based Hearing Delay / Reaction Time")]
-        [Description("Optional: If a soundtype is defined here, it will override the Base Hearing Delays defined above.")]
+        [Name("基于声音类型的听觉延迟/反应时间")]
+        [Description("可选：如果在此定义了声音类型，将覆盖上面的基础听觉延迟。")]
         [MinMax(0.0f, 1f, 100f)]
-        [Category("Hearing Delay / Reaction Delay")]
+        [Category("听觉延迟/反应延迟")]
         [Advanced]
         public Dictionary<SAINSoundType, HearingDelaySettings> HEARINGDELAY_SETTINGS = new() {
             { SAINSoundType.Shot, new HearingDelaySettings(0.25f, 0.1f, 0.2f, 0.6f) },
@@ -471,31 +468,31 @@ namespace SAIN.Preset.GlobalSettings
             return BaseHearingDelaySettings;
         }
 
-        [Name("Global Gunshot Audible Range Multiplier")]
+        [Name("全局枪声可听范围乘数")]
         [MinMax(0.1f, 2f, 100f)]
-        [Category("Hearing Distance")]
+        [Category("听觉距离")]
         public float GunshotAudioMultiplier = 1f;
 
-        [Name("Global Footstep Audible Range Multiplier")]
+        [Name("全局脚步声可听范围乘数")]
         [MinMax(0.1f, 2f, 100f)]
-        [Category("Hearing Distance")]
+        [Category("听觉距离")]
         public float FootstepAudioMultiplier = 1f;
 
-        [Name("Suppressed Sound Modifier")]
-        [Description("Audible Gun Range is multiplied by this number when using a suppressor")]
+        [Name("消音声音修正值")]
+        [Description("使用消音器时枪声可听范围乘以此值。")]
         [MinMax(0.1f, 0.95f, 100f)]
-        [Category("Hearing Distance")]
+        [Category("听觉距离")]
         public float SuppressorModifier = 0.6f;
 
-        [Name("Subsonic Sound Modifier")]
-        [Description("Audible Gun Range is multiplied by this number when using a suppressor and subsonic ammo")]
+        [Name("亚音速声音修正值")]
+        [Description("使用消音器+亚音速弹药时枪声可听范围乘以此值。")]
         [MinMax(0.1f, 0.95f, 100f)]
-        [Category("Hearing Distance")]
+        [Category("听觉距离")]
         public float SubsonicModifier = 0.33f;
 
-        [Name("Hearing Distances by Ammo Type")]
-        [Description("How far a bot can hear a gunshot when fired from each specific caliber listed here.")]
-        [Category("Hearing Distance")]
+        [Name("按弹药类型的听觉距离")]
+        [Description("Bot听到各口径武器射击时的最大距离。")]
+        [Category("听觉距离")]
         [MinMax(30f, 400f, 10f)]
         [Advanced]
         [DefaultDictionary(nameof(HearingDistancesDefaults))]

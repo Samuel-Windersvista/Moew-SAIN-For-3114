@@ -6,39 +6,39 @@ namespace SAIN.Preset.BotSettings.SAINSettings.Categories
 {
     public class SAINAimingSettings : SAINSettingsBase<SAINAimingSettings>, ISAINSettings
     {
-        [Category("Aim Target")]
-        [Name("Always Aim Center Mass")]
-        [Description("Force this bot type to aim for center of mass.")]
+        [Category("瞄准目标")]
+        [Name("始终瞄准躯干中央")]
+        [Description("强制此Bot类型瞄准躯干中央。")]
         public bool AimCenterMass = true;
 
-        [Name("Can Aim for Headshots")]
-        [Category("Aim Target")]
+        [Name("可爆头瞄准")]
+        [Category("瞄准目标")]
         public bool AimForHead = false;
 
-        [Category("Aim Target")]
-        [Name("Can Aim for Headshots - Percentage Chance")]
+        [Category("瞄准目标")]
+        [Name("爆头瞄准-百分比概率")]
         [Percentage]
         public float AimForHeadChance = 33f;
 
-        [Category("Time to Aim")]
-        [Name("Distance Aim Time Multiplier")]
-        [Description("Multiplies the time a bot takes to aim based on distance. So higher values will cause bots to take longer to aim depending on distance.")]
+        [Category("瞄准时间")]
+        [Name("距离瞄准时间乘数")]
+        [Description("根据距离乘Bot瞄准时间。越高=越远瞄准越慢。")]
         [MinMax(0.1f, 5f, 100f)]
         public float DistanceAimTimeMultiplier = 1f;
 
-        [Category("Time to Aim")]
-        [Name("Angle Aim Time Multiplier")]
-        [Description("Multiplies the time a bot takes to aim based on the angle they have to turn to line up a shot. So higher values will cause bots to take longer to aim depending on the angle to turn.")]
+        [Category("瞄准时间")]
+        [Name("角度瞄准时间乘数")]
+        [Description("根据所需转角乘Bot瞄准时间。越高=转向越大瞄准越慢。")]
         [MinMax(0.1f, 5f, 100f)]
         public float AngleAimTimeMultiplier = 1f;
 
-        [Category("Time to Aim")]
-        [Name("Faster CQB Reactions")]
-        [Description("Sets whether this bot reacts and aims faster before being able to shoot at close ranges")]
+        [Category("瞄准时间")]
+        [Name("快速近战反应")]
+        [Description("设置此Bot在近距离是否拥有更快反应和瞄准速度。")]
         public bool FasterCQBReactions = true;
 
-        [Category("Time to Aim")]
-        [Name("Faster CQB Reactions Max Distance")]
+        [Category("瞄准时间")]
+        [Name("快速近战反应最大距离")]
         [Description("Max distance a bot can react faster for Faster CQB Reactions. Scales with distance." +
             "Example: If Max distance is set to 20 meters, and an enemy is 10 meters away. they will react 2x as fast as usual, " +
             "or if an enemy is 15 meters away, they will react 1.5x as fast as usual. " +
@@ -49,9 +49,9 @@ namespace SAIN.Preset.BotSettings.SAINSettings.Categories
         [MinMax(5f, 100f)]
         public float FasterCQBReactionsDistance = 30f;
 
-        [Category("Time to Aim")]
-        [Name("Faster CQB Reactions Minimum Speed")]
-        [Description("Absolute minimum speed (in seconds) that bot can react and shoot")]
+        [Category("瞄准时间")]
+        [Name("快速近战反应最低速度")]
+        [Description("Bot反应并射击的绝对最低速度(秒)。")]
         [MinMax(0.05f, 0.75f, 100f)]
         public float FasterCQBReactionsMinimum = 0.33f;
 
@@ -60,36 +60,36 @@ namespace SAIN.Preset.BotSettings.SAINSettings.Categories
         //[MinMax(0.1f, 10f, 10f)]
         //public float AccuracySpreadMulti = 1f;
 
-        [Category("Time to Aim")]
-        [Name("Max Aiming Upgrade By Time")]
-        [Description("VANILLA EFT CONFIG VALUE : Lower = Better. How much to cap this bots aim improvement based on time. 0.25 means they will be able to multiply their aim offset by 0.25x when aiming. Making their shots more accurate")]
+        [Category("瞄准时间")]
+        [Name("瞄准时间最大提升值")]
+        [Description("原版EFT配置值：越低=越好。Bot随时间提升瞄准精度的上限。0.25=瞄准偏移乘0.25倍。")]
         [MinMax(0.01f, 0.99f, 100f)]
         [Advanced]
         [CopyValue]
         public float MAX_AIMING_UPGRADE_BY_TIME = 0.25f;
 
-        [Category("Scatter Modifiers")]
-        [Name("Distance To Not Scatter Aim")]
-        [Description("VANILLA EFT CONFIG VALUE : If an enemy is closer than this distance, ignore scatter.")]
+        [Category("散布修正")]
+        [Name("无视散布的距离")]
+        [Description("原版EFT配置值：敌人距离小于此值则忽略散布。")]
         [MinMax(0.1f, 30f, 100f)]
         [Advanced]
         public float DIST_TO_SHOOT_NO_OFFSET = 3f;
 
-        [Category("Scatter Modifiers")]
-        [Name("VANILLA EFT CONFIG VALUE : Scatter Multiplier - Moving")]
+        [Category("散布修正")]
+        [Name("散布乘数-移动中(原版EFT)")]
         [MinMax(0.1f, 6f, 100f)]
         [Advanced]
         public float COEF_IF_MOVE = 1.5f;
 
-        [Category("Time to Aim")]
-        [Name("VANILLA EFT CONFIG VALUE : Aim Time Multiplier - Moving")]
+        [Category("瞄准时间")]
+        [Name("瞄准时间乘数-移动中(原版EFT)")]
         [Hidden]
         [JsonIgnore]
         public float TIME_COEF_IF_MOVE = 1.5f;
 
-        [Category("Time to Aim")]
-        [Name("Max Aim Time")]
-        [Description("VANILLA EFT CONFIG VALUE :  A cap on how long it will take this bot to finish aiming at a target, and begin shooting.")]
+        [Category("瞄准时间")]
+        [Name("最大瞄准时间")]
+        [Description("原版EFT配置值：Bot完成瞄准并开始射击的最大时间上限。")]
         [MinMax(0.01f, 4f, 1000f)]
         [Advanced]
         [CopyValue]
@@ -108,7 +108,7 @@ namespace SAIN.Preset.BotSettings.SAINSettings.Categories
         [Hidden]
         public float DAMAGE_TO_DISCARD_AIM_0_100 = 100;
 
-        [Category("Time to Aim")]
+        [Category("瞄准时间")]
         [NameAndDescription(
             "VANILLA EFT CONFIG VALUE : Hit Reaction Recovery Time",
             "How much time it takes to recover a bot's aim when they get hit by a bullet")]
@@ -116,14 +116,14 @@ namespace SAIN.Preset.BotSettings.SAINSettings.Categories
         [Advanced]
         public float BASE_HIT_AFFECTION_DELAY_SEC = 0.65f;
 
-        [Category("Time to Aim")]
-        [Name("VANILLA EFT CONFIG VALUE : Hit Aim Time Penalty Seconds - Min")]
+        [Category("瞄准时间")]
+        [Name("中弹瞄准时间惩罚-最小值(原版EFT)")]
         [MinMax(0f, 1f, 100f)]
         [Advanced]
         public float MIN_TIME_DISCARD_AIM_SEC = 0.5f;
 
-        [Category("Time to Aim")]
-        [Name("VANILLA EFT CONFIG VALUE : Hit Aim Time Penalty Seconds - Max")]
+        [Category("瞄准时间")]
+        [Name("中弹瞄准时间惩罚-最大值(原版EFT)")]
         [MinMax(0f, 2f, 100f)]
         [Advanced]
         public float MAX_TIME_DISCARD_AIM_SEC = 1.5f;
@@ -132,8 +132,8 @@ namespace SAIN.Preset.BotSettings.SAINSettings.Categories
         [JsonIgnore]
         public float ANY_PART_SHOOT_TIME = 2f;
 
-        [Category("Time to Aim")]
-        [Name("VANILLA EFT CONFIG VALUE : Enemy First Contact Reaction Delay")]
+        [Category("瞄准时间")]
+        [Name("首次接敌反应延迟(原版EFT)")]
         [MinMax(0f, 1f, 100f)]
         [Advanced]
         public float FIRST_CONTACT_ADD_SEC = 0.2f;

@@ -93,7 +93,7 @@ namespace SAIN.Components.BotController
                 if (SAINEnableClass.IsSAINDisabledForBot(botOwner))
                 {
                     //Logger.LogDebug($"{botOwner.name} is excluded");
-                    botOwner.gameObject.AddComponent<SAINNoBushESP>().Init(botOwner);
+                    // SAINNoBushESP is now managed by BotComponent as IBotClass, skip
                     return;
                 }
 
@@ -212,13 +212,7 @@ namespace SAIN.Components.BotController
 #endif
                 botComponent.Dispose();
             }
-            if (gameObject.TryGetComponent(out SAINNoBushESP noBushComponent))
-            {
-#if DEBUG
-                Logger.LogDebug($"{ProfileId} already had No Bush ESP attached. Destroying...");
-#endif
-                GameObject.Destroy(noBushComponent);
-            }
+            // SAINNoBushESP is no longer a Unity Component, skip
         }
 
         public void RemoveBot(BotOwner botOwner)
@@ -245,10 +239,7 @@ namespace SAIN.Components.BotController
 
                         component.Dispose();
                     }
-                    if (botOwner.TryGetComponent(out SAINNoBushESP noBush))
-                    {
-                        UnityEngine.Object.Destroy(noBush);
-                    }
+                    // SAINNoBushESP is no longer a Unity Component, skip
                 }
                 else
                 {

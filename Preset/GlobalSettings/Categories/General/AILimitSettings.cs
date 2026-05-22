@@ -5,17 +5,17 @@ namespace SAIN.Preset.GlobalSettings
 {
     public class AILimitSettings : SAINSettingsBase<AILimitSettings>, ISAINSettings
     {
-        [Name("Limit SAIN Function in AI vs AI - Global Toggle")]
-        [Description("Disables certains functions when ai are fighting other ai, and they aren't close to a human player. Turn off if you are spectating ai in free-cam.")]
+        [Name("AI对AI时限制SAIN功能-全局开关")]
+        [Description("AI互斗且附近无玩家时禁用部分功能。用自由镜头观战可关闭。")]
         public bool LimitAIvsAIGlobal = true;
 
-        [Description("How often (in seconds) to check distances to all human players.")]
+        [Name("AI限制更新频率")]
+        [Description("检查所有玩家距离的间隔(秒)。")]
         [MinMax(1f, 5f, 10f)]
         public float AILimitUpdateFrequency = 3f;
 
-        [Description("Defines the ranges that different tiers of AI limit are set. " +
-            "If a bot is further than this number (in meters) from the closest Human Player, " +
-            "they will be assigned this AI Limit setting.")]
+        [Name("AI限制距离范围")]
+        [Description("根据Bot与最近真人玩家的距离(米)分配不同等级的AI限制。")]
         [MinMax(150f, 600f, 1f)]
         public Dictionary<AILimitSetting, float> AILimitRanges = new()
         {
@@ -24,10 +24,12 @@ namespace SAIN.Preset.GlobalSettings
             { AILimitSetting.Narnia, 400f },
         };
 
-        [Name("Limit AI vs AI Vision")]
-        [Description("Reduces visible range for bots vs other bots if they are bot far from a human player.")]
+        [Name("限制AI对AI视觉")]
+        [Description("Bot互斗且远离玩家时缩减视觉范围。")]
         public bool LimitAIvsAIVision = true;
 
+        [Name("最大视觉距离范围")]
+        [Description("根据AI限制等级定义Bot的最大视觉距离(米)。")]
         [MinMax(10f, 200f, 1f)]
         public Dictionary<AILimitSetting, float> MaxVisionRanges = new()
         {
@@ -36,10 +38,12 @@ namespace SAIN.Preset.GlobalSettings
             { AILimitSetting.Narnia, 50f },
         };
 
-        [Name("Limit AI vs AI Hearing")]
-        [Description("Reduces hearing distance for bots vs other bots if they are bot far from a human player.")]
+        [Name("限制AI对AI听觉")]
+        [Description("Bot互斗且远离玩家时缩减听觉范围。")]
         public bool LimitAIvsAIHearing = true;
 
+        [Name("最大听觉距离范围")]
+        [Description("根据AI限制等级定义Bot的最大听觉距离(米)。")]
         [MinMax(10f, 200f, 1f)]
         public Dictionary<AILimitSetting, float> MaxHearingRanges = new()
         {

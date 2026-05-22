@@ -5,107 +5,106 @@ namespace SAIN.Preset.Personalities
 {
     public class PersonalityGeneralSettings : SAINSettingsBase<PersonalityGeneralSettings>, ISAINSettings
     {
-        [Name("Aggression Multiplier")]
-        [Description("Linearly increases or decreases search time and hold ground time.")]
+        [Name("攻击性乘数")]
+        [Description("线性增减搜索时间和原地坚守时间。")]
         [MinMax(0.01f, 5f, 100)]
         public float AggressionMultiplier = 1f;
 
-        [Name("Kick Open All Possible Doors")]
-        [Description("If this personality has an enemy, always kick open doors if they can.")]
+        [Name("踹开所有可能的门")]
+        [Description("此个性Bot有敌人时只要可能就踹开门。")]
         public bool KickOpenAllDoors = false;
         
-        [Name("Dogfight - Path Distance - Start")]
+        [Name("近距交火-路径距离-开始")]
         [MinMax(0.0f, 50f, 100)]
         public float DOGFIGHT_PATH_DIST_START = 10;
 
-        [Name("Dogfight - Time Since Seen - End")]
+        [Name("近距交火-上次看到时间-结束")]
         [MinMax(0.0f, 50f, 100)]
         public float DOGFIGHT_TIMESINCESEEN_START = 1;
         
-        [Name("Dogfight - Path Distance - End")]
+        [Name("近距交火-路径距离-结束")]
         [MinMax(0.0f, 50f, 100)]
         public float DOGFIGHT_PATH_DIST_END = 15;
 
-        [Name("Dogfight - Time Since Seen - End")]
+        [Name("近距交火-上次看到时间-结束")]
         [MinMax(0.0f, 60f, 100)]
         public float DOGFIGHT_TIMESINCESEEN_END = 8;
 
-        [Name("Hold Ground Base Time")]
-        [Description("The base time, before modifiers, that a personality will stand their ground and shoot or return fire on an enemy if caught out of cover.")]
+        [Name("原地坚守基础时间")]
+        [Description("修正前的基础时间。Bot在掩体外被发现时坚守射击或还击的基础时间。")]
         [Advanced]
         [MinMax(0, 3f, 10)]
         public float HoldGroundBaseTime = 1f;
 
+        [Name("原地坚守最小随机时间")]
         [Advanced]
         [MinMax(0f, 5f, 100)]
         public float HoldGroundMinRandom = 0.66f;
 
+        [Name("原地坚守最大随机时间")]
         [Advanced]
         [MinMax(0f, 5f, 100)]
         public float HoldGroundMaxRandom = 1.5f;
 
-        [Name("Suppression Resistance")]
-        [Description("Higher = Less affected by suppression. A Value of 0 means No Resistance. " +
-            "A Value of 1 means Full Resistance. " +
-            "The final resistance number is the mid-point between their personality and bot type resistance. " +
-            "So a value of 0.25 for personality and a value of 0.75 for bot type would result in 0.5")]
+        [Name("压制抗性")]
+        [Description("值越高受压制影响越小。0=无抗性，1=完全免疫。最终抗性为个性和Bot类型抗性的中点。例如个性0.25+Bot类型0.75=0.5。")]
         [MinMax(0.0f, 1f, 100)]
         public float SuppressionResistance = 0f;
 
 
-        [Name("Enemy Suppression Toggle")]
-        [Category("Enemy Suppression")]
+        [Name("敌人压制开关")]
+        [Category("敌人压制")]
         public bool TARGET_SUPPRESS_TOGGLE = true;
         
-        [Name("Suppression Distance - Close")]
-        [Category("Enemy Suppression")]
-        [Description("If a enemy's visible path point is closer than this to where a bot thinks they are, they can suppress without checking the angle")]
+        [Name("压制距离-近")]
+        [Category("敌人压制")]
+        [Description("敌人可见路径点距Bot认为的位置小于此值时无需检查角度直接压制。")]
         [MinMax(0f, 10f, 100f)]
         public float TARGET_SUPPRESS_DIST = 3f;
 
-        [Name("Suppression Distance - Far")]
-        [Category("Enemy Suppression")]
-        [Description("If a enemy's visible path point is closer than this to where a bot thinks they are, they can suppress after checking the angle.")]
+        [Name("压制距离-远")]
+        [Category("敌人压制")]
+        [Description("敌人可见路径点距Bot认为的位置小于此值时检查角度后可压制。")]
         [MinMax(0f, 30f, 100f)]
         public float TARGET_SUPPRESS_DIST_MAX = 12f;
 
-        [Name("Suppression Distance - Far Angle")]
-        [Category("Enemy Suppression")]
-        [Description("If the horizontal angle from an enemy visible path point to where their last known position is less than this, they can suppress.")]
+        [Name("压制距离-远距离角度")]
+        [Category("敌人压制")]
+        [Description("敌人可见路径点到最后已知位置水平角度小于此值时可压制。")]
         [MinMax(0f, 180f, 1f)]
         public float MAX_TARGET_SUPPRESS_ANGLE = 45f;
         
-        [Category("Enemy Suppression")]
+        [Category("敌人压制")]
         [MinMax(0f, 180f, 10f)]
         public float TimeSinceSeenToSuppress = 3f;
 
-        [Category("Enemy Suppression")]
+        [Category("敌人压制")]
         [MinMax(0f, 180f, 10f)]
         public float TimeSinceShotAtToSuppress = 12f;
 
-        [Category("Enemy Suppression")]
+        [Category("敌人压制")]
         [MinMax(0f, 180f, 10f)]
         public float TimeSinceShotToSuppress = 12f;
 
-        [Category("Enemy Sniper Reaction")]
-        [Description("If a bot thinks it is under fire from a sniper, they will always want to sprint to cover.")]
-        [Name("Always Sprint")]
+        [Category("敌人狙击手反应")]
+        [Description("Bot认为被狙击手射击时将始终冲刺寻找掩体。")]
+        [Name("始终冲刺")]
         public bool ENEMYSNIPER_ALWAYS_SPRINT_COVER = true;
 
-        [Category("Enemy Sniper Reaction")]
-        [Description("If a bot thinks it is under fire from a sniper, they will always sprint while seeking that sniper.")]
-        [Name("Always Sprint")]
+        [Category("敌人狙击手反应")]
+        [Description("Bot认为被狙击手射击时搜寻狙击手将始终冲刺。")]
+        [Name("始终冲刺")]
         public bool ENEMYSNIPER_ALWAYS_SPRINT_SEARCH = true;
 
-        [Category("Enemy Sniper Reaction")]
-        [Name("Distance Under Fire")]
-        [Description("If an enemy is further than this distance, in meters. They will be considered a sniper if shooting at a bot.")]
+        [Category("敌人狙击手反应")]
+        [Name("被射击判定距离")]
+        [Description("敌人在此距离外(米)向Bot射击时被视为狙击手。")]
         [MinMax(30f, 250f, 1f)]
         public float ENEMYSNIPER_DISTANCE = 85f;
 
-        [Category("Enemy Sniper Reaction")]
-        [Name("Distance Enemy is no longer Sniper")]
-        [Description("If an enemy is closer than this distance, in meters. They will no longer be considered a sniper if they previously were.")]
+        [Category("敌人狙击手反应")]
+        [Name("不再视为狙击手的距离")]
+        [Description("敌人在此距离内(米)时将不再被视为狙击手。")]
         [MinMax(30f, 250f, 1f)]
         public float ENEMYSNIPER_DISTANCE_END = 75f;
     }

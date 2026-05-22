@@ -38,32 +38,43 @@ namespace SAIN.Preset.GlobalSettings
             Update();
         }
 
+        [Name("难度设置")]
         public DifficultySettings Difficulty = new();
 
+        [Name("通用设置")]
         public GeneralSettings General = new();
 
+        [Name("瞄准设置")]
         public AimSettings Aiming = new();
 
+        [Name("听觉设置")]
         public HearingSettings Hearing = new();
 
+        [Name("地图特定设置")]
         public LocationSettingsClass Location = new();
 
+        [Name("视觉设置")]
         public LookSettings Look = new();
 
+        [Name("思维设置")]
         public MindSettings Mind = new();
 
+        [Name("移动设置")]
         public MoveSettings Move = new();
 
+        [Name("导航设置")]
         public SteeringSettings Steering = new();
 
+        [Name("射击设置")]
         public ShootSettings Shoot = new();
 
+        [Name("说话设置")]
         public TalkSettings Talk = new();
 
-        [Name("Squad Talk")]
+        [Name("小队说话")]
         public SquadTalkSettings SquadTalk = new();
 
-        [Name("Power Level Calculation")]
+        [Name("战斗力计算")]
         public PowerCalcSettings PowerCalc = new();
 
         public override void InitList()

@@ -14,36 +14,36 @@ namespace SAIN.Editor
                 {
                     EEditorTab.Home, new TabClass
                     {
-                        Name = "Home",
-                        ToolTip = "Select preset and modify global SAIN settings.",
+                        Name = "首页",
+                        ToolTip = "选择预设并修改SAIN全局设置。",
                     }
                 },
                 {
                     EEditorTab.BotSettings, new TabClass
                     {
-                        Name = "Bot Settings",
-                        ToolTip = "Modify Settings that are unique to particular bot types for individual difficulties. Difficulty is determined on spawn by EFT, and is changed by selecting the Difficulty value when starting a raid. As Online is a mix of all difficulties.",
+                        Name = "Bot设置",
+                        ToolTip = "根据不同难度修改特定Bot类型的独立设置。难度由EFT在生成时决定，开局选择难度等级可影响。线上模式为所有难度混合。",
                     }
                 },
                 {
                     EEditorTab.Personalities, new TabClass
                     {
-                        Name = "Personalities",
-                        ToolTip = "Modify Individual Personality settings for how they are assigned to bots, and what each personality does for a bot's behavior.",
+                        Name = "个性设置",
+                        ToolTip = "修改各个个性的分配规则及其对Bot行为的影响。",
                     }
                 },
                 {
                     EEditorTab.EquipmentStealth, new TabClass
                     {
-                        Name = "Equipment Stealth",
-                        ToolTip = "Modify the stealth value that certain pieces of equipment provide.",
+                        Name = "装备隐蔽值",
+                        ToolTip = "修改特定装备提供的隐蔽度数值。",
                     }
                 },
                 {
                     EEditorTab.Advanced, new TabClass
                     {
-                        Name = "Advanced Options",
-                        ToolTip = "Edit at your own risk. Enable additional advanced config options here",
+                        Name = "高级选项",
+                        ToolTip = "自行承担修改风险。在此启用额外的高级配置选项。",
                     }
                 },
             };

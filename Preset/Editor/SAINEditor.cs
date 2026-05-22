@@ -27,7 +27,7 @@ namespace SAIN.Editor
 
         public static bool AdvancedBotConfigs => PresetHandler.EditorDefaults.AdvancedBotConfigs;
 
-        [ConsoleCommand("Toggle SAIN GUI Editor")]
+        [ConsoleCommand("切换SAIN GUI编辑器")]
         private static void ToggleGUI()
         {
             DisplayingWindow = !DisplayingWindow;
@@ -94,7 +94,7 @@ namespace SAIN.Editor
                 MouseFunctions.OnGUI();
                 CursorSettings.SetUnlockCursor(0, true);
                 GUIUtility.ScaleAroundPivot(ScaledPivot, Vector2.zero);
-                MainWindow = GUI.Window(0, MainWindow, MainWindowFunc, "SAIN AI Settings Editor", GetStyle(Style.window));
+                MainWindow = GUI.Window(0, MainWindow, MainWindowFunc, "SAIN AI 设置编辑器", GetStyle(Style.window));
                 UnityInput.Current.ResetInputAxes();
                 ConfigEditingTracker.Update();
             }
@@ -124,13 +124,13 @@ namespace SAIN.Editor
         private static void CreateDragBar()
         {
             GUI.DrawTexture(DragRect, DragBackgroundTexture, ScaleMode.StretchToFill, true, 0);
-            GUI.Box(DragRect, $"SAIN {AssemblyInfoClass.SAINVersion} GUI Editor | Preset: {SAINPlugin.LoadedPreset.Info.Name}", GetStyle(Style.dragBar));
+            GUI.Box(DragRect, $"SAIN {AssemblyInfoClass.SAINVersion} GUI编辑器 | 预设: {SAINPlugin.LoadedPreset.Info.Name}", GetStyle(Style.dragBar));
             GUI.DragWindow(DragRect);
         }
 
         public static string ExceptionString = string.Empty;
 
-        private static readonly GUIContent SaveContent = new("Save All Changes", $"Export All Changes to SAIN/Presets/{SAINPlugin.LoadedPreset.Info.Name}");
+        private static readonly GUIContent SaveContent = new("保存所有修改", $"导出所有更改到 SAIN/Presets/{SAINPlugin.LoadedPreset.Info.Name}");
 
         private static void CreateTopBarOptions()
         {
@@ -141,8 +141,8 @@ namespace SAIN.Editor
             style.alignment = TextAnchor.MiddleCenter;
 
             bool advancedEnabled = PresetHandler.EditorDefaults.AdvancedBotConfigs;
-            string status = advancedEnabled ? "ON" : "OFF";
-            bool newValue = GUI.Toggle(AdvRect, advancedEnabled, $"Advanced Settings: [{status}]", GetStyle(Style.botTypeGrid));
+            string status = advancedEnabled ? "开" : "关";
+            bool newValue = GUI.Toggle(AdvRect, advancedEnabled, $"高级设置: [{status}]", GetStyle(Style.botTypeGrid));
             if (advancedEnabled != newValue)
             {
                 PlaySound(EUISoundType.MenuEscape);

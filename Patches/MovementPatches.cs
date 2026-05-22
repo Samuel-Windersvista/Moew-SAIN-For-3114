@@ -98,16 +98,22 @@ namespace SAIN.Patches.Movement
     /// </summary>
     public class MovementContextIsAIPatch : ModulePatch
     {
+        private static readonly FieldInfo playerField = AccessTools.Field(typeof(MovementContext), "_player");
+
         protected override MethodBase GetTargetMethod()
         {
             return AccessTools.PropertyGetter(typeof(MovementContext), nameof(MovementContext.IsAI));
         }
 
         [PatchPrefix]
-        public static bool Patch(ref bool __result)
+        public static bool Patch(MovementContext __instance, ref bool __result)
         {
-            __result = false;
-            return false;
+            if (__instance != null && playerField.GetValue(__instance) is Player player && SAINEnableClass.IsSAINDisabledForBot(player) == false)
+            {
+                __result = false;
+                return false;
+            }
+            return true;
         }
     }
 
@@ -122,10 +128,14 @@ namespace SAIN.Patches.Movement
         }
 
         [PatchPrefix]
-        public static bool Patch(ref bool __result)
+        public static bool Patch(Player __instance, ref bool __result)
         {
-            __result = false;
-            return false;
+            if (__instance != null && SAINEnableClass.IsSAINDisabledForBot(__instance) == false)
+            {
+                __result = false;
+                return false;
+            }
+            return true;
         }
     }
 

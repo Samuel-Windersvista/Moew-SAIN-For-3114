@@ -7,52 +7,54 @@ namespace SAIN.Preset.BotSettings.SAINSettings.Categories
 {
     public class SAINCoreSettings : SAINSettingsBase<SAINCoreSettings>, ISAINSettings
     {
-        [Category("Vision")]
-        [Name("Field of View")]
+        [Category("视觉")]
+        [Name("视野角度")]
         [MinMax(45f, 180f)]
         public float VisibleAngle = 160f;
 
-        [Category("Vision")]
-        [Name("Base Vision Distance")]
+        [Category("视觉")]
+        [Name("基础视觉距离")]
         [MinMax(50f, 500f)]
         public float VisibleDistance = 150f;
 
-        [Category("Vision")]
-        [Name("Gain Sight Coeficient")]
-        [Description("Default EFT Config. Affects how quickly this bot will notice their enemies. Small changes to this have dramatic affects on bot vision speed.")]
+        [Category("视觉")]
+        [Name("获得视野系数")]
+        [Description("默认EFT配置。影响Bot发现敌人速度。微小的改动有巨大影响。")]
         [MinMax(0.001f, 10f, 10000f)]
         [Advanced]
         public float GainSightCoef = 0.2f;
 
-        [Category("Aim and Shoot")]
-        [Name("Accuracy Speed")]
-        [Description("Default EFT Config. Affects how quickly this bot will aim at targets.")]
+        [Category("瞄准与射击")]
+        [Name("精度速度")]
+        [Description("默认EFT配置。影响Bot瞄准目标的速度。")]
         [MinMax(0.01f, 10f, 100f)]
         [Advanced]
         [CopyValue]
         public float AccuratySpeed = 0.3f;
 
-        [Category("Aim and Shoot")]
-        [Description("Default EFT Config. I do not know what this does exactly.")]
+        [Category("瞄准与射击")]
+        [Name("每米散布率")]
+        [Description("默认EFT配置。我也不确定具体作用。")]
         [MinMax(0.001f, 1f, 1000f)]
         [Advanced]
         [CopyValue]
         public float ScatteringPerMeter = 0.08f;
 
-        [Category("Aim and Shoot")]
-        [Description("Default EFT Config. I do not know what this does exactly.")]
+        [Category("瞄准与射击")]
+        [Name("近距每米散布率")]
+        [Description("默认EFT配置。我也不确定具体作用。")]
         [MinMax(0.001f, 1f, 1000f)]
         [Advanced]
         [CopyValue]
         public float ScatteringClosePerMeter = 0.12f;
 
-        [Category("Hearing")]
-        [Name("Hearing Distance Multiplier")]
-        [Description("Modifies the distance that this bot can hear sounds")]
+        [Category("听觉")]
+        [Name("听觉距离乘数")]
+        [Description("修改Bot听到声音的距离。")]
         [MinMax(0.1f, 3f, 1000f)]
         public float HearingDistanceMulti = 1f;
 
-        [Name("Can Use Grenades")]
+        [Name("可使用手雷")]
         public bool CanGrenade = true;
 
         [Hidden]

@@ -175,7 +175,7 @@ namespace SAIN.Attributes
             foreach (KeyValuePair<ESuppressionState, SuppressionConfig> kvp in suppDict)
             {
                 BeginHorizontal(150f);
-                string suppStateString = $"Suppression State: {kvp.Key}";
+                string suppStateString = $"压制状态: {kvp.Key}";
                 if (ExpandableList(suppStateString, null, PresetHandler.EditorDefaults.ConfigEntryHeight, 1, _defaultEntryConfig))
                 {
                 }
@@ -338,7 +338,7 @@ namespace SAIN.Attributes
             foreach (KeyValuePair<WildSpawnType, EPersonality> kvp in _tempBossPersDict)
             {
                 BeginHorizontal(150f);
-                string bossPerString = $"Boss Personality: {kvp.Key}";
+                string bossPerString = $"Boss个性: {kvp.Key}";
                 if (ExpandableList(bossPerString, null, 25f, 1, entryConfig))
                 {
                     EPersonality newSelection = SelectPersonality(kvp.Value, entryConfig);
@@ -435,7 +435,7 @@ namespace SAIN.Attributes
                 var oldAlignment = _labelStyle.alignment;
                 _labelStyle.alignment = TextAnchor.MiddleCenter;
                 Space(horizDepth);
-                Box(info.AdvancedOption ? "Advanced" : "Developer",
+                Box(info.AdvancedOption ? "高级" : "开发者",
                     _labelStyle,
                     Width(70f),
                     Height(PresetHandler.EditorDefaults.ConfigEntryHeight));
@@ -496,7 +496,7 @@ namespace SAIN.Attributes
             {
                 if (!useSimpleLayout)
                 {
-                    value = Toggle((bool)value, (bool)value ? "On" : "Off", EUISoundType.MenuCheckBox, entryConfig.Toggle);
+                    value = Toggle((bool)value, (bool)value ? "开" : "关", EUISoundType.MenuCheckBox, entryConfig.Toggle);
                 }
                 result = value.ToString();
             }
@@ -526,7 +526,7 @@ namespace SAIN.Attributes
 
             if (useSimpleLayout && info.ValueType == typeof(bool))
             {
-                value = Toggle((bool)value, (bool)value ? "On" : "Off", EUISoundType.MenuCheckBox, layoutParams);
+                value = Toggle((bool)value, (bool)value ? "开" : "关", EUISoundType.MenuCheckBox, layoutParams);
             }
             else
             {
@@ -557,7 +557,7 @@ namespace SAIN.Attributes
             var defaultValue = info.GetDefault(settingsObject);
             if (defaultValue != null)
             {
-                if (Button("Reset", "Reset To Default Value", EUISoundType.ButtonClick, layoutParams))
+                if (Button("重置", "重置为默认值", EUISoundType.ButtonClick, layoutParams))
                 {
                     value = defaultValue;
                     ConfigEditingTracker.Remove(info);
@@ -690,7 +690,7 @@ namespace SAIN.Attributes
                 var item = list[i];
                 var name = item.ToString();
                 Box(new GUIContent(name), _labelStyle, Height(PresetHandler.EditorDefaults.ConfigEntryHeight));
-                if (Toggle(dictionary[item], dictionary[item] ? "On" : "Off", EUISoundType.MenuCheckBox, _defaultEntryConfig.Toggle))
+                if (Toggle(dictionary[item], dictionary[item] ? "开" : "关", EUISoundType.MenuCheckBox, _defaultEntryConfig.Toggle))
                 {
                     // Option was selected, set all other values to false, other than the 1 selected
                     for (int j = 0; j < list.Count; j++)
@@ -840,7 +840,7 @@ namespace SAIN.Attributes
             BeginHorizontal(200f);
 
             string name = nameof(values.DistanceModifier);
-            string description = "How much to randomize the distance that a bot thinks a sound originated from.";
+            string description = "随机化Bot认为声源位置的距离程度。";
             float fvalue = values.DistanceModifier;
             float min = 0f;
             float max = 20f;
@@ -919,7 +919,7 @@ namespace SAIN.Attributes
 
         private static bool ResetButton()
         {
-            return Button("Reset", EUISoundType.ButtonClick, _defaultEntryConfig.Reset);
+            return Button("重置", EUISoundType.ButtonClick, _defaultEntryConfig.Reset);
         }
 
         private static float Slider(string name, string description, float value, float min, float max, float rounding)
@@ -1125,7 +1125,7 @@ namespace SAIN.Attributes
                 return;
             }
             BeginHorizontal(0f);
-            DisplayString($"    Category: {category}    ", configParams.ListDepth, configParams.EntryConfig, 15f);
+            DisplayString($"    分类: {category}    ", configParams.ListDepth, configParams.EntryConfig, 15f);
             FlexibleSpace();
             EndHorizontal();
         }

@@ -8,13 +8,13 @@ namespace SAIN.Plugin
 {
     internal static class SAINDifficultyClass
     {
-        private const string PresetNameEasy = "Baby Bots";
-        private const string PresetNameNormal = "Less Difficult";
-        private const string PresetNameHard = "Default";
-        private const string PresetNameHarderPMCs = "Default with Harder PMCs";
-        private const string DefaultPresetDescription = "Bots are difficult but fair, the way SAIN was meant to played.";
-        private const string PresetNameVeryHard = "I Like Pain";
-        private const string PresetNameImpossible = "Death Wish";
+        private const string PresetNameEasy = "宝宝Bot";
+        private const string PresetNameNormal = "较低难度";
+        private const string PresetNameHard = "默认";
+        private const string PresetNameHarderPMCs = "默认(PMC加强)";
+        private const string DefaultPresetDescription = "Bot很强但公平合理，这是SAIN的设计意图。";
+        private const string PresetNameVeryHard = "我喜欢痛苦";
+        private const string PresetNameImpossible = "死亡之愿";
 
         public static readonly Dictionary<SAINDifficulty, SAINPresetDefinition> DefaultPresetDefinitions = new();
 
@@ -25,14 +25,14 @@ namespace SAIN.Plugin
                 SAINPresetDefinition.CreateDefaultDefinition(
                     PresetNameEasy,
                     SAINDifficulty.easy,
-                    "Bots react slowly and are incredibly inaccurate."));
+                    "Bot反应缓慢且枪法极差。"));
 
             DefaultPresetDefinitions.Add(
                 SAINDifficulty.lesshard,
                 SAINPresetDefinition.CreateDefaultDefinition(
                     PresetNameNormal,
                     SAINDifficulty.lesshard,
-                    "Bots react more slowly, and are less accurate than usual."));
+                    "Bot反应较慢，枪法比平常差。"));
 
             DefaultPresetDefinitions.Add(
                 SAINDifficulty.hard,
@@ -46,21 +46,21 @@ namespace SAIN.Plugin
                 SAINPresetDefinition.CreateDefaultDefinition(
                     PresetNameHarderPMCs,
                     SAINDifficulty.harderpmcs,
-                    "Default Settings, but PMCs are harder than normal."));
+                    "默认设置，但PMC比正常更强。"));
 
             DefaultPresetDefinitions.Add(
                 SAINDifficulty.veryhard,
                 SAINPresetDefinition.CreateDefaultDefinition(
                     PresetNameVeryHard,
                     SAINDifficulty.veryhard,
-                    "Bots react faster, are more accurate, and can see further."));
+                    "Bot反应更快、枪法更准、视野更远。"));
 
             DefaultPresetDefinitions.Add(
                 SAINDifficulty.deathwish,
                 SAINPresetDefinition.CreateDefaultDefinition(
                     PresetNameImpossible,
                     SAINDifficulty.deathwish,
-                    "Prepare To Die. Bots have almost no scatter, get less recoil from their weapon while shooting, are more accurate, and react deadly fast."));
+                    "准备受死。Bot几乎没有散布，后坐力更小，枪法更准，反应致命迅速。"));
         }
 
         public static SAINPresetClass GetDefaultPreset(SAINDifficulty difficulty)

@@ -4,44 +4,40 @@ namespace SAIN.Preset.GlobalSettings
 {
     public class NotLookingSettings : SAINSettingsBase<NotLookingSettings>, ISAINSettings
     {
-        [Name("Bot Reaction and Accuracy Changes Toggle - Experimental")]
+        [Name("Bot反应与精度变化开关-实验性")]
         [Section("Unseen Bot")]
         [Experimental]
-        [Description("Experimental: Bots will have slightly reduced accuracy and vision speed if you are not looking in their direction. " +
-            "So if a bot notices and starts shooting you while your back is turned, they will be less accurate and notice you more slowly.")]
+        [Description("实验性：未看向Bot方向时Bot精度和视觉速度略微降低。背对Bot被发现并遭射击时会更不准且发现更慢。")]
         public bool NotLookingToggle = true;
 
-        [Name("Bot Reaction and Accuracy Changes Time Limit")]
+        [Name("Bot反应与精度变化时间限制")]
         [Section("Unseen Bot")]
         [Experimental]
-        [Description("The Maximum Time that a bot can be shooting at you before the reduced spread not longer has an affect. " +
-            "So if a bot is shooting at you from the back for X seconds, after that time it will no longer reduce their accuracy to give you a better chance to react.")]
+        [Description("Bot从背后射击你时散布降低效果最大持续时间。X秒后效果消失给你反击机会。")]
         [MinMax(0.5f, 20f, 100f)]
         [Advanced]
         public float NotLookingTimeLimit = 4f;
 
-        [Name("Bot Reaction and Accuracy Changes Angle")]
+        [Name("Bot反应与精度变化角度")]
         [Section("Unseen Bot")]
         [Experimental]
         [Advanced]
-        [Description("The Maximum Angle for the player to be considered looking at a bot.")]
+        [Description("判定玩家是否看向Bot的最大角度。")]
         [MinMax(5f, 45f, 1f)]
         public float NotLookingAngle = 45f;
 
-        [Name("Bot Reaction Multiplier When Out of Sight")]
+        [Name("未在视野内时Bot反应乘数")]
         [Section("Unseen Bot")]
         [Experimental]
-        [Description("How much to multiply bot vision speed by if you aren't looking at them when they notice you. Higher = More time before reacting.")]
+        [Description("未看向Bot时他们发现你的视觉速度乘数。越高=反应时间越长。")]
         [MinMax(1f, 2f, 100f)]
         [Advanced]
         public float NotLookingVisionSpeedModifier = 1.1f;
 
-        [Name("Bot Accuracy and Spread Increase When Out of Sight")]
+        [Name("未在视野内时Bot精度与散布增量")]
         [Section("Unseen Bot")]
         [Experimental]
-        [Description("How much additional random Spread to add to a bot's aim if the player isn't look at them." +
-            " 1 means it will randomize in a 1 meter sphere around their original aim target in addition to existing random spread." +
-            " Higher = More spread and less accurate bots.")]
+        [Description("玩家未看向Bot时Bot瞄准增加的额外随机散布。1=在原瞄准点周围1米球体内随机。越高=散布越大精度越低。")]
         [MinMax(0.1f, 1.5f, 100f)]
         [Advanced]
         public float NotLookingAccuracyAmount = 0.33f;

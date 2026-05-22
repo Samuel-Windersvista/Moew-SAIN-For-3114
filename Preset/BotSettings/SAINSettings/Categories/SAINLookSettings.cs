@@ -6,10 +6,10 @@ namespace SAIN.Preset.BotSettings.SAINSettings.Categories
 {
     public class SAINLookSettings : SAINSettingsBase<SAINLookSettings>, ISAINSettings
     {
-        [Name("Can Use Flashlights")]
+        [Name("可使用手电筒")]
         public bool CAN_USE_LIGHT = true;
 
-        [Name("Full 360 Vision Cheat Vision")]
+        [Name("360度全向作弊视野")]
         [Advanced]
         public bool FULL_SECTOR_VIEW = false;
 

@@ -35,8 +35,7 @@ namespace SAIN.Editor
         {
             BeginHorizontal();
             FlexibleSpace();
-            string toolTip = $"Apply Values set below to selected Bot Type. " +
-                $"Exports edited values to SAIN/Presets/{SAINPlugin.LoadedPreset.Info.Name}/BotSettings folder";
+            string toolTip = $"将下方设定应用到已选Bot类型。已编辑的值将导出到 SAIN/Presets/{SAINPlugin.LoadedPreset.Info.Name}/BotSettings 文件夹";
             if (BuilderClass.SaveChanges(ConfigEditingTracker.GetUnsavedValuesString(), 35f))
             {
                 SAINPresetClass.ExportAll(SAINPlugin.LoadedPreset);
@@ -72,17 +71,17 @@ namespace SAIN.Editor
             FlexibleSpace();
             EndHorizontal();
             Space(3f);
-            if (Button("Clear Bot Types", "Clear all selected bot types", EUISoundType.ButtonBottomBarClick))
+            if (Button("清除Bot类型", "清除所有已选Bot类型", EUISoundType.ButtonBottomBarClick))
             {
                 SelectedBotTypes.Clear();
             }
             Space(3f);
             BeginHorizontal();
-            Label("Difficulties", "Select which difficulties you wish to modify.", Height(25));
+            Label("难度", "选择你想要修改的难度。", Height(25));
             Space(3f);
             ModifyLists.AddOrRemove(SelectedDifficulties, out bool newEdit, 4, 1200f, 35f);
             Space(3f);
-            if (Button("Clear Difficulties", "Clear all selected difficulties", null, Height(25f), Width(150f)))
+            if (Button("清除难度", "清除所有已选难度", null, Height(25f), Width(150f)))
             {
                 SelectedDifficulties.Clear();
             }
@@ -108,16 +107,16 @@ namespace SAIN.Editor
             {
                 if (SelectedBotTypes.Count == 0)
                 {
-                    Box("No Bot Types Selected, please select at least one above.");
+                    Box("未选择任何Bot类型，请在上方至少选择一个。");
                 }
                 else
                 {
-                    Box("No Bot Difficulties Selected, please select at least one above.");
+                    Box("未选择任何难度，请在上方至少选择一个。");
                 }
                 return;
             }
 
-            var container = SettingsContainers.GetContainer(typeof(SAINSettingsClass), "Select Options to Edit");
+            var container = SettingsContainers.GetContainer(typeof(SAINSettingsClass), "选择要编辑的选项");
             string search = BuilderClass.SearchBox(container);
 
             try

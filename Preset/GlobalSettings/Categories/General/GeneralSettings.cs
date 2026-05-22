@@ -6,39 +6,47 @@ namespace SAIN.Preset.GlobalSettings
 {
     public class GeneralSettings : SAINSettingsBase<GeneralSettings>, ISAINSettings
     {
-        [Name("Bots Use Grenades")]
+        [Name("Bot可使用手雷")]
         public bool BotsUseGrenades = true;
         
-        [Name("Bots Use Grenades Vs Other Bots")]
-        [Description("Bots are not as careful with grenades as players, this will prevent accidental deaths fighting other bots.")]
+        [Name("Bot可对Bot使用手雷")]
+        [Description("Bot扔手雷不如玩家谨慎，开启可防止Bot互殴时被友军手雷误杀。")]
         public bool BotVsBotGrenade = true;
 
-        [Name("Bot Intertia")]
-        [Description("Bots are properly affected by the weight of their equipment and loot for intertia. Requires raid restart for existing bots, as it applies on bot creation.")]
+        [Name("Bot物理惯性")]
+        [Description("Bot按装备和战利品重量正确受惯性影响。需重开战局(该设置在Bot生成时应用)。")]
         public bool BOT_INTERTIA_TOGGLE = true;
 
-        [Name("Vanilla Bot Behavior Settings")]
-        [Description("If a option here is set to ON, they will use vanilla logic, ALL Features will be disabled for these types, including personality, recoil, difficulty, and behavior.")]
+        [Name("原版Bot行为设置")]
+        [Description("如果设为开启，对应类型Bot使用原版逻辑，所有SAIN功能(个性/后坐力/难度/行为)将被禁用。")]
         public VanillaBotSettings VanillaBots = new();
 
+        [Name("性能设置")]
         public PerformanceSettings Performance = new();
 
+        [Name("AI限制")]
         public AILimitSettings AILimit = new();
 
+        [Name("掩体设置")]
         public CoverSettings Cover = new();
 
+        [Name("门设置")]
         public DoorSettings Doors = new();
 
+        [Name("撤离设置")]
         public ExtractSettings Extract = new();
 
+        [Name("手电筒设置")]
         public FlashlightSettings Flashlight = new();
 
-        [Name("Looting Bots Integration")]
-        [Description("Modify settings that relate to Looting Bots. Requires Looting Bots to be installed.")]
+        [Name("拾荒Bot集成")]
+        [Description("修改与Looting Bots模组相关的设置。需安装Looting Bots模组。")]
         public LootingBotsSettings LootingBots = new();
 
+        [Name("玩笑设置")]
         public JokeSettings Jokes = new();
 
+        [Name("调试设置")]
         public DebugSettings Debug = new();
 
         [Hidden]

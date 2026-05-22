@@ -9,43 +9,43 @@ namespace SAIN.Preset.BotSettings.SAINSettings.Categories
         public bool CanThrowWhileSprinting = false;
 
         [NameAndDescription(
-            "Can Throw at Visible Enemies",
-            "Toggles bots throwing grenades directly at enemies they can see.")]
+            "可向可见敌人投掷",
+            "控制Bot是否向可见敌人直接投掷手雷。")]
         public bool CAN_THROW_STRAIGHT_CONTACT = false;
 
         [NameAndDescription(
-            "Since Since Enemy Seen before Throw",
-            "How long it has been since a bot's enemy has been visible before a bot can consider throwing a grenade.")]
+            "看到敌人后投掷延迟",
+            "自上次看到敌人后需多久才能考虑投掷手雷。")]
         [MinMax(0.0f, 30f, 100f)]
         public float TimeSinceSeenBeforeThrow = 4f;
 
         [NameAndDescription(
-            "Time Before Next Throw - Min",
-            "How much time to wait before a bot is allowed to throw another grenade.")]
+            "下次投掷间隔-最小值",
+            "Bot投掷另一颗手雷前需等待的最短时间。")]
         [MinMax(3f, 30f, 100f)]
         public float ThrowGrenadeFrequency = 5f;
 
         [NameAndDescription(
-            "Time Before Next Throw - Max",
-            "How much time to wait before a bot is allowed to throw another grenade.")]
+            "下次投掷间隔-最大值",
+            "Bot投掷另一颗手雷前需等待的最短时间。")]
         [MinMax(3f, 60f, 100f)]
         public float ThrowGrenadeFrequency_MAX = 10f;
 
         [NameAndDescription(
-            "Minimum Friendly Distance to Throw Target",
-            "How close a friendly bot can be in Meters to a bot's grenade target before it stops them from throwing it.")]
+            "投掷目标与友方最小距离",
+            "友方距投掷目标多近时Bot停止投掷手雷(米)。")]
         [MinMax(0.01f, 30f, 100f)]
         public float MinFriendlyDistance = 8f;
 
         [NameAndDescription(
-            "Minimum Enemy Distance to Bot",
-            "How close a enemy can be in Meters before a bot doesn't try throwing grenades.")]
+            "敌人距Bot最小距离",
+            "敌人距Bot多近时不会尝试投掷手雷(米)。")]
         [MinMax(0.01f, 30f, 100f)]
         public float MinEnemyDistance = 8f;
 
         [NameAndDescription(
-            "Grenade Spread",
-            "How much distance, in meters, to randomize a bot's throw target position.")]
+            "手雷投掷散布",
+            "Bot投掷目标位置的随机化距离(米)。")]
         [MinMax(0f, 5f, 100f)]
         [CopyValue]
         public float GrenadePrecision = 0.25f;

@@ -232,7 +232,7 @@ namespace SAIN.Components
                 // Must be first, other classes use it
                 Info = new SAINBotInfoClass(this);
 
-                NoBushESP = gameObject.AddComponent<SAINNoBushESP>();
+                NoBushESP = new SAINNoBushESP(this);
 
                 Squad = new BotSquadContainer(this);
                 BusyHandsDetector = new BotBusyHandsDetector(this);
@@ -329,15 +329,6 @@ namespace SAIN.Components
 
         private bool InitClasses()
         {
-            try
-            {
-                NoBushESP.Init(PlayerComponent.BotOwner, this);
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError($"Error When Initializing Components, Disposing... : {ex}");
-                return false;
-            }
             foreach (var botClass in BotClasses)
             {
                 try
@@ -497,8 +488,7 @@ namespace SAIN.Components
                 }
             }
 
-            if (NoBushESP != null)
-                Destroy(NoBushESP);
+            // NoBushESP is now a plain class (IBotClass), disposed via BotClasses.Dispose() loop
             if (BotOwner != null)
                 BotOwner.OnBotStateChange -= resetBot;
 

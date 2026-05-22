@@ -56,8 +56,8 @@ namespace SAIN.Editor.GUISections
                 sainPresetV = selectedPreset.SAINVersion;
             }
             GUIContent content = new(
-                        $"Warning: The selected preset version is: [{sainPresetV}], " +
-                        $"but current SAIN preset version is: [{AssemblyInfoClass.SAINPresetVersion}] (SAIN version [{AssemblyInfoClass.SAINVersion}]), default bot config values may be set incorrectly due to updates to SAIN. THIS DOESN'T MEAN YOUR GAME IS BROKEN, just be aware bots might not act as intended.");
+                        $"警告: 所选预设版本为: [{sainPresetV}], " +
+                        $"但当前SAIN预设版本为: [{AssemblyInfoClass.SAINPresetVersion}] (SAIN版本 [{AssemblyInfoClass.SAINVersion}])。由于SAIN的更新，默认Bot配置值可能不正确。这不代表游戏坏了，只是Bot行为可能不如预期。");
 
             Rect rect = GUILayoutUtility.GetRect(content, GetStyle(Style.alert), Height(PRESET_ALERT_HEIGHT));
             if (selectedPreset.IsCustom && sainPresetV != AssemblyInfoClass.SAINPresetVersion)
@@ -73,15 +73,15 @@ namespace SAIN.Editor.GUISections
         private static void baseSelectionOptions()
         {
             BeginVertical();
-            Box("Presets", "Select an Installed preset for SAIN Settings", Height(PRESET_LABEL_HEIGHT), Width(PRESET_BASE_OPTION_WIDTH));
-            if (Button("Refresh", "Refresh installed Presets", EUISoundType.ButtonClick, Height(PRESET_LABEL_HEIGHT), Width(PRESET_BASE_OPTION_WIDTH)))
+            Box("预设", "选择已安装的SAIN设置预设", Height(PRESET_LABEL_HEIGHT), Width(PRESET_BASE_OPTION_WIDTH));
+            if (Button("刷新", "刷新已安装的预设列表", EUISoundType.ButtonClick, Height(PRESET_LABEL_HEIGHT), Width(PRESET_BASE_OPTION_WIDTH)))
             {
                 PresetHandler.LoadCustomPresetOptions();
             }
 
             _makeNewPresetMenuToggle = Toggle(
                 _makeNewPresetMenuToggle,
-                new GUIContent("Create New Preset"),
+                new GUIContent("创建新预设"),
                 EUISoundType.ButtonClick,
                 Height(PRESET_LABEL_HEIGHT), Width(PRESET_BASE_OPTION_WIDTH));
 
@@ -91,7 +91,7 @@ namespace SAIN.Editor.GUISections
         private static SAINPresetDefinition selectDefault(SAINPresetDefinition selectedPreset)
         {
             BeginVertical();
-            Label("Default Presets", Width(PRESET_OPTION_WIDTH));
+            Label("默认预设", Width(PRESET_OPTION_WIDTH));
 
             for (int i = 0; i < defaultPresets.Count; i++)
             {
@@ -123,7 +123,7 @@ namespace SAIN.Editor.GUISections
         private static SAINPresetDefinition selectCustom(SAINPresetDefinition selectedPreset)
         {
             BeginVertical();
-            Label("Custom Presets", Width(PRESET_OPTION_WIDTH));
+            Label("自定义预设", Width(PRESET_OPTION_WIDTH));
             for (int i = 0; i < PresetHandler.CustomPresetOptions.Count; i++)
             {
                 var preset = PresetHandler.CustomPresetOptions[i];
@@ -160,7 +160,7 @@ namespace SAIN.Editor.GUISections
                 BeginHorizontal();
                 Space(25);
                 SAINPresetDefinition info = SAINPlugin.LoadedPreset.Info;
-                if (info.CanEditName && Button("Save Info", "Update the selected presets name, description, and creator.", EFT.UI.EUISoundType.InsuranceInsured, Height(30f)))
+                if (info.CanEditName && Button("保存信息", "更新当前预设的名称、描述和创建者。", EFT.UI.EUISoundType.InsuranceInsured, Height(30f)))
                 {
                     string oldName = info.Name;
                     var newInfo = info.Clone();
@@ -175,7 +175,7 @@ namespace SAIN.Editor.GUISections
                     PresetHandler.InitPresetFromDefinition(newInfo, true);
                     PresetHandler.LoadCustomPresetOptions();
                 }
-                if (Button("Save A New Preset", EFT.UI.EUISoundType.InsuranceInsured, Height(30f)))
+                if (Button("保存新预设", EFT.UI.EUISoundType.InsuranceInsured, Height(30f)))
                 {
                     SAINPresetDefinition newPreset = SAINPlugin.LoadedPreset.Info.Clone();
 
@@ -193,9 +193,9 @@ namespace SAIN.Editor.GUISections
 
                 Space(3);
 
-                NewName = LabeledTextField(NewName, "Name");
-                NewDescription = LabeledTextField(NewDescription, "Description");
-                NewCreator = LabeledTextField(NewCreator, "Creator");
+                NewName = LabeledTextField(NewName, "名称");
+                NewDescription = LabeledTextField(NewDescription, "描述");
+                NewCreator = LabeledTextField(NewCreator, "创建者");
 
                 EndVertical();
             }
@@ -206,13 +206,13 @@ namespace SAIN.Editor.GUISections
             if (SAINPresetClass.Instance.Info.IsCustom)
             {
                 BeginVertical();
-                _deletePresetConfirmation1 = Toggle(_deletePresetConfirmation1, "Delete Selected Preset", null, Height(30), Width(250f));
+                _deletePresetConfirmation1 = Toggle(_deletePresetConfirmation1, "删除选中的预设", null, Height(30), Width(250f));
                 if (_deletePresetConfirmation1)
                 {
-                    _deletePresetConfirmation2 = Toggle(_deletePresetConfirmation2, "Are you Sure?", null, Height(30), Width(250f));
+                    _deletePresetConfirmation2 = Toggle(_deletePresetConfirmation2, "确认删除？", null, Height(30), Width(250f));
                     if (_deletePresetConfirmation2)
                     {
-                        if (Button($"CONFIRM DELETE OF {SAINPresetClass.Instance.Info.Name} ?", Height(60), Width(250f)))
+                        if (Button($"确认删除 {SAINPresetClass.Instance.Info.Name} ？", Height(60), Width(250f)))
                         {
                             var deletedInfo = SAINPresetClass.Instance.Info;
                             PresetHandler.loadDefault();
@@ -245,8 +245,8 @@ namespace SAIN.Editor.GUISections
 
         private static bool _makeNewPresetMenuToggle;
 
-        private static string NewName = "Enter Name Here";
-        private static string NewDescription = "Enter Description Here";
-        private static string NewCreator = "Your Name Here";
+        private static string NewName = "在此输入名称";
+        private static string NewDescription = "在此输入描述";
+        private static string NewCreator = "在此输入您的名字";
     }
 }

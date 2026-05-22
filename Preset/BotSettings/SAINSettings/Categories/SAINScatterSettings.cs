@@ -6,13 +6,13 @@ namespace SAIN.Preset.BotSettings.SAINSettings.Categories
 {
     public class SAINScatterSettings : SAINSettingsBase<SAINScatterSettings>, ISAINSettings
     {
-        [Name("Arm Injury Scatter Multiplier")]
-        [Description("Increase scatter when a bots arms are injured.")]
+        [Name("手臂受伤散布乘数")]
+        [Description("Bot手臂受伤时增大散布。")]
         [MinMax(1f, 5f, 100f)]
         [Advanced]
         public float HandDamageScatteringMinMax = 1.5f;
 
-        [Name("Arm Injury Aim Speed Multiplier")]
+        [Name("手臂受伤瞄准速度乘数")]
         [Description("Increase scatter when a bots arms are injured.")]
         [MinMax(1f, 5f, 100f)]
         [Advanced]

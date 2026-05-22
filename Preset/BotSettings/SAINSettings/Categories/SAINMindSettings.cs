@@ -5,63 +5,63 @@ namespace SAIN.Preset.BotSettings.SAINSettings.Categories
 {
     public class SAINMindSettings : SAINSettingsBase<SAINMindSettings>, ISAINSettings
     {
-        [Category("Personality")]
-        [Name("Global Aggression Multiplier")]
-        [Description("How quickly bots will move to search for enemies after losing sight, and how carefully they will search. Higher number equals higher aggression.")]
+        [Category("个性")]
+        [Name("攻击性乘数")]
+        [Description("Bot丢失目标后搜索敌人的速度和谨慎程度。越高=越具攻击性。")]
         [MinMax(0.01f, 3f, 10f)]
         public float Aggression = 1f;
 
-        [Category("Weapon Control")]
-        [Name("Weapon Proficiency")]
-        [Description("How Well this bot can fire any weapon type, affects recoil, fire-rate, and burst length. Higher number equals harder bots.")]
+        [Category("武器控制")]
+        [Name("武器熟练度")]
+        [Description("Bot使用各种武器的能力，影响后坐力、射速和连发长度。越高=越强。")]
         [Percentage01to99]
         public float WeaponProficiency = 0.5f;
 
-        [Name("Suppression Resistance")]
-        [Description("Higher = Less affected by suppression. A Value of 0 means No Resistance. " +
-            "A Value of 1 means Full Resistance. " +
-            "The final resistance number is the mid-point between their personality and bot type resistance. " +
-            "So a value of 0.25 for personality and a value of 0.75 for bot type would result in 0.5")]
+        [Name("压制抗性")]
+        [Description("值越高受压制影响越小。0=无抗性，1=完全免疫。最终抗性为个性和Bot类型抗性的中点。例如个性0.25+Bot类型0.75=0.5。")]
         [MinMax(0.0f, 1f, 100)]
         public float SuppressionResistance = 0f;
 
-        [Category("Talk")]
-        [Name("Talk Frequency")]
-        [Description("How often to check if a bot wants to talk. Higher = More Delay between Talking.")]
+        [Category("说话")]
+        [Name("说话频率")]
+        [Description("检查Bot是否想说话的频率。越高=说话间隔越长。")]
         [MinMax(0f, 30f)]
         public float TalkFrequency = 1f;
 
-        [Category("Talk")]
+        [Category("说话")]
+        [Name("Bot可说话")]
         public bool CanTalk = true;
 
-        [Category("Talk")]
+        [Category("说话")]
+        [Name("Bot嘲讽")]
         public bool BotTaunts = true;
 
-        [Category("Talk")]
+        [Category("说话")]
+        [Name("小队说话")]
         public bool SquadTalk = true;
 
-        [Category("Talk")]
-        [Name("Squad Talk Frequency. Higher = More Delay between Talking.")]
+        [Category("说话")]
+        [Name("小队说话频率。越高=说话间隔越长。")]
         [MinMax(0f, 60f)]
         public float SquadMemberTalkFreq = 3f;
 
-        [Category("Talk")]
-        [Name("Squad Leader Talk Frequency. Higher = More Delay between Talking.")]
+        [Category("说话")]
+        [Name("队长说话频率。越高=说话间隔越长。")]
         [MinMax(0f, 60f)]
         public float SquadLeadTalkFreq = 3f;
 
-        [Category("Extract")]
-        [Name("Enable Extracts")]
+        [Category("撤离")]
+        [Name("启用撤离")]
         public bool EnableExtracts = true;
 
-        [Category("Extract")]
-        [Name("Max Raid Percentage before Extract")]
-        [Description("The longest possible time before this bot can decide to move to extract. Based on total raid timer and time remaining. 60 min total raid time with 6 minutes remaining would be 10 percent")]
+        [Category("撤离")]
+        [Name("撤离前最大战局进度百分比")]
+        [Description("Bot决定撤离前的最大可能时间。基于总战局时间计算。60分钟总时间剩6分钟=10%。")]
         [MinMax(0f, 100f)]
         public float MaxExtractPercentage = 30f;
 
-        [Category("Extract")]
-        [Name("Min Raid Percentage before Extract")]
+        [Category("撤离")]
+        [Name("撤离前最小战局进度百分比")]
         [Description("The longest possible time before this bot can decide to move to extract. Based on total raid timer and time remaining. 60 min total raid time with 6 minutes remaining would be 10 percent")]
         [MinMax(0f, 100f)]
         public float MinExtractPercentage = 5f;

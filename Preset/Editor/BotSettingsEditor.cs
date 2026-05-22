@@ -19,7 +19,7 @@ namespace SAIN.Editor.GUISections
 
             Space(10);
 
-            Label("Search", Width(125f), Height(height));
+            Label("搜索", Width(125f), Height(height));
 
             var container = SettingsContainers.GetContainer(settings.GetType(), name);
             container.SearchPattern = TextField(
@@ -29,7 +29,7 @@ namespace SAIN.Editor.GUISections
                 Height(height));
 
             if (Button(
-                "Clear",
+                "清除",
                 EUISoundType.MenuContextMenu,
                 Width(80),
                 Height(height)))
@@ -42,8 +42,8 @@ namespace SAIN.Editor.GUISections
             if (ConfigEditingTracker.UnsavedChanges)
             {
                 BuilderClass.Alert(
-                    "Click Save to export changes, and send changes to bots if in-game",
-                    "YOU HAVE UNSAVED CHANGES!",
+                    "点击保存以导出更改，若在游戏中则将更改应用到Bot。",
+                    "你有未保存的修改！",
                     height, ColorNames.DarkRed);
             }
             else
@@ -52,7 +52,7 @@ namespace SAIN.Editor.GUISections
             }
 
             Saved = Button(
-                "Save and Export",
+                "保存并导出",
                 ConfigEditingTracker.GetUnsavedValuesString(),
                 EUISoundType.InsuranceInsured,
                 Height(height));
@@ -70,7 +70,7 @@ namespace SAIN.Editor.GUISections
         {
             BeginHorizontal();
             container.Open = BuilderClass.ExpandableMenu(container.Name, container.Open, null, height);
-            if (Button("Clear", "Clear Selected Options in this Menu",
+            if (Button("清除", "清除此菜单中的已选选项",
                 EFT.UI.EUISoundType.MenuDropdownSelect,
                 Width(100), Height(height)))
             {

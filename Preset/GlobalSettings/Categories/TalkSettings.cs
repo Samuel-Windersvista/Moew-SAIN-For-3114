@@ -5,71 +5,71 @@ namespace SAIN.Preset.GlobalSettings
 {
     public class TalkSettings : SAINSettingsBase<TalkSettings>, ISAINSettings
     {
-        [Category("Peaceful Talk")]
-        [Name("Talkative Scavs")]
-        [Description("When at peace, scavs will talk to each other and be noisy. Revealing their location.")]
+        [Category("和平状态说话")]
+        [Name("多话的Scav")]
+        [Description("和平状态下Scav会互相交谈发出噪音暴露位置。")]
         public bool TalkativeScavs = true;
 
-        [Category("Peaceful Talk")]
-        [Name("Talkative PMCs")]
-        [Description("When at peace, pmcs will talk to each other and be noisy. Revealing their location.")]
+        [Category("和平状态说话")]
+        [Name("多话的PMC")]
+        [Description("和平状态下PMC会互相交谈发出噪音暴露位置。")]
         public bool TalkativePMCs = false;
 
-        [Category("Peaceful Talk")]
-        [Name("Talkative Raiders and Rogues")]
-        [Description("When at peace, raiders and rogues will talk to each other and be noisy. Revealing their location.")]
+        [Category("和平状态说话")]
+        [Name("多话的Raider与Rogue")]
+        [Description("和平状态下Raider和Rogue会互相交谈发出噪音暴露位置。")]
         public bool TalkativeRaidersRogues = true;
 
-        [Category("Peaceful Talk")]
-        [Name("Talkative Bosses")]
-        [Description("When at peace, Bosses and boss guards will talk to each other and be noisy. Revealing their location.")]
+        [Category("和平状态说话")]
+        [Name("多话的Boss")]
+        [Description("和平状态下Boss和守卫会互相交谈发出噪音暴露位置。")]
         public bool TalkativeBosses = true;
 
-        [Category("Peaceful Talk")]
-        [Name("Talkative Goons")]
-        [Description("When at peace, The Goons will talk to each other and be noisy. Revealing their location.")]
+        [Category("和平状态说话")]
+        [Name("多话的Goon小队")]
+        [Description("和平状态下Goon小队会互相交谈发出噪音暴露位置。")]
         public bool TalkativeGoons = false;
 
-        [Name("Human Response Chance")]
-        [Description("Percentage chance to respond to a voiceline from a friendly human player.")]
-        [Category("Friendly Response")]
+        [Name("人类玩家回应概率")]
+        [Description("回应友方人类玩家语音的百分比概率。")]
+        [Category("友方回应")]
         [Percentage]
         public float FriendlyReponseChance = 85f;
 
-        [Name("AI Response Chance")]
-        [Description("Percentage chance to respond to a voiceline from a friendly AI player.")]
-        [Category("Friendly Response")]
+        [Name("AI回应概率")]
+        [Description("回应友方AI语音的百分比概率。")]
+        [Category("友方回应")]
         [Percentage]
         public float FriendlyReponseChanceAI = 80f;
 
-        [Name("Human Response Max Distance")]
-        [Category("Friendly Response")]
+        [Name("人类玩家回应最大距离")]
+        [Category("友方回应")]
         [Percentage]
         public float FriendlyReponseDistance = 65f;
 
-        [Name("AI Response Max Distance")]
-        [Category("Friendly Response")]
+        [Name("AI回应最大距离")]
+        [Category("友方回应")]
         [Percentage]
         public float FriendlyReponseDistanceAI = 35f;
 
-        [Name("Response Frequency")]
-        [Description("2 = 1 check every 2 second")]
-        [Category("Friendly Response")]
+        [Name("回应频率")]
+        [Description("2=每2秒检查一次。")]
+        [Category("友方回应")]
         [MinMax(0.5f, 10f)]
         public float FriendlyResponseFrequencyLimit = 1f;
 
-        [Name("Response Delay Randomization Min")]
-        [Category("Friendly Response")]
+        [Name("回应延迟随机化最小值")]
+        [Category("友方回应")]
         [MinMax(0.25f, 3f)]
         public float FriendlyResponseMinRandomDelay = 0.33f;
 
-        [Name("Response Delay Randomization Max")]
-        [Category("Friendly Response")]
+        [Name("回应延迟随机化最大值")]
+        [Category("友方回应")]
         [MinMax(0.25f, 3f)]
         public float FriendlyResponseMaxRandomDelay = 0.75f;
 
-        [Name("Vanilla Bot Talking")]
-        [Description("Disable all SAIN based handling of bot talking. No more squad chatter, no more quiet bots, completely disables SAIN's handling of bot voices")]
+        [Name("原版Bot说话")]
+        [Description("禁用所有SAIN对Bot说话的处理。不再有小队闲聊和安静Bot，完全禁用SAIN的Bot语音处理。")]
         public bool DisableBotTalkPatching = false;
 
         public override void Init(List<ISAINSettings> list)

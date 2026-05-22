@@ -17,7 +17,7 @@ namespace SAIN.Components
     {
         public static BotManagerComponent Instance { get; private set; }
 
-        public Dictionary<string, BotComponent> Bots => BotSpawnController.Bots;
+        public Dictionary<string, BotComponent> Bots => BotSpawnController.BotDictionary;
         public GameWorld GameWorld => SAINGameWorld.GameWorld;
         public IBotGame BotGame => Singleton<IBotGame>.Instance;
 
@@ -91,10 +91,39 @@ namespace SAIN.Components
             WeatherVision.Update(currentTime, deltaTime);
             BotSquads.Update(currentTime, deltaTime);
 
-            HashSet<BotComponent> BotsArray = BotSpawnController.SAINBots;
-                foreach (BotComponent BotComponent in BotsArray)
-                    if (BotComponent != null)
-                        BotComponent.ManualUpdate(currentTime, deltaTime);
+            HashSet<BotComponent> bots = BotSpawnController.SAINBots;
+
+            // 有敌人的 Bot 每帧更新 (关键)
+            foreach (BotComponent bot in bots)
+            {
+                if (bot != null && bot.HasEnemy)
+                    bot.ManualUpdate(currentTime, deltaTime);
+            }
+
+            // 无敌人的 Bot 错峰更新 (分摊到多帧)
+            var idleBots = new List<BotComponent>();
+            foreach (BotComponent bot in bots)
+            {
+                if (bot != null && !bot.HasEnemy)
+                    idleBots.Add(bot);
+            }
+
+            if (idleBots.Count > 0)
+            {
+                int start = _batchUpdateIndex % Math.Max(1, (idleBots.Count + BATCH_SIZE - 1) / BATCH_SIZE) * BATCH_SIZE;
+                int end = Math.Min(start + BATCH_SIZE, idleBots.Count);
+                for (int i = start; i < end; i++)
+                    idleBots[i].ManualUpdate(currentTime, deltaTime);
+                _batchUpdateIndex++;
+                if (_batchUpdateIndex >= int.MaxValue / 2) _batchUpdateIndex = 0;
+            }
+
+            if (_nextNavObstacleTime < Time.time)
+            {
+                _nextNavObstacleTime = Time.time + 2f;
+                AddNavObstacles();
+            }
+            UpdateObstacles();
         }
 
         private void drawCover()
@@ -121,6 +150,9 @@ namespace SAIN.Components
         }
 
         private bool _coverDrawn;
+        private float _nextNavObstacleTime;
+        private int _batchUpdateIndex = 0;
+        private const int BATCH_SIZE = 8;
 
         public void BotDeath(BotOwner bot)
         {
@@ -176,9 +208,9 @@ namespace SAIN.Components
                     }
                 }
 
-                foreach (var index in IndexToRemove)
+                for (int i = IndexToRemove.Count - 1; i >= 0; i--)
                 {
-                    DeadBots.RemoveAt(index);
+                    DeadBots.RemoveAt(IndexToRemove[i]);
                 }
 
                 IndexToRemove.Clear();
@@ -199,9 +231,9 @@ namespace SAIN.Components
                     }
                 }
 
-                foreach (var index in IndexToRemove)
+                for (int i = IndexToRemove.Count - 1; i >= 0; i--)
                 {
-                    DeathObstacles.RemoveAt(index);
+                    DeathObstacles.RemoveAt(IndexToRemove[i]);
                 }
 
                 IndexToRemove.Clear();
