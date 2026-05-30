@@ -12,10 +12,17 @@ namespace SAIN.SAINComponent.Classes.Memory
         public IPlayer LastUnderFireSource { get; private set; }
         public Enemy LastUnderFireEnemy { get; private set; }
         public Vector3 UnderFireFromPosition { get; set; }
+        public int ConsecutiveUnderFireCount { get; set; }
+        public float LastUnderFireTime { get; set; }
 
         public SAINExtract Extract { get; } = new SAINExtract();
         public HealthTracker Health { get; private set; }
         public LocationTracker Location { get; private set; }
+
+        public bool RecentTeammateDeath { get; set; }
+        public float LastTeammateDeathTime { get; set; }
+        public Vector3 LastTeammateDeathPosition { get; set; }
+        public float LastKillTime { get; set; }
 
         public SAINMemoryClass(BotComponent sain) : base(sain)
         {
@@ -55,6 +62,19 @@ namespace SAIN.SAINComponent.Classes.Memory
             LastUnderFireSource = enemy.EnemyPlayer;
             UnderFireFromPosition = position;
             LastUnderFireEnemy = enemy;
+            OnUnderFire(position);
+        }
+
+        public void OnUnderFire(Vector3 fromPosition)
+        {
+            float timeSinceLast = Time.time - LastUnderFireTime;
+            if (timeSinceLast < 3f)
+                ConsecutiveUnderFireCount++;
+            else
+                ConsecutiveUnderFireCount = 1;
+
+            LastUnderFireTime = Time.time;
+            UnderFireFromPosition = fromPosition;
         }
 
         private void clearEnemy(string profileId, Enemy enemy)

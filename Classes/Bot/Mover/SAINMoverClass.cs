@@ -1,10 +1,13 @@
 ﻿using EFT;
+using EFT.HealthSystem;
 using SAIN.Classes.Transform;
 using SAIN.Components;
+using SAIN.Models.Enums;
 using SAIN.SAINComponent.SubComponents.CoverFinder;
 using System;
 using UnityEngine;
 using UnityEngine.AI;
+using FractureEffect = GInterface316;
 
 namespace SAIN.SAINComponent.Classes.Mover
 {
@@ -140,7 +143,7 @@ namespace SAIN.SAINComponent.Classes.Mover
 
             if (checkSameWay && TryUpdatePath(point))
             {
-                if (!_activePath.WantToSprint)
+                if (!_activePath.WantToSprint && CanSprintToPoint(point))
                 {
                     _activePath.RequestStartSprint(urgency, "path updated");
                 }
@@ -150,7 +153,8 @@ namespace SAIN.SAINComponent.Classes.Mover
 
             if (Bot.Mover.CanGoToPoint(point, out NavMeshPath path, mustHaveCompletePath))
             {
-                TriggerNewMove(path.corners, point, true, urgency, path);
+                bool shouldSprint = CanSprintToPoint(point);
+                TriggerNewMove(path.corners, point, shouldSprint, shouldSprint ? urgency : ESprintUrgency.None, path);
                 _activePath.SetDestinationReachDistance(reachDist);
                 _activePath.PathStatus = path.status;
                 return true;
@@ -173,11 +177,12 @@ namespace SAIN.SAINComponent.Classes.Mover
 
             if (checkSameWay && TryUpdatePath(lastCorner))
             {
-                if (!_activePath.WantToSprint) _activePath.RequestStartSprint(urgency, "path updated");
+                if (!_activePath.WantToSprint && CanSprintToPoint(lastCorner)) _activePath.RequestStartSprint(urgency, "path updated");
                 _activePath.SetDestinationReachDistance(reachDist);
                 return true;
             }
-            TriggerNewMove(path.corners, lastCorner, true, urgency, path);
+            bool shouldSprint = CanSprintToPoint(lastCorner);
+            TriggerNewMove(path.corners, lastCorner, shouldSprint, shouldSprint ? urgency : ESprintUrgency.None, path);
             _activePath.SetDestinationReachDistance(reachDist);
             return true;
         }
@@ -380,9 +385,97 @@ namespace SAIN.SAINComponent.Classes.Mover
             return Pose.SetTargetPose(pose);
         }
 
+        /// <summary>
+        /// Returns a speed multiplier based on leg injury severity and fracture status.
+        /// Fracture: 0.6x speed. Heavy leg injury (Destroyed/HeavyInjury): 0.75x speed.
+        /// </summary>
+        public float GetInjurySpeedMultiplier()
+        {
+            float multiplier = 1f;
+
+            try
+            {
+                IHealthController healthController = Player?.HealthController;
+                if (healthController == null)
+                    return multiplier;
+
+                bool leftLegFracture = healthController.FindExistingEffect<FractureEffect>(EBodyPart.LeftLeg) != null;
+                bool rightLegFracture = healthController.FindExistingEffect<FractureEffect>(EBodyPart.RightLeg) != null;
+
+                if (leftLegFracture || rightLegFracture)
+                {
+                    // Fracture: major speed penalty, cannot sprint effectively
+                    return 0.6f;
+                }
+
+                var bodyParts = Bot?.Medical?.HitReaction?.BodyParts;
+                if (bodyParts == null)
+                    return multiplier;
+
+                bool leftLegHeavy = bodyParts.TryGetValue(EBodyPart.LeftLeg, out var leftLeg) &&
+                    leftLeg.InjurySeverity >= EInjurySeverity.HeavyInjury;
+                bool rightLegHeavy = bodyParts.TryGetValue(EBodyPart.RightLeg, out var rightLeg) &&
+                    rightLeg.InjurySeverity >= EInjurySeverity.HeavyInjury;
+
+                if (leftLegHeavy || rightLegHeavy)
+                {
+                    // Heavy damage: moderate penalty
+                    multiplier = 0.75f;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Error calculating injury speed multiplier: {ex.Message}");
+            }
+
+            return multiplier;
+        }
+
+        /// <summary>
+        /// True if leg injuries are significant enough to impair movement (multiplier < 0.8).
+        /// </summary>
+        public bool IsLegInjured => GetInjurySpeedMultiplier() < 0.8f;
+
+        // F4-2: Anti-sniper evasive movement check
+        private bool ShouldEvasiveMove()
+        {
+            var enemy = Bot?.GoalEnemy;
+            if (enemy == null) return false;
+            var weapon = enemy?.EnemyPlayerComponent?.Equipment?.CurrentWeaponInfo;
+            if (weapon == null) return false;
+            return (weapon.WeaponClass == EWeaponClass.sniperRifle || weapon.WeaponClass == EWeaponClass.marksmanRifle) && enemy.RealDistance > 50f;
+        }
+
+        // F3-3: Sprint restriction logic
+        public bool CanSprintToPoint(Vector3 target)
+        {
+            if (target == Vector3.zero) return true;
+
+            float distance = Vector3.Distance(Bot.Position, target);
+
+            // Too close — don't sprint (would overshoot)
+            if (distance < 10f) return false;
+
+            // Under suppression — don't sprint
+            if (Bot?.Suppression?.IsSuppressed == true) return false;
+
+            // Leg injury — don't sprint (complements F2-6)
+            if (IsLegInjured) return false;
+
+            // Low health — be cautious
+            if (Bot.Memory.Health.HealthStatus == ETagStatus.Dying) return false;
+
+            // Too far — save stamina
+            if (distance > 100f) return false;
+
+            return true;
+        }
+
         public void SetTargetMoveSpeed(float speed)
         {
-            PlayerComponent.CharacterController.SetTargetMoveSpeed(speed);
+            float modifier = ShouldEvasiveMove() ? 0.85f : 1f;
+            float modifiedSpeed = speed * GetInjurySpeedMultiplier() * modifier;
+            PlayerComponent.CharacterController.SetTargetMoveSpeed(modifiedSpeed);
         }
 
         public void Stop()

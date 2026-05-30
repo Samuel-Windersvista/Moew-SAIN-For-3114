@@ -16,15 +16,43 @@ namespace SAIN.Layers.Peace
 
         public override Action GetNextAction()
         {
+            // QG-1: Return interest point exploration action if applicable
+            if (Bot?.GoalEnemy == null && hasInterestPointToExplore())
+            {
+                var point = Bot.SAINInterestPointClass.GetNearestInterestPoint();
+                Bot.Mover.WalkToPoint(point.Position, false, 0.5f);
+                return new Action(typeof(ExtractAction), $"Interest Point : {point.Type}");
+            }
             return new Action(typeof(ExtractAction), $"Extract : {Bot.Memory.Extract.ExtractReason}");
         }
 
         public override bool IsActive()
         {
             bool active = GetBotComponent() && allowedToExtract() && hasExtractReason() && hasExtractLocation();
+
+            // QG-1: Activate for interest point exploration when peaceful with no objective
+            if (!active && Bot?.GoalEnemy == null && hasInterestPointToExplore())
+            {
+                active = true;
+            }
+
             CheckActiveChanged(active);
             return active;
         }
+
+        private bool hasInterestPointToExplore()
+        {
+            if (_nextInterestCheckTime > Time.time)
+                return _cachedHasInterestPoint;
+            _nextInterestCheckTime = Time.time + 2f;
+
+            var point = Bot?.SAINInterestPointClass?.GetNearestInterestPoint();
+            _cachedHasInterestPoint = point != null && Vector3.Distance(Bot.Position, point.Position) > 15f;
+            return _cachedHasInterestPoint;
+        }
+
+        private float _nextInterestCheckTime;
+        private bool _cachedHasInterestPoint;
 
         private bool allowedToExtract()
         {

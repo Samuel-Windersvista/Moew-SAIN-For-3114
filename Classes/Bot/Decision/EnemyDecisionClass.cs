@@ -1,4 +1,5 @@
 ﻿using EFT;
+using EFT.InventoryLogic;
 using SAIN.Components;
 using SAIN.Models.Enums;
 using SAIN.Preset.GlobalSettings;
@@ -15,6 +16,11 @@ namespace SAIN.SAINComponent.Classes.Decision
         private static readonly float RushEnemyMaxPathDistance = 10f;
         private static readonly float RushEnemyMaxPathDistanceSprint = 20f;
         private static readonly float RushEnemyLowAmmoRatio = 0.5f;
+        private static readonly EquipmentSlot[] _weaponSlotsToCheck =
+        [
+            EquipmentSlot.SecondPrimaryWeapon,
+            EquipmentSlot.Holster,
+        ];
         private const float FREEZE_MAX_DISTANCE = 70;
         private const float FREEZE_MIN_TIMESINCESEEN = 240f;
         private const float FREEZE_MAX_TIMESINCEHEARD = 80f;
@@ -43,7 +49,36 @@ namespace SAIN.SAINComponent.Classes.Decision
 #endif
 
             BotWeaponManager weaponManager = BotOwner.WeaponManager;
-            if (weaponManager == null || !weaponManager.HaveBullets || weaponManager.Reload.Reloading)
+            if (weaponManager == null)
+            {
+                result = ECombatDecision.Retreat;
+                return true;
+            }
+
+            // F2-1: Check if secondary weapon has ammo before retreating
+            bool haveBullets = weaponManager.HaveBullets;
+            if (!haveBullets)
+            {
+                foreach (var slot in _weaponSlotsToCheck)
+                {
+                    if (weaponManager.info.TryGetValue(slot, out var info) &&
+                        info?.weapon != null)
+                    {
+                        try
+                        {
+                            var magSlot = info.weapon.GetMagazineSlot();
+                            if (magSlot?.ContainedItem is MagazineItemClass mag && mag.Count > 0)
+                            {
+                                haveBullets = true;
+                                break;
+                            }
+                        }
+                        catch { }
+                    }
+                }
+            }
+
+            if (!haveBullets || weaponManager.Reload.Reloading)
             {
                 result = ECombatDecision.Retreat;
                 return true;
@@ -80,6 +115,15 @@ namespace SAIN.SAINComponent.Classes.Decision
             {
                 result = ECombatDecision.ShootDistantEnemy;
                 return true;
+            }
+
+            // F4-3: Anomaly awareness — too quiet in combat suppresses aggression
+            if (Bot.IsInCombat && enemy?.TimeSinceHeard > 30f)
+            {
+                canTakeAggressiveAction = false;
+#if DEBUG
+                DecisionReasons.AppendLine($"2a. Too quiet for 30s in combat, being cautious.");
+#endif
             }
 
             if (canTakeAggressiveAction)
@@ -162,6 +206,14 @@ namespace SAIN.SAINComponent.Classes.Decision
 
                 default:
                     break;
+            }
+
+            // F4-1: Combat fatigue proxy — reuse existing suppression as fatigue signal
+            if (Bot?.Suppression?.IsHeavySuppressed == true)
+            {
+                // Heavy suppression = combat fatigue -> 20% less aggressive
+                reason = "combatFatigue";
+                canTakeAggressiveAction = false;
             }
 
             return canTakeAggressiveAction;
@@ -273,6 +325,22 @@ namespace SAIN.SAINComponent.Classes.Decision
                 reason = "enemyHurtAndProne";
                 return true;
             }
+            // F4-2: Don't rush enemies with long-range weapons at close distance
+            var enemyWeapon = enemy?.EnemyPlayerComponent?.Equipment?.CurrentWeaponInfo;
+            if (enemyWeapon != null)
+            {
+                if ((enemyWeapon.WeaponClass == EWeaponClass.sniperRifle || enemyWeapon.WeaponClass == EWeaponClass.marksmanRifle) && enemy.RealDistance < 30f)
+                {
+                    reason = "enemySniperClose";
+                    return false;
+                }
+                if ((enemyWeapon.WeaponClass == EWeaponClass.smg || enemyWeapon.WeaponClass == EWeaponClass.shotgun) && enemy.RealDistance > 25f)
+                {
+                    reason = "enemyCQBSafe";
+                    return true;
+                }
+            }
+
             reason = "notGoodTimeTo";
             return false;
         }

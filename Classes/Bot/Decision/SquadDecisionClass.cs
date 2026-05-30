@@ -1,4 +1,5 @@
 ﻿using EFT;
+using SAIN;
 using SAIN.Components;
 using SAIN.Models.Enums;
 using SAIN.SAINComponent.Classes.EnemyClasses;
@@ -26,6 +27,13 @@ namespace SAIN.SAINComponent.Classes.Decision
 
             if (EnemyDecision(out Decision, enemy))
             {
+                return true;
+            }
+
+            // INT-3: Check if a squadmate is looting — if so, provide overwatch
+            if (shallLootingOverwatch())
+            {
+                Decision = ESquadDecision.LootingOverwatch;
                 return true;
             }
 
@@ -94,6 +102,28 @@ namespace SAIN.SAINComponent.Classes.Decision
                 }
             }
 
+            return false;
+        }
+
+        // INT-3: Check if a squadmate is looting — if so, provide overwatch
+        private bool shallLootingOverwatch()
+        {
+            if (!ModDetection.LootingBotsLoaded) return false;
+            if (Bot.GoalEnemy != null) return false; // Don't overwatch when engaged
+
+            foreach (var member in Bot.Squad.Members.Values)
+            {
+                if (member == Bot) continue;
+                // Heuristic: member is not in combat and not moving much
+                if (!member.IsInCombat && member?.Mover?.Moving == false)
+                {
+                    float dist = Vector3.Distance(Bot.Position, member.Position);
+                    if (dist < 25f)
+                    {
+                        return true; // Overwatch this looting squadmate
+                    }
+                }
+            }
             return false;
         }
 

@@ -4,6 +4,7 @@ using SAIN.Models.Enums;
 using SAIN.Models.Structs;
 using SAIN.Preset.Personalities;
 using SAIN.SAINComponent.Classes.EnemyClasses;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Random = UnityEngine.Random;
@@ -12,6 +13,30 @@ namespace SAIN.SAINComponent.Classes.Search
 {
     public class SAINSearchClass : BotComponentClassBase
     {
+        // QG-2: Simple area status tracking
+        public enum AreaStatus { Unknown, Searched, Dangerous }
+
+        public AreaStatus GetAreaStatus(Vector3 position)
+        {
+            int hash = GetGridHash(position);
+            return _areaStatus.TryGetValue(hash, out var status) ? status : AreaStatus.Unknown;
+        }
+
+        public void MarkAreaStatus(Vector3 position, AreaStatus status)
+        {
+            int hash = GetGridHash(position);
+            _areaStatus[hash] = status;
+        }
+
+        private readonly Dictionary<int, AreaStatus> _areaStatus = new();
+
+        private static int GetGridHash(Vector3 pos)
+        {
+            int x = Mathf.RoundToInt(pos.x / 20f);
+            int z = Mathf.RoundToInt(pos.z / 20f);
+            return (x << 16) ^ z;
+        }
+
         public bool SearchActive { get; private set; }
         public Enemy SearchTarget { get; private set; }
 
@@ -57,6 +82,9 @@ namespace SAIN.SAINComponent.Classes.Search
             if (SearchTarget != null)
             {
                 SearchTarget.Events.OnSearch.CheckToggle(false, currentTime);
+                // QG-2: Mark area as searched when search completes without finding the target
+                if (SearchTarget.LastKnownPosition.HasValue)
+                    MarkAreaStatus(SearchTarget.LastKnownPosition.Value, AreaStatus.Searched);
                 SearchTarget = null;
             }
             SearchActive = false;

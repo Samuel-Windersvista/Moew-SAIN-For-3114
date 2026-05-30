@@ -7,5 +7,6 @@
         Support = 2,
         Sniper = 3,
         Leader = 4,
+        Default = 5,
     }
 }

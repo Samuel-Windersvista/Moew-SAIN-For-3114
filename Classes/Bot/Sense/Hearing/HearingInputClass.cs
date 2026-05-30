@@ -25,6 +25,11 @@ namespace SAIN.SAINComponent.Classes
         private const float IMPACT_MAX_HEAR_DISTANCE = 50f * 50f;
         private const float IMPACT_DISPERSION = 5f * 5f;
 
+        private const float IMPACT_MIN_ACCURATE_DIST = 15f;
+        private const float IMPACT_MAX_RANDOM_DIST = 80f;
+        private const float IMPACT_MIN_DISPERSION = 2f;
+        private const float IMPACT_MAX_DISPERSION = 40f;
+
         public bool IgnoreUnderFire { get; private set; }
         public bool IgnoreHearing { get; private set; }
 
@@ -33,7 +38,7 @@ namespace SAIN.SAINComponent.Classes
             {
                 if (_BotDeafedTime > 0)
                 {
-                    if (_BotDeafedTime < Time.time)
+                    if (_BotDeafedTime > Time.time)
                     {
                         return true;
                     }
@@ -143,7 +148,7 @@ namespace SAIN.SAINComponent.Classes
             // Process most sounds if we aren't deafened
             if (AISoundCachedEvents_Conversations.Count > 0)
             {
-                ProcessSounds(AISoundCachedEvents, AlreadyDeafened, DeafenCoef_Convo, SoundDataToReactTo);
+                ProcessSounds(AISoundCachedEvents_Conversations, AlreadyDeafened, DeafenCoef_Convo, SoundDataToReactTo);
             }
             if (AISoundCachedEvents.Count > 0)
             {
@@ -161,8 +166,7 @@ namespace SAIN.SAINComponent.Classes
                 }
             }
 
-            if (SoundRemoved && SoundDataToReactTo.Capacity > SoundDataToReactTo.Count * 3)
-                SoundDataToReactTo.TrimExcess();
+            // PERF-4: TrimExcess removed — unnecessary reallocation overhead outweighs memory savings
             if (DeafeningShot)
                 _BotDeafedTime = Time.time + BOT_DEAF_TIME_INTERVAL;
 
@@ -304,17 +308,60 @@ namespace SAIN.SAINComponent.Classes
             }
             _nextHearImpactTime = currentTime + IMPACT_HEAR_FREQUENCY;
 
-            float dispersion = distance / IMPACT_DISPERSION;
+            float distance_ = Mathf.Sqrt(distance);
+
+            // Get or create impact memory for this enemy
+            string enemyId = enemy.EnemyPlayer.ProfileId;
+            if (!_impactMemories.TryGetValue(enemyId, out var memory))
+            {
+                memory = new ImpactMemory();
+                _impactMemories[enemyId] = memory;
+            }
+
+            // Check if consecutive hits
+            bool isConsecutive = (currentTime - memory.LastHitTime) < 2f;
+            if (isConsecutive)
+                memory.ConsecutiveHits++;
+            else
+                memory.ConsecutiveHits = 1;
+
+            memory.LastHitTime = currentTime;
+
+            // Calculate base dispersion with distance grading
+            float baseDispersion;
+            if (distance_ <= IMPACT_MIN_ACCURATE_DIST)
+            {
+                // 15m inner: linear growth
+                baseDispersion = Mathf.Lerp(IMPACT_MIN_DISPERSION, IMPACT_MIN_DISPERSION * 2f,
+                    (distance_ - 3f) / (IMPACT_MIN_ACCURATE_DIST - 3f));
+            }
+            else if (distance_ <= IMPACT_MAX_RANDOM_DIST)
+            {
+                // 15-80m: ease-in-quadratic transition to max random
+                float ratio = (distance_ - IMPACT_MIN_ACCURATE_DIST) / (IMPACT_MAX_RANDOM_DIST - IMPACT_MIN_ACCURATE_DIST);
+                float easedRatio = ratio * ratio; // EaseInQuad
+                baseDispersion = Mathf.Lerp(IMPACT_MIN_DISPERSION * 2f, IMPACT_MAX_DISPERSION, easedRatio);
+            }
+            else
+            {
+                // 80m+: extremely unreliable
+                baseDispersion = IMPACT_MAX_DISPERSION * 3f;
+            }
+
+            // Consecutive hits reduce dispersion (more impacts = better localization)
+            float consecutiveMultiplier = 1f / (1f + (memory.ConsecutiveHits - 1) * 0.4f);
+            float finalDispersion = baseDispersion * consecutiveMultiplier;
+
             Vector3 random = UnityEngine.Random.onUnitSphere;
             random.y = 0;
-            random = random.normalized * dispersion;
+            random = random.normalized * finalDispersion;
             Vector3 estimatedPos = enemy.EnemyPosition + random;
 
             SAINHearingReport report = new() {
                 position = estimatedPos,
                 soundType = SAINSoundType.BulletImpact,
                 placeType = EEnemyPlaceType.Hearing,
-                isDanger = distance < 25f * 25f,
+                isDanger = distance_ < 25f,
                 shallReportToSquad = true,
             };
             enemy.Hearing.SetHeard(report, currentTime);
@@ -385,5 +432,13 @@ namespace SAIN.SAINComponent.Classes
 
         private float _nextHearImpactTime;
         private float _ignoreUntilTime;
+
+        private readonly Dictionary<string, ImpactMemory> _impactMemories = new();
+
+        private class ImpactMemory
+        {
+            public int ConsecutiveHits;
+            public float LastHitTime;
+        }
     }
 }

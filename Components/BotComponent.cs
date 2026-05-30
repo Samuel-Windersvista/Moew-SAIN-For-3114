@@ -128,7 +128,10 @@ namespace SAIN.Components
         public SAINSelfActionClass SelfActions { get; private set; }
         public BotGrenadeManager Grenade { get; private set; }
         public SAINSteeringClass Steering { get; private set; }
+        public SAINInterestPointClass SAINInterestPointClass { get; private set; }
         public AimClass Aim { get; private set; }
+
+        public ESquadRole SquadRole { get; set; } = ESquadRole.Default;
 
         public bool IsDead => Player?.HealthController?.IsAlive != true;
         public bool GameEnding => BotActivation.GameEnding;
@@ -266,6 +269,7 @@ namespace SAIN.Components
                 ManualShoot = new ManualShootClass(this);
                 BotActivation = new SAINActivationClass(this);
                 Aim = new AimClass(this);
+                SAINInterestPointClass = new SAINInterestPointClass(this);
             }
             catch (Exception ex)
             {

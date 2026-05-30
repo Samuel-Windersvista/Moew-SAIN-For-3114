@@ -27,7 +27,7 @@ namespace SAIN.SAINComponent.Classes
             float lastKnownDistCoef = 1f;
             if (distanceFromLastKnown < MAX_DISTANCE_LASTKNOWN_REDUCE_RANDOM)
             {
-                float ratio = distanceFromLastKnown - MIN_DISTANCE_LAST_KNOWN_NO_RANDOMIZATION / MAX_DISTANCE_LASTKNOWN_REDUCE_RANDOM - MIN_DISTANCE_LAST_KNOWN_NO_RANDOMIZATION;
+                float ratio = (distanceFromLastKnown - MIN_DISTANCE_LAST_KNOWN_NO_RANDOMIZATION) / (MAX_DISTANCE_LASTKNOWN_REDUCE_RANDOM - MIN_DISTANCE_LAST_KNOWN_NO_RANDOMIZATION);
                 lastKnownDistCoef = Mathf.Lerp(MIN_COEF_LASTKNOWN_REDUCE_RANDOM, 1f, ratio);
             }
             float baseDispersion = getBaseDispersion(Sound.PlayerDistance, Sound.SoundType);
@@ -172,7 +172,20 @@ namespace SAIN.SAINComponent.Classes
                 dispersionValue = 12.5f;
                 //Logger.LogWarning($"Could not find [{soundType}] in Hearing Dispersion Dictionary!");
             }
-            return enemyDistance / dispersionValue;
+            float baseResult = enemyDistance / dispersionValue;
+
+            // F1-4: High-magnification sniper shots are harder to localize
+            if (soundType == SAINSoundType.SuppressedShot || soundType == SAINSoundType.Shot)
+            {
+                var scopeMag = EnemyGainSightClass.GetBotScopeMagnification(Bot);
+                if (scopeMag > 0f)
+                {
+                    float sniperMultiplier = 1f + scopeMag * 0.1f;
+                    baseResult *= sniperMultiplier;
+                }
+            }
+
+            return baseResult;
         }
 
         private float getDispersionModifier(Enemy Enemy)

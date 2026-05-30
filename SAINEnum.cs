@@ -166,6 +166,7 @@
         Help,
         Search,
         GroupSearch,
+        LootingOverwatch,
     }
 
     public enum SAINSoundType

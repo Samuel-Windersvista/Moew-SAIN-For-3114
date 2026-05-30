@@ -14,6 +14,82 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
 
         private const float UNDER_FIRE_FROM_ME_COEF = 0.5f;
 
+        // ---------- Scope Magnification-Based Effective Vision Range ----------
+
+        private const float SCOPE_BASE_RANGE = 60f;
+        private const float SCOPE_MAX_RANGE = 400f;
+        private const float SCOPE_ATTENUATION_RATE = 100f;
+        private const float SCOPE_ATTENUATION_MIN = 0.05f;
+
+        /// <summary>
+        /// Returns the bot's current scope magnification as a float (0f = iron sights, 8f = high-power sniper scope).
+        /// Uses weapon class and HasOptic flag as heuristics when direct EFT scope API is unavailable.
+        /// </summary>
+        public static float GetBotScopeMagnification(BotComponent bot)
+        {
+            var weaponInfo = bot?.PlayerComponent?.Equipment?.CurrentWeaponInfo;
+            if (weaponInfo == null)
+                return 0f;
+
+            if (weaponInfo.HasOptic)
+            {
+                switch (weaponInfo.WeaponClass)
+                {
+                    case EWeaponClass.sniperRifle:
+                        return 8f;
+                    case EWeaponClass.marksmanRifle:
+                        return 6f;
+                    case EWeaponClass.assaultRifle:
+                    case EWeaponClass.assaultCarbine:
+                        return 4f;
+                    default:
+                        // Any other weapon with a mounted optic -- assume 4x
+                        return 4f;
+                }
+            }
+
+            // Sniper rifles often have integrated scopes even without a detachable optic mod
+            if (weaponInfo.WeaponClass == EWeaponClass.sniperRifle)
+                return 4f;
+
+            return 0f;
+        }
+
+        /// <summary>
+        /// Calculates the maximum distance at which a bot's scope provides full detection speed.
+        /// Adjusts based on scope magnification and current weather conditions.
+        /// </summary>
+        private static float CalcEffectiveVisionRange(BotComponent bot)
+        {
+            float scopeMag = GetBotScopeMagnification(bot);
+            float effectiveRange = Mathf.Lerp(SCOPE_BASE_RANGE, SCOPE_MAX_RANGE, scopeMag / 8f);
+
+            // Apply weather visibility attenuation (fog, rain, clouds reduce effective range)
+            if (BotManagerComponent.Instance?.WeatherVision != null)
+            {
+                effectiveRange *= BotManagerComponent.Instance.WeatherVision.VisionDistanceModifier;
+            }
+
+            return effectiveRange;
+        }
+
+        /// <summary>
+        /// Returns a detection-speed multiplier based on how far the enemy is beyond the bot's effective vision range.
+        /// Within effective range: 1.0 (no penalty). Beyond: smoothly decays down to SCOPE_ATTENUATION_MIN.
+        /// </summary>
+        private static float CalcScopeDistanceModifier(BotComponent bot, float enemyDistance)
+        {
+            float effectiveRange = CalcEffectiveVisionRange(bot);
+
+            if (enemyDistance <= effectiveRange)
+                return 1f;
+
+            // Beyond effective range: smooth exponential attenuation
+            float excess = enemyDistance - effectiveRange;
+            float attenuation = Mathf.Clamp01(excess / SCOPE_ATTENUATION_RATE);
+            return Mathf.Lerp(1f, SCOPE_ATTENUATION_MIN, attenuation);
+        }
+
         private const float DIST_SEEN_MIN_COEF = 0.01f;
         private const float DIST_SEEN_MIN_DIST = 1f;
         private const float DIST_SEEN_MAX_DIST = 25f;
@@ -116,6 +192,10 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
                 notLookMod *
                 unknownMod *
                 poseMod;
+
+            // Apply scope magnification-based effective range penalty
+            float scopeMod = CalcScopeDistanceModifier(enemy.Bot, enemy.RealDistance);
+            result *= scopeMod;
 
             //if (enemy.EnemyPlayer.IsYourPlayer)
             //{

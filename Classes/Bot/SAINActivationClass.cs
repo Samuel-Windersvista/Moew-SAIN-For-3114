@@ -74,6 +74,13 @@ namespace SAIN.SAINComponent.Classes
                 Bot.AimDownSightsController.SetADS(false, true);
                 CurrentAction = null;
             }
+
+            // F2-4: Detect combat end and trigger recovery
+            if (_wasInCombat && !Bot.IsInCombat)
+            {
+                Bot.Decision.DecisionManager.CombatEndTime = Time.time;
+            }
+            _wasInCombat = Bot.IsInCombat;
         }
 
         private void CheckBotActive()
@@ -165,5 +172,6 @@ namespace SAIN.SAINComponent.Classes
         }
 
         private float _nextCheckEnemiesTime;
+        private bool _wasInCombat;
     }
 }

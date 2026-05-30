@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace SAIN.Components
 {
-    public class SAINNoBushESP : BotBase, IBotClass
+    public class SAINNoBushESP : BotComponentClassBase
     {
         static SAINNoBushESP()
         {
@@ -41,7 +41,6 @@ namespace SAIN.Components
                 NoBushMask = LayerMaskClass.HighPolyWithTerrainMaskAI 
                     | (1 << LayerMask.NameToLayer("PlayerSpiritAura"));
             }
-            Bot?.AddBotTickClass(this);
             base.Init();
         }
 

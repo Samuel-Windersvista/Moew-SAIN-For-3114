@@ -8,6 +8,7 @@ using SAIN.Plugin;
 using SAIN.Preset;
 using SAIN.SAINComponent.Classes;
 using SAIN.SAINComponent.Classes.EnemyClasses;
+using SAIN.SAINComponent.Classes.Search;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -562,7 +563,25 @@ namespace SAIN.BotController.Classes
                 }
             }
 
+            var killedBot = player?.ProfileId != null && Members.TryGetValue(player.ProfileId, out var found) ? found : null;
             RemoveMember(player?.ProfileId);
+
+            // F2-3: Notify surviving members
+            Vector3 deathPos = killedBot?.Position ?? Vector3.zero;
+            foreach (var survivor in Members.Values)
+            {
+                if (survivor != killedBot && survivor?.Memory != null)
+                {
+                    survivor.Memory.RecentTeammateDeath = true;
+                    survivor.Memory.LastTeammateDeathTime = Time.time;
+                    survivor.Memory.LastTeammateDeathPosition = deathPos;
+                }
+                // QG-2: Mark area as dangerous on teammate death
+                if (survivor?.Search != null && deathPos != Vector3.zero)
+                {
+                    survivor.Search.MarkAreaStatus(deathPos, SAINSearchClass.AreaStatus.Dangerous);
+                }
+            }
         }
 
         public void MemberExtracted(BotComponent sain)
@@ -656,6 +675,9 @@ namespace SAIN.BotController.Classes
                     MemberInfos.Add(bot.ProfileId, memberInfo);
                     Members.Add(bot.ProfileId, bot);
 
+                    // F3-2: Assign squad role based on weapon type
+                    AssignRole(bot);
+
                     // if this new member is a boss, set them to leader automatically
                     if (bot.Info.Profile.IsBoss)
                     {
@@ -675,6 +697,23 @@ namespace SAIN.BotController.Classes
                     }
                 }
             }
+        }
+
+        // F3-2: Assign squad roles based on weapon type
+        private void AssignRole(BotComponent bot)
+        {
+            var weaponClass = bot?.Info?.WeaponInfo?.EWeaponClass;
+
+            if (weaponClass == EWeaponClass.sniperRifle)
+                bot.SquadRole = ESquadRole.Sniper;
+            else if (weaponClass == EWeaponClass.marksmanRifle)
+                bot.SquadRole = ESquadRole.Sniper;
+            else if (weaponClass == EWeaponClass.smg || weaponClass == EWeaponClass.shotgun)
+                bot.SquadRole = ESquadRole.Assault;
+            else if (weaponClass == EWeaponClass.machinegun)
+                bot.SquadRole = ESquadRole.Support;
+            else
+                bot.SquadRole = ESquadRole.Default;
         }
 
         private void memberMadeDecision(ECombatDecision solo, ESquadDecision squad, ESelfActionType self, Enemy enemy, BotComponent member)

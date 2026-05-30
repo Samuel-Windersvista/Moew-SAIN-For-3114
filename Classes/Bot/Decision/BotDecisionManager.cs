@@ -1,6 +1,7 @@
 ﻿using EFT;
 using SAIN.Components;
 using SAIN.Helpers.Events;
+using SAIN.Layers;
 using SAIN.Models.Enums;
 using SAIN.SAINComponent.Classes.EnemyClasses;
 using SAIN.SAINComponent.SubComponents.CoverFinder;
@@ -28,7 +29,19 @@ namespace SAIN.SAINComponent.Classes.Decision
 
         public bool HasDecision => HasDecisionToggle.Value;
         public float ChangeDecisionTime { get; private set; }
+        public float CombatEndTime = -1f;
         public float TimeSinceChangeDecision => Time.time - ChangeDecisionTime;
+
+        private SAINLootingBotsIntegration _sainLootingBotsIntegration;
+        private SAINLootingBotsIntegration SAINLootingBotsIntegration
+        {
+            get
+            {
+                if (_sainLootingBotsIntegration == null)
+                    _sainLootingBotsIntegration = new SAINLootingBotsIntegration(BotOwner, Bot);
+                return _sainLootingBotsIntegration;
+            }
+        }
 
         public override void Init()
         {
@@ -91,6 +104,42 @@ namespace SAIN.SAINComponent.Classes.Decision
             Enemy enemy = Bot.EnemyController.ChooseEnemy();
             if (enemy == null)
             {
+                // F2-4: Post-combat recovery
+                if (CombatEndTime > 0 && Time.time - CombatEndTime < 10f)
+                {
+                    bool needsHeal = Bot.Memory.Health.HealthStatus == ETagStatus.Dying
+                        || Bot.Memory.Health.HealthStatus == ETagStatus.BadlyInjured;
+                    bool needsReload = Bot.Decision.SelfActionDecisions.AmmoRatio < 0.5f;
+
+                    if (needsHeal)
+                    {
+                        SetDecisions(ECombatDecision.None, ESquadDecision.None, ESelfActionType.FirstAid, enemy);
+                        return;
+                    }
+                    if (needsReload)
+                    {
+                        SetDecisions(ECombatDecision.None, ESquadDecision.None, ESelfActionType.Reload, enemy);
+                        return;
+                    }
+                    CombatEndTime = -1f;
+                }
+
+                // INT-4: Try to trigger looting after recovery
+                if (CombatEndTime > 0 && Time.time - CombatEndTime > 10f)
+                {
+                    SAINLootingBotsIntegration?.TryTriggerPostCombatLoot();
+                    CombatEndTime = -1f;
+                }
+
+                // F2-5: Kill confirm — maintain aim on recent kill
+                if (Bot?.Memory?.LastKillTime > 0 && Time.time - Bot.Memory.LastKillTime < 2f)
+                {
+                    if (Bot?.GoalEnemy == null)
+                    {
+                        Bot.Memory.LastKillTime = -1f;
+                    }
+                }
+
                 SetDecisions(ECombatDecision.None, ESquadDecision.None, ESelfActionType.None, enemy);
                 return;
             }

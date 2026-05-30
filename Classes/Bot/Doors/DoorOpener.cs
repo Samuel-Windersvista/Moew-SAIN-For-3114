@@ -38,8 +38,25 @@ namespace SAIN.SAINComponent.Classes.Mover
             Interacting = true;
             ActiveDoor = data;
             InteractionType = interactionType;
-            _doorInteractionEndTime = time + (IsDoorPullOpen(data, Bot.NavMeshPosition) ? 1.25f : 1f);
-            Bot.Player.MovementContext.IgnoreInteractionCollision(data.Door.Collider, true);
+
+            // 1. Stop and step back before door interaction
+            BotOwner.StopMove();
+            Vector3 backDir = (Bot.Position - data.Door.transform.position).normalized;
+            BotOwner.Mover.SetPose(1f);  // stand up straight
+            Vector3 standoffPos = Bot.Position + backDir * 0.5f;
+            BotOwner.GoToPoint(standoffPos, true, -1f, false, false);
+
+            // 2. Estimate door open duration (~1.2s for full open)
+            float doorOpenDuration = 1.2f;
+
+            // 3. Set interaction end time
+            _doorInteractionEndTime = time + doorOpenDuration + 0.15f;
+
+            // 4. Delay collision removal to 80% open
+            _removeCollisionTime = time + doorOpenDuration * 0.8f;
+
+            // Keep collision initially (don't ignore until door is mostly open)
+            Bot.Player.MovementContext.IgnoreInteractionCollision(data.Door.Collider, false);
             return true;
         }
 
@@ -60,6 +77,13 @@ namespace SAIN.SAINComponent.Classes.Mover
 
             if (Interacting)
             {
+                // Remove collision only after door is 80% open
+                if (_removeCollisionTime > 0 && time >= _removeCollisionTime)
+                {
+                    Bot.Player.MovementContext.IgnoreInteractionCollision(ActiveDoor.Door.Collider, true);
+                    _removeCollisionTime = -1f;
+                }
+
                 if (_doorInteractionEndTime < time)
                 {
                     Clear();
@@ -111,6 +135,7 @@ namespace SAIN.SAINComponent.Classes.Mover
             _interactionDoorIndex = 0;
             ActiveDoor = new();
             _doorInteractionEndTime = 0;
+            _removeCollisionTime = -1f;
             InteractionType = EInteractionType.Open;
         }
 
@@ -387,5 +412,6 @@ namespace SAIN.SAINComponent.Classes.Mover
 
         public DoorDataStruct ActiveDoor = new();
         private float _doorInteractionEndTime;
+        private float _removeCollisionTime = -1f;
     }
 }

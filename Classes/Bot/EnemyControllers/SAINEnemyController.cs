@@ -118,6 +118,12 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             {
                 LastGoalEnemy = null;
             }
+
+            // F2-5: Track kill time for confirmation
+            if (enemy?.EnemyPlayer?.HealthController?.IsAlive == false)
+            {
+                Bot?.Memory.LastKillTime = UnityEngine.Time.time;
+            }
         }
 
         public void UpdateEnemies(BotComponent bot, float currentTime)

@@ -10,6 +10,10 @@ namespace SAIN.SAINComponent.Classes.Mover
 {
     public class SAINSteeringClass : BotComponentClassBase
     {
+        private const float STEER_ACCURACY_MIN_DIST = 30f;
+        private const float STEER_ACCURACY_MAX_DIST = 100f;
+        private const float STEER_MAX_ANGLE_ERROR = 60f;
+
         public SAINSteeringClass(BotComponent sain) : base(sain)
         {
             TickRequirement = ESAINTickState.OnlyNoSleep;
@@ -29,6 +33,21 @@ namespace SAIN.SAINComponent.Classes.Mover
             {
                 return Bot.Transform.WeaponRoot - Bot.Position;
             }
+        }
+
+        private Vector3 GetDirectionWithAngleError(Vector3 targetDirection, float distance, int consecutiveSuppressionCount)
+        {
+            if (distance <= STEER_ACCURACY_MIN_DIST)
+                return targetDirection;
+
+            float baseErrorRatio = Mathf.InverseLerp(STEER_ACCURACY_MIN_DIST, STEER_ACCURACY_MAX_DIST, distance);
+            float baseAngleError = Mathf.Lerp(0f, STEER_MAX_ANGLE_ERROR, baseErrorRatio);
+
+            float consecutiveMultiplier = Mathf.Clamp01(1f - consecutiveSuppressionCount * 0.25f);
+            float finalAngleError = baseAngleError * consecutiveMultiplier;
+
+            float randomAngle = UnityEngine.Random.Range(-finalAngleError, finalAngleError);
+            return Quaternion.AngleAxis(randomAngle, Vector3.up) * targetDirection;
         }
 
         public bool SteerByPriority(Enemy enemy = null, bool lookRandom = true, bool ignoreRunningPath = false)
@@ -107,6 +126,14 @@ namespace SAIN.SAINComponent.Classes.Mover
             return false;
         }
         
+        /// <summary>
+        /// Look Directly at point
+        /// </summary>
+        public void LookToDirection(Vector3 direction)
+        {
+            _targetLookDirection = direction.normalized;
+        }
+
         /// <summary>
         /// Look Directly at point
         /// </summary>
@@ -192,25 +219,34 @@ namespace SAIN.SAINComponent.Classes.Mover
         private void LookToUnderFirePos()
         {
             if (LookToLastKnownEnemyPosition(Bot.Memory.LastUnderFireEnemy))
-            {
                 return;
-            }
-            LookToPoint(Bot.Memory.UnderFireFromPosition + WeaponRootOffset);
+
+            Vector3 underFirePos = Bot.Memory.UnderFireFromPosition;
+            Vector3 underFireDir = (underFirePos - Bot.Position).normalized;
+            float distance = Vector3.Distance(Bot.Position, underFirePos);
+            int consecutiveCount = Bot.Memory.ConsecutiveUnderFireCount;
+
+            Vector3 randomizedDir = GetDirectionWithAngleError(underFireDir, distance, consecutiveCount);
+            LookToDirection(randomizedDir);
         }
 
         private void LookToLastHitPos()
         {
             var enemyWhoShotMe = _steerPriorityClass.EnemyWhoLastShotMe;
             if (LookToLastKnownEnemyPosition(enemyWhoShotMe))
-            {
                 return;
-            }
+
             if (enemyWhoShotMe != null)
             {
                 var lastShotPos = enemyWhoShotMe.Status.LastShotPosition;
                 if (lastShotPos != null)
                 {
-                    LookToPoint(lastShotPos.Value + WeaponRootOffset);
+                    Vector3 hitPos = lastShotPos.Value;
+                    Vector3 hitDir = (hitPos - Bot.Position).normalized;
+                    float distance = Vector3.Distance(Bot.Position, hitPos);
+
+                    Vector3 randomizedDir = GetDirectionWithAngleError(hitDir, distance, 0);
+                    LookToDirection(randomizedDir);
                     return;
                 }
             }

@@ -50,6 +50,13 @@ namespace SAIN.SAINComponent.Classes.Talk
 
         public override void ManualUpdate()
         {
+            // F2-3: React to teammate death
+            if (Bot?.Memory?.RecentTeammateDeath == true && Time.time - Bot.Memory.LastTeammateDeathTime < 3f)
+            {
+                Bot.Memory.RecentTeammateDeath = false;
+                Bot.Talk.GroupSay(EPhraseTrigger.OnDeath, ETagStatus.Combat, true, 50f);
+            }
+
             base.ManualUpdate();
             GroupTalk.ManualUpdate();
 

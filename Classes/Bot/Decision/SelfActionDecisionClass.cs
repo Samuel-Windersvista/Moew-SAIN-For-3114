@@ -51,6 +51,7 @@ namespace SAIN.SAINComponent.Classes.Decision
         }
 
         private float _lastReloadTime;
+        private bool _pendingReload;
 
         private bool CheckDoReload(Enemy enemy, BotComponent bot)
         {
@@ -71,6 +72,28 @@ namespace SAIN.SAINComponent.Classes.Decision
 
             var weaponManager = botOwner.WeaponManager;
             if (weaponManager == null) return false;
+
+            // F2-1: If primary weapon is empty and secondary is available, swap instead of reloading
+            if (weaponManager.HaveBullets == false)
+            {
+                if (weaponManager.info.TryGetValue(EquipmentSlot.SecondPrimaryWeapon, out var secondInfo) &&
+                    secondInfo?.weapon != null)
+                {
+                    try
+                    {
+                        var magSlot = secondInfo.weapon.GetMagazineSlot();
+                        if (magSlot?.ContainedItem is MagazineItemClass mag && mag.Count > 0)
+                        {
+                            if (weaponManager.Selector.TryChangeWeapon(true))
+                            {
+                                _lastReloadTime = Time.time + 1.5f;
+                                return false;
+                            }
+                        }
+                    }
+                    catch { }
+                }
+            }
 
             if (weaponManager.IsMelee)
             {
@@ -107,10 +130,32 @@ namespace SAIN.SAINComponent.Classes.Decision
 
             if (CheckReloadRatiosCanReload(enemy, RELOAD_AMMORATIO_MIN_PEACE, RELOAD_AMMORATIO_MAX, _ammoRatio))
             {
-                if (TryReload(botOwner, reload))
+                // F2-2: Tactical reload in cover
+                if (Bot.Cover.CoverInUse != null)
                 {
-                    return true;
+                    // Already in cover — safe to reload
+                    if (TryReload(botOwner, reload))
+                    {
+                        _pendingReload = false;
+                        return true;
+                    }
                 }
+                else if (enemy != null && enemy.IsVisible)
+                {
+                    // Enemy visible and not in cover — defer reload, seek cover first
+                    _pendingReload = true;
+                    return false;
+                }
+                else
+                {
+                    // No enemy visible — safe to reload where we are
+                    if (TryReload(botOwner, reload))
+                    {
+                        _pendingReload = false;
+                        return true;
+                    }
+                }
+
                 if (enemy != null && enemy.IsVisible && enemy.RealDistance < 10f && !weaponManager.Selector.TryChangeWeapon(true) && weaponManager.Selector.CanChangeToMeleeWeapons)
                 {
                     weaponManager.Selector.ChangeToMelee();

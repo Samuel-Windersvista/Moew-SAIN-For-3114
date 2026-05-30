@@ -1,10 +1,12 @@
 ﻿using BepInEx.Bootstrap;
 
 using EFT;
+using UnityEngine;
 using EFT.Interactive;
 
 using HarmonyLib;
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace LootingBots
@@ -155,6 +157,31 @@ namespace LootingBots
 
             return (float)
                 _GetItemPriceMethod.Invoke(null, [item]);
+        }
+
+        // INT-5: Item price cache
+        private static readonly Dictionary<string, float> _itemPriceCache = new();
+        private static float _cacheCleanupTime;
+        private const float CACHE_EXPIRY = 60f; // 60 second cache
+
+        public static float GetItemPriceCached(LootItem item)
+        {
+            string tpl = item?.Item?.TemplateId;
+            if (tpl == null) return 0f;
+
+            // Periodically clear stale cache
+            if (_cacheCleanupTime < Time.time)
+            {
+                _cacheCleanupTime = Time.time + CACHE_EXPIRY;
+                _itemPriceCache.Clear();
+            }
+
+            if (_itemPriceCache.TryGetValue(tpl, out float price))
+                return price;
+
+            price = GetItemPrice(item);
+            _itemPriceCache[tpl] = price;
+            return price;
         }
     }
 }
