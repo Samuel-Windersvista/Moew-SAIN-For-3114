@@ -1,6 +1,7 @@
 using EFT;
 using SAIN.Components;
 using SAIN.Helpers;
+using SAIN.Preset.GlobalSettings;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -51,7 +52,8 @@ namespace SAIN.SAINComponent.Classes.Talk
         public override void ManualUpdate()
         {
             // F2-3: React to teammate death
-            if (Bot?.Memory?.RecentTeammateDeath == true && Time.time - Bot.Memory.LastTeammateDeathTime < 3f)
+            if (GlobalSettingsClass.Instance.Mind.SQUAD_DEATH_REACTION &&
+                Bot?.Memory?.RecentTeammateDeath == true && Time.time - Bot.Memory.LastTeammateDeathTime < 3f)
             {
                 Bot.Memory.RecentTeammateDeath = false;
                 Bot.Talk.GroupSay(EPhraseTrigger.OnDeath, ETagStatus.Combat, true, 50f);

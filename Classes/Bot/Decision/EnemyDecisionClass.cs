@@ -118,7 +118,7 @@ namespace SAIN.SAINComponent.Classes.Decision
             }
 
             // F4-3: Anomaly awareness — too quiet in combat suppresses aggression
-            if (Bot.IsInCombat && enemy?.TimeSinceHeard > 30f)
+            if (GlobalSettingsClass.Instance.Mind.ANOMALY_AWARENESS_ENABLED && Bot.IsInCombat && enemy?.TimeSinceHeard > 30f)
             {
                 canTakeAggressiveAction = false;
 #if DEBUG
@@ -209,7 +209,7 @@ namespace SAIN.SAINComponent.Classes.Decision
             }
 
             // F4-1: Combat fatigue proxy — reuse existing suppression as fatigue signal
-            if (Bot?.Suppression?.IsHeavySuppressed == true)
+            if (GlobalSettingsClass.Instance.Mind.COMBAT_FATIGUE_ENABLED && Bot?.Suppression?.IsHeavySuppressed == true)
             {
                 // Heavy suppression = combat fatigue -> 20% less aggressive
                 reason = "combatFatigue";

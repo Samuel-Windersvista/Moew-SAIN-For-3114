@@ -2,6 +2,7 @@
 using EFT.InventoryLogic;
 using HarmonyLib;
 using SAIN.Components;
+using SAIN.Preset.GlobalSettings;
 using SAIN.SAINComponent.Classes.EnemyClasses;
 using SPT.Reflection.Patching;
 using System;
@@ -74,7 +75,7 @@ namespace SAIN.SAINComponent.Classes.Decision
             if (weaponManager == null) return false;
 
             // F2-1: If primary weapon is empty and secondary is available, swap instead of reloading
-            if (weaponManager.HaveBullets == false)
+            if (GlobalSettingsClass.Instance.Mind.WEAPON_SWAP_ON_DRY && weaponManager.HaveBullets == false)
             {
                 if (weaponManager.info.TryGetValue(EquipmentSlot.SecondPrimaryWeapon, out var secondInfo) &&
                     secondInfo?.weapon != null)
@@ -131,24 +132,36 @@ namespace SAIN.SAINComponent.Classes.Decision
             if (CheckReloadRatiosCanReload(enemy, RELOAD_AMMORATIO_MIN_PEACE, RELOAD_AMMORATIO_MAX, _ammoRatio))
             {
                 // F2-2: Tactical reload in cover
-                if (Bot.Cover.CoverInUse != null)
+                if (GlobalSettingsClass.Instance.Mind.TACTICAL_RELOAD_IN_COVER)
                 {
-                    // Already in cover — safe to reload
-                    if (TryReload(botOwner, reload))
+                    if (Bot.Cover.CoverInUse != null)
                     {
-                        _pendingReload = false;
-                        return true;
+                        // Already in cover — safe to reload
+                        if (TryReload(botOwner, reload))
+                        {
+                            _pendingReload = false;
+                            return true;
+                        }
                     }
-                }
-                else if (enemy != null && enemy.IsVisible)
-                {
-                    // Enemy visible and not in cover — defer reload, seek cover first
-                    _pendingReload = true;
-                    return false;
+                    else if (enemy != null && enemy.IsVisible)
+                    {
+                        // Enemy visible and not in cover — defer reload, seek cover first
+                        _pendingReload = true;
+                        return false;
+                    }
+                    else
+                    {
+                        // No enemy visible — safe to reload where we are
+                        if (TryReload(botOwner, reload))
+                        {
+                            _pendingReload = false;
+                            return true;
+                        }
+                    }
                 }
                 else
                 {
-                    // No enemy visible — safe to reload where we are
+                    // Legacy reload check (no tactical cover awareness)
                     if (TryReload(botOwner, reload))
                     {
                         _pendingReload = false;

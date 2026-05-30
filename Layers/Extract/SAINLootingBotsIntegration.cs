@@ -1,6 +1,7 @@
 ﻿using EFT;
 using EFT.Interactive;
 using SAIN.Components;
+using SAIN.Preset.GlobalSettings;
 using UnityEngine;
 
 namespace SAIN.Layers
@@ -94,6 +95,8 @@ namespace SAIN.Layers
 
         private void CheckLootingVigilance()
         {
+            if (!GlobalSettingsClass.Instance.General.LootingBots.LOOTING_THREAT_INTERRUPT) return;
+
             if (_nextVigilanceCheck > Time.time) return;
             _nextVigilanceCheck = Time.time + 0.5f;
 
@@ -117,6 +120,8 @@ namespace SAIN.Layers
 
         public bool TryEnsureSafeLootingPosition()
         {
+            if (!GlobalSettingsClass.Instance.General.LootingBots.LOOTING_COVER_CHECK) return true;
+
             if (!LootingBots.LootingBotsInterop.IsLootingBotsLoaded()) return true;
 
             // Already in cover — good

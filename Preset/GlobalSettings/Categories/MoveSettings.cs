@@ -106,6 +106,16 @@ namespace SAIN.Preset.GlobalSettings
         [MinMax(1f, 90f, 1f)]
         public float BotSprintCurrentCornerAngleMax = 25f;
 
+        [Name("腿部受伤移动惩罚")]
+        [Description("腿部骨折减速至60%、重伤减速至75%，并禁止冲刺。默认开启。")]
+        [Category("受伤与限制")]
+        public bool INJURY_SPEED_PENALTY_ENABLED = true;
+
+        [Name("启用冲刺智能限制")]
+        [Description("太近(<10m)、被压制、腿伤或濒死不冲刺；超100m保留体力。默认开启。")]
+        [Category("受伤与限制")]
+        public bool SMART_SPRINT_RESTRICT_ENABLED = true;
+
         public override void Init(List<ISAINSettings> list)
         {
             list.Add(this);

@@ -19,6 +19,10 @@ namespace SAIN.Preset.GlobalSettings
         [Name("禁用所有门")]
         [Description("门太难做了全关掉。仅对可正常开关的门生效。")]
         public bool DisableAllDoors = false;
+
+        [Name("开门前退后一步")]
+        [Description("Bot开门前退后0.5米，等门物理打开后再通过，减少穿门。默认开启。")]
+        public bool DOOR_RETREAT_ENABLED = true;
     }
 
 }

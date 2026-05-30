@@ -17,7 +17,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
         // ---------- Scope Magnification-Based Effective Vision Range ----------
 
         private const float SCOPE_BASE_RANGE = 60f;
-        private const float SCOPE_MAX_RANGE = 400f;
+        private static float SCOPE_MAX_RANGE => GlobalSettingsClass.Instance.Look.VisionDistance.SCOPE_MAX_RANGE;
         private const float SCOPE_ATTENUATION_RATE = 100f;
         private const float SCOPE_ATTENUATION_MIN = 0.05f;
 
@@ -193,9 +193,12 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
                 unknownMod *
                 poseMod;
 
-            // Apply scope magnification-based effective range penalty
-            float scopeMod = CalcScopeDistanceModifier(enemy.Bot, enemy.RealDistance);
-            result *= scopeMod;
+            // Apply scope magnification-based effective range penalty (F1-3)
+            if (GlobalSettingsClass.Instance.Look.VisionDistance.SCOPE_VISION_ENABLED)
+            {
+                float scopeMod = CalcScopeDistanceModifier(enemy.Bot, enemy.RealDistance);
+                result *= scopeMod;
+            }
 
             //if (enemy.EnemyPlayer.IsYourPlayer)
             //{

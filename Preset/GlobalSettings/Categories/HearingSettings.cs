@@ -562,6 +562,16 @@ namespace SAIN.Preset.GlobalSettings
             { ECaliber.Default, 125 },
         };
 
+        [Name("弹着点距离分级")]
+        [Description("弹着点定位精度按距离分级：近距精确、中距模糊、远距极不可靠。默认开启。")]
+        [Category("声音定位")]
+        public bool IMPACT_GRADING_ENABLED = true;
+
+        [Name("倍镜影响枪声定位")]
+        [Description("高倍镜狙击手枪声更难被精确定位。默认开启。")]
+        [Category("声音定位")]
+        public bool SCOPE_SOUND_DISPERSION_ENABLED = true;
+
         public override void Init(List<ISAINSettings> list)
         {
             Helpers.ListHelpers.CloneEntries(HEAR_DISPERSION_VALUES_Defaults, HEAR_DISPERSION_VALUES);

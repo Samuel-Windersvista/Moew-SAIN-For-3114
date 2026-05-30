@@ -3,6 +3,7 @@ using EFT.HealthSystem;
 using SAIN.Classes.Transform;
 using SAIN.Components;
 using SAIN.Models.Enums;
+using SAIN.Preset.GlobalSettings;
 using SAIN.SAINComponent.SubComponents.CoverFinder;
 using System;
 using UnityEngine;
@@ -391,6 +392,8 @@ namespace SAIN.SAINComponent.Classes.Mover
         /// </summary>
         public float GetInjurySpeedMultiplier()
         {
+            if (!GlobalSettingsClass.Instance.Move.INJURY_SPEED_PENALTY_ENABLED) return 1f;
+
             float multiplier = 1f;
 
             try
@@ -439,6 +442,7 @@ namespace SAIN.SAINComponent.Classes.Mover
         // F4-2: Anti-sniper evasive movement check
         private bool ShouldEvasiveMove()
         {
+            if (!GlobalSettingsClass.Instance.Mind.ENEMY_WEAPON_ADAPT_ENABLED) return false;
             var enemy = Bot?.GoalEnemy;
             if (enemy == null) return false;
             var weapon = enemy?.EnemyPlayerComponent?.Equipment?.CurrentWeaponInfo;
@@ -449,6 +453,8 @@ namespace SAIN.SAINComponent.Classes.Mover
         // F3-3: Sprint restriction logic
         public bool CanSprintToPoint(Vector3 target)
         {
+            if (!GlobalSettingsClass.Instance.Move.SMART_SPRINT_RESTRICT_ENABLED) return true;
+
             if (target == Vector3.zero) return true;
 
             float distance = Vector3.Distance(Bot.Position, target);

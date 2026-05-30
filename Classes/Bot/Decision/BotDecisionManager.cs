@@ -3,6 +3,7 @@ using SAIN.Components;
 using SAIN.Helpers.Events;
 using SAIN.Layers;
 using SAIN.Models.Enums;
+using SAIN.Preset.GlobalSettings;
 using SAIN.SAINComponent.Classes.EnemyClasses;
 using SAIN.SAINComponent.SubComponents.CoverFinder;
 using System;
@@ -105,7 +106,7 @@ namespace SAIN.SAINComponent.Classes.Decision
             if (enemy == null)
             {
                 // F2-4: Post-combat recovery
-                if (CombatEndTime > 0 && Time.time - CombatEndTime < 10f)
+                if (GlobalSettingsClass.Instance.Mind.POST_COMBAT_RECOVERY && CombatEndTime > 0 && Time.time - CombatEndTime < 10f)
                 {
                     bool needsHeal = Bot.Memory.Health.HealthStatus == ETagStatus.Dying
                         || Bot.Memory.Health.HealthStatus == ETagStatus.BadlyInjured;
@@ -132,7 +133,7 @@ namespace SAIN.SAINComponent.Classes.Decision
                 }
 
                 // F2-5: Kill confirm — maintain aim on recent kill
-                if (Bot?.Memory?.LastKillTime > 0 && Time.time - Bot.Memory.LastKillTime < 2f)
+                if (GlobalSettingsClass.Instance.Mind.KILL_CONFIRM_ENABLED && Bot?.Memory?.LastKillTime > 0 && Time.time - Bot.Memory.LastKillTime < 2f)
                 {
                     if (Bot?.GoalEnemy == null)
                     {

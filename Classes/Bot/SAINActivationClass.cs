@@ -4,6 +4,7 @@ using SAIN.Components;
 using SAIN.Helpers.Events;
 using SAIN.Layers;
 using SAIN.Models.Enums;
+using SAIN.Preset.GlobalSettings;
 using UnityEngine;
 
 namespace SAIN.SAINComponent.Classes
@@ -78,7 +79,10 @@ namespace SAIN.SAINComponent.Classes
             // F2-4: Detect combat end and trigger recovery
             if (_wasInCombat && !Bot.IsInCombat)
             {
-                Bot.Decision.DecisionManager.CombatEndTime = Time.time;
+                if (GlobalSettingsClass.Instance.Mind.POST_COMBAT_RECOVERY)
+                {
+                    Bot.Decision.DecisionManager.CombatEndTime = Time.time;
+                }
             }
             _wasInCombat = Bot.IsInCombat;
         }

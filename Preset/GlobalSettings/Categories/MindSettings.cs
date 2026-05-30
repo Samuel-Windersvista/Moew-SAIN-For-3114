@@ -280,6 +280,56 @@ namespace SAIN.Preset.GlobalSettings.Categories
         [Category("压制")]
         public float SUPP_MAX_NUM = 30f;
 
+        [Name("空仓自动切副武器")]
+        [Description("主武器弹尽时自动切换手枪继续战斗。默认开启。")]
+        [Category("v4.2.0 战斗行为")]
+        public bool WEAPON_SWAP_ON_DRY = true;
+
+        [Name("掩体后战术换弹")]
+        [Description("开阔地有敌人时优先找掩体再换弹。默认开启。")]
+        [Category("v4.2.0 战斗行为")]
+        public bool TACTICAL_RELOAD_IN_COVER = true;
+
+        [Name("队友阵亡反应")]
+        [Description("队友死亡时存活成员有语音和情绪反应。默认开启。")]
+        [Category("v4.2.0 战斗行为")]
+        public bool SQUAD_DEATH_REACTION = true;
+
+        [Name("战后自动恢复")]
+        [Description("战斗结束后自动治疗伤口并补充弹药。默认开启。")]
+        [Category("v4.2.0 战斗行为")]
+        public bool POST_COMBAT_RECOVERY = true;
+
+        [Name("击杀确认行为")]
+        [Description("击倒敌人后短暂保持瞄准确认死亡。默认开启。")]
+        [Category("v4.2.0 战斗行为")]
+        public bool KILL_CONFIRM_ENABLED = true;
+
+        [Name("闪光弹战术")]
+        [Description("近距离室内敌人有概率使用闪光弹。实验性功能，默认关闭。")]
+        [Category("v4.2.0 战术")]
+        public bool TACTICAL_FLASHBANG_ENABLED = false;
+
+        [Name("小队角色自动分配")]
+        [Description("基于武器类型自动分配狙击/突击/支援角色。默认开启。")]
+        [Category("v4.2.0 战术")]
+        public bool SQUAD_ROLE_ENABLED = true;
+
+        [Name("战斗疲劳")]
+        [Description("重度压制时代理为战斗疲劳，降低进攻行为。默认开启。")]
+        [Category("v4.2.0 氛围")]
+        public bool COMBAT_FATIGUE_ENABLED = true;
+
+        [Name("敌方武器识别")]
+        [Description("根据敌方武器类型调整突击距离判断。默认开启。")]
+        [Category("v4.2.0 氛围")]
+        public bool ENEMY_WEAPON_ADAPT_ENABLED = true;
+
+        [Name("异常安静警觉")]
+        [Description("战斗中30秒未听到敌人声音则强制保守决策。默认开启。")]
+        [Category("v4.2.0 氛围")]
+        public bool ANOMALY_AWARENESS_ENABLED = true;
+
         public override void Init(List<ISAINSettings> list)
         {
             list.Add(this);

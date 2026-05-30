@@ -6,6 +6,7 @@ using SAIN.Models.Enums;
 using SAIN.Models.Structs;
 using SAIN.Plugin;
 using SAIN.Preset;
+using SAIN.Preset.GlobalSettings;
 using SAIN.SAINComponent.Classes;
 using SAIN.SAINComponent.Classes.EnemyClasses;
 using SAIN.SAINComponent.Classes.Search;
@@ -676,7 +677,10 @@ namespace SAIN.BotController.Classes
                     Members.Add(bot.ProfileId, bot);
 
                     // F3-2: Assign squad role based on weapon type
-                    AssignRole(bot);
+                    if (GlobalSettingsClass.Instance.Mind.SQUAD_ROLE_ENABLED)
+                    {
+                        AssignRole(bot);
+                    }
 
                     // if this new member is a boss, set them to leader automatically
                     if (bot.Info.Profile.IsBoss)

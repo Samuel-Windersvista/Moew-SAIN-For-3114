@@ -4,6 +4,7 @@ using SAIN.Components.BotController;
 using SAIN.Components.PlayerComponentSpace;
 using SAIN.Helpers;
 using SAIN.Models.Enums;
+using SAIN.Preset.GlobalSettings;
 using SAIN.Models.Structs;
 using SAIN.SAINComponent.Classes.EnemyClasses;
 using System;
@@ -327,30 +328,35 @@ namespace SAIN.SAINComponent.Classes
 
             memory.LastHitTime = currentTime;
 
-            // Calculate base dispersion with distance grading
-            float baseDispersion;
-            if (distance_ <= IMPACT_MIN_ACCURATE_DIST)
+            // Calculate base dispersion with distance grading (F1-2)
+            float baseDispersion = Mathf.Sqrt(IMPACT_DISPERSION);
+            if (GlobalSettingsClass.Instance.Hearing.IMPACT_GRADING_ENABLED)
             {
-                // 15m inner: linear growth
-                baseDispersion = Mathf.Lerp(IMPACT_MIN_DISPERSION, IMPACT_MIN_DISPERSION * 2f,
-                    (distance_ - 3f) / (IMPACT_MIN_ACCURATE_DIST - 3f));
-            }
-            else if (distance_ <= IMPACT_MAX_RANDOM_DIST)
-            {
-                // 15-80m: ease-in-quadratic transition to max random
-                float ratio = (distance_ - IMPACT_MIN_ACCURATE_DIST) / (IMPACT_MAX_RANDOM_DIST - IMPACT_MIN_ACCURATE_DIST);
-                float easedRatio = ratio * ratio; // EaseInQuad
-                baseDispersion = Mathf.Lerp(IMPACT_MIN_DISPERSION * 2f, IMPACT_MAX_DISPERSION, easedRatio);
-            }
-            else
-            {
-                // 80m+: extremely unreliable
-                baseDispersion = IMPACT_MAX_DISPERSION * 3f;
+                if (distance_ <= IMPACT_MIN_ACCURATE_DIST)
+                {
+                    // 15m inner: linear growth
+                    baseDispersion = Mathf.Lerp(IMPACT_MIN_DISPERSION, IMPACT_MIN_DISPERSION * 2f,
+                        (distance_ - 3f) / (IMPACT_MIN_ACCURATE_DIST - 3f));
+                }
+                else if (distance_ <= IMPACT_MAX_RANDOM_DIST)
+                {
+                    // 15-80m: ease-in-quadratic transition to max random
+                    float ratio = (distance_ - IMPACT_MIN_ACCURATE_DIST) / (IMPACT_MAX_RANDOM_DIST - IMPACT_MIN_ACCURATE_DIST);
+                    float easedRatio = ratio * ratio; // EaseInQuad
+                    baseDispersion = Mathf.Lerp(IMPACT_MIN_DISPERSION * 2f, IMPACT_MAX_DISPERSION, easedRatio);
+                }
+                else
+                {
+                    // 80m+: extremely unreliable
+                    baseDispersion = IMPACT_MAX_DISPERSION * 3f;
+                }
+
+                // Consecutive hits reduce dispersion (more impacts = better localization)
+                float consecutiveMultiplier = 1f / (1f + (memory.ConsecutiveHits - 1) * 0.4f);
+                baseDispersion *= consecutiveMultiplier;
             }
 
-            // Consecutive hits reduce dispersion (more impacts = better localization)
-            float consecutiveMultiplier = 1f / (1f + (memory.ConsecutiveHits - 1) * 0.4f);
-            float finalDispersion = baseDispersion * consecutiveMultiplier;
+            float finalDispersion = baseDispersion;
 
             Vector3 random = UnityEngine.Random.onUnitSphere;
             random.y = 0;

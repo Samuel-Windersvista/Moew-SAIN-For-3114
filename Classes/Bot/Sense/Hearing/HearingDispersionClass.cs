@@ -175,13 +175,16 @@ namespace SAIN.SAINComponent.Classes
             float baseResult = enemyDistance / dispersionValue;
 
             // F1-4: High-magnification sniper shots are harder to localize
-            if (soundType == SAINSoundType.SuppressedShot || soundType == SAINSoundType.Shot)
+            if (GlobalSettingsClass.Instance.Hearing.SCOPE_SOUND_DISPERSION_ENABLED)
             {
-                var scopeMag = EnemyGainSightClass.GetBotScopeMagnification(Bot);
-                if (scopeMag > 0f)
+                if (soundType == SAINSoundType.SuppressedShot || soundType == SAINSoundType.Shot)
                 {
-                    float sniperMultiplier = 1f + scopeMag * 0.1f;
-                    baseResult *= sniperMultiplier;
+                    var scopeMag = EnemyGainSightClass.GetBotScopeMagnification(Bot);
+                    if (scopeMag > 0f)
+                    {
+                        float sniperMultiplier = 1f + scopeMag * 0.1f;
+                        baseResult *= sniperMultiplier;
+                    }
                 }
             }
 

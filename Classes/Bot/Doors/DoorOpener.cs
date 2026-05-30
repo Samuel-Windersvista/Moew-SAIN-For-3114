@@ -2,6 +2,7 @@
 using EFT.Interactive;
 using SAIN.Components;
 using SAIN.Helpers;
+using SAIN.Preset.GlobalSettings;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -39,12 +40,16 @@ namespace SAIN.SAINComponent.Classes.Mover
             ActiveDoor = data;
             InteractionType = interactionType;
 
-            // 1. Stop and step back before door interaction
-            BotOwner.StopMove();
-            Vector3 backDir = (Bot.Position - data.Door.transform.position).normalized;
-            BotOwner.Mover.SetPose(1f);  // stand up straight
-            Vector3 standoffPos = Bot.Position + backDir * 0.5f;
-            BotOwner.GoToPoint(standoffPos, true, -1f, false, false);
+            // F1-5: Door retreat before interaction
+            if (GlobalSettingsClass.Instance.General.Doors.DOOR_RETREAT_ENABLED)
+            {
+                // 1. Stop and step back before door interaction
+                BotOwner.StopMove();
+                Vector3 backDir = (Bot.Position - data.Door.transform.position).normalized;
+                BotOwner.Mover.SetPose(1f);  // stand up straight
+                Vector3 standoffPos = Bot.Position + backDir * 0.5f;
+                BotOwner.GoToPoint(standoffPos, true, -1f, false, false);
+            }
 
             // 2. Estimate door open duration (~1.2s for full open)
             float doorOpenDuration = 1.2f;

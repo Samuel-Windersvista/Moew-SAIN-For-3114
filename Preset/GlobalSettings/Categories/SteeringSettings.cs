@@ -85,6 +85,32 @@ namespace SAIN.Preset.GlobalSettings
         [MinMax(16, 2048, 1f)]
         public float PathVisionMinCommandsPerJob = 256f; // Minimum commands per job for path vision jobs
 
+        [Name("启用转向角度梯度误差")]
+        [Description("远距离被击中时转向精度降低，近距离精确。默认开启。")]
+        [Category("转向误差")]
+        public bool STEER_ANGLE_ERROR_ENABLED = true;
+
+        [Name("零误差距离")]
+        [Description("此距离(米)内被击中时转向无误差。")]
+        [Category("转向误差")]
+        [MinMax(5f, 80f, 5f)]
+        [Advanced]
+        public float STEER_ACCURACY_MIN_DIST = 30f;
+
+        [Name("最大误差距离")]
+        [Description("此距离(米)外被击中时转向误差达到最大。")]
+        [Category("转向误差")]
+        [MinMax(20f, 200f, 10f)]
+        [Advanced]
+        public float STEER_ACCURACY_MAX_DIST = 100f;
+
+        [Name("最大角度误差")]
+        [Description("远距离被击中时的最大转向角度误差(度)。")]
+        [Category("转向误差")]
+        [MinMax(10f, 120f, 5f)]
+        [Advanced]
+        public float STEER_MAX_ANGLE_ERROR = 60f;
+
         public override void Init(List<ISAINSettings> list)
         {
             list.Add(this);

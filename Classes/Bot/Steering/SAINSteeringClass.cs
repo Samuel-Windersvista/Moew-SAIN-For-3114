@@ -2,6 +2,7 @@
 using SAIN.Components;
 using SAIN.Components.PlayerComponentSpace;
 using SAIN.Models.Enums;
+using SAIN.Preset.GlobalSettings;
 using SAIN.SAINComponent.Classes.EnemyClasses;
 using System;
 using UnityEngine;
@@ -10,10 +11,6 @@ namespace SAIN.SAINComponent.Classes.Mover
 {
     public class SAINSteeringClass : BotComponentClassBase
     {
-        private const float STEER_ACCURACY_MIN_DIST = 30f;
-        private const float STEER_ACCURACY_MAX_DIST = 100f;
-        private const float STEER_MAX_ANGLE_ERROR = 60f;
-
         public SAINSteeringClass(BotComponent sain) : base(sain)
         {
             TickRequirement = ESAINTickState.OnlyNoSleep;
@@ -37,11 +34,14 @@ namespace SAIN.SAINComponent.Classes.Mover
 
         private Vector3 GetDirectionWithAngleError(Vector3 targetDirection, float distance, int consecutiveSuppressionCount)
         {
-            if (distance <= STEER_ACCURACY_MIN_DIST)
+            var steering = GlobalSettingsClass.Instance.Steering;
+            if (!steering.STEER_ANGLE_ERROR_ENABLED) return targetDirection;
+
+            if (distance <= steering.STEER_ACCURACY_MIN_DIST)
                 return targetDirection;
 
-            float baseErrorRatio = Mathf.InverseLerp(STEER_ACCURACY_MIN_DIST, STEER_ACCURACY_MAX_DIST, distance);
-            float baseAngleError = Mathf.Lerp(0f, STEER_MAX_ANGLE_ERROR, baseErrorRatio);
+            float baseErrorRatio = Mathf.InverseLerp(steering.STEER_ACCURACY_MIN_DIST, steering.STEER_ACCURACY_MAX_DIST, distance);
+            float baseAngleError = Mathf.Lerp(0f, steering.STEER_MAX_ANGLE_ERROR, baseErrorRatio);
 
             float consecutiveMultiplier = Mathf.Clamp01(1f - consecutiveSuppressionCount * 0.25f);
             float finalAngleError = baseAngleError * consecutiveMultiplier;
