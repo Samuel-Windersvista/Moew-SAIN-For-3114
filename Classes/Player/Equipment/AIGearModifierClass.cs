@@ -29,8 +29,9 @@ namespace SAIN.Components.PlayerComponentSpace.Classes.Equipment
                         modifier = calcGearEffects();
                         success = true;
                     }
-                    catch //(Exception e)
+                    catch (Exception e)
                     {
+                        Logger.LogError($"calcGearEffects failed: {e}");
                     }
 
                     if (success)
@@ -46,10 +47,7 @@ namespace SAIN.Components.PlayerComponentSpace.Classes.Equipment
                     }
                     else
                     {
-                        float backPackMod = getBackpackMod();
-                        float headWearMod = getHeadWearMod();
-                        float faceCoverMod = getFaceCoverMod();
-                        _gearStealthModifier = backPackMod * headWearMod * faceCoverMod;
+                        _gearStealthModifier = 1f;
                     }
                 }
                 return _gearStealthModifier;
@@ -118,6 +116,42 @@ namespace SAIN.Components.PlayerComponentSpace.Classes.Equipment
                         break;
                 }
             }
+
+            // Phase 2: Weapon visual exposure (long guns are more visible at range)
+            var weapon = AIData?.PlayerComponent?.Equipment?.CurrentWeaponInfo;
+            if (weapon != null)
+            {
+                float weaponMod = weapon.WeaponClass switch
+                {
+                    EWeaponClass.pistol => 1.00f,
+                    EWeaponClass.smg => 1.00f,
+                    EWeaponClass.assaultRifle => 0.95f,
+                    EWeaponClass.assaultCarbine => 0.95f,
+                    EWeaponClass.shotgun => 0.90f,
+                    EWeaponClass.marksmanRifle => 0.82f,
+                    EWeaponClass.sniperRifle => 0.70f,
+                    EWeaponClass.machinegun => 0.65f,
+                    EWeaponClass.grenadeLauncher => 0.55f,
+                    _ => 1.00f
+                };
+
+                // Scabbard: second primary weapon on back adds exposure
+                var weaponInfos = AIData?.PlayerComponent?.Equipment?.WeaponInfos;
+                if (weaponInfos != null)
+                {
+                    foreach (var (slot, info) in weaponInfos)
+                    {
+                        if (slot == EquipmentSlot.SecondPrimaryWeapon && info != weapon)
+                        {
+                            weaponMod *= 0.90f;
+                            break;
+                        }
+                    }
+                }
+
+                result *= weaponMod;
+            }
+
             return result;
         }
 
@@ -161,79 +195,5 @@ namespace SAIN.Components.PlayerComponentSpace.Classes.Equipment
             return result;
         }
 
-        private float getBackpackMod()
-        {
-            Item backpack = GearInfo.GetItem(EquipmentSlot.Backpack);
-            if (backpack == null)
-            {
-                return 1.15f;
-            }
-            switch (backpack.TemplateId)
-            {
-                case backpack_pilgrim:
-                    return 0.875f;
-
-                case backpack_raid:
-                    return 0.925f;
-
-                default:
-                    return 1f;
-            }
-        }
-
-        private float getHeadWearMod()
-        {
-            Item headwear = GearInfo.GetItem(EquipmentSlot.Headwear);
-            if (headwear == null)
-            {
-                return 1f;
-            }
-            switch (headwear.TemplateId)
-            {
-                case boonie_MILTEC:
-                    return 1.2f;
-
-                case boonie_CHIMERA:
-                    return 1.2f;
-
-                case boonie_DOORKICKER:
-                    return 1.2f;
-
-                case boonie_JACK_PYKE:
-                    return 1.2f;
-
-                case helmet_TAN_ULACH:
-                    return 0.925f;
-
-                case helmet_UNTAR_BLUE:
-                    return 0.9f;
-
-                default:
-                    return 1f;
-            }
-        }
-
-        private float getFaceCoverMod()
-        {
-            Item faceCover = GearInfo.GetItem(EquipmentSlot.FaceCover);
-            if (faceCover == null)
-            {
-                return 1f;
-            }
-            switch (faceCover.TemplateId)
-            {
-                default:
-                    return 1.05f;
-            }
-        }
-
-        private const string backpack_pilgrim = "59e763f286f7742ee57895da";
-        private const string backpack_raid = "5df8a4d786f77412672a1e3b";
-        private const string boonie_MILTEC = "5b4327aa5acfc400175496e0";
-        private const string boonie_CHIMERA = "60b52e5bc7d8103275739d67";
-        private const string boonie_DOORKICKER = "5d96141523f0ea1b7f2aacab";
-        private const string boonie_JACK_PYKE = "618aef6d0a5a59657e5f55ee";
-        private const string helmet_TAN_ULACH = "5b40e2bc5acfc40016388216";
-        private const string helmet_UNTAR_BLUE = "5aa7d03ae5b5b00016327db5";
     }
 }

@@ -160,6 +160,11 @@ namespace SAIN.Components.PlayerComponentSpace
             else
             {
                 InVolume *= SAINPlugin.LoadedPreset.GlobalSettings.Hearing.FootstepAudioMultiplier;
+                // Phase 1: Heavy weapons increase movement noise
+                if (IsMovementSound(InSoundType) && SAINPlugin.LoadedPreset.GlobalSettings.Hearing.WEAPON_NOISE_ENABLED)
+                {
+                    InVolume *= GetWeaponNoiseModifier();
+                }
             }
             if (!AIData.PlayerLocation.InBunker)
             {
@@ -614,6 +619,52 @@ namespace SAIN.Components.PlayerComponentSpace
 
                 DebugGizmos.DrawSphere(Transform.BodyPosition, 0.1f, Color.blue, 0.1f, "Body");
             }
+        }
+
+        private static readonly HashSet<SAINSoundType> MovementSounds = new()
+        {
+            SAINSoundType.FootStep, SAINSoundType.Sprint, SAINSoundType.GearSound,
+            SAINSoundType.TurnSound, SAINSoundType.Jump, SAINSoundType.Land,
+            SAINSoundType.Prone, SAINSoundType.Bush, SAINSoundType.Looting,
+            SAINSoundType.Reload,
+        };
+
+        private bool IsMovementSound(SAINSoundType type) => MovementSounds.Contains(type);
+
+        private float GetWeaponNoiseModifier()
+        {
+            var weapon = Equipment?.CurrentWeaponInfo;
+            if (weapon == null) return 1f;
+
+            float baseMod = weapon.WeaponClass switch
+            {
+                EWeaponClass.pistol => 0.90f,
+                EWeaponClass.smg => 0.90f,
+                EWeaponClass.assaultRifle => 1.00f,
+                EWeaponClass.assaultCarbine => 1.00f,
+                EWeaponClass.shotgun => 1.10f,
+                EWeaponClass.marksmanRifle => 1.15f,
+                EWeaponClass.sniperRifle => 1.30f,
+                EWeaponClass.machinegun => 1.30f,
+                EWeaponClass.grenadeLauncher => 1.35f,
+                _ => 1.00f
+            };
+
+            // Scabbard: second primary weapon on back adds extra noise
+            var weaponInfos = Equipment?.WeaponInfos;
+            if (weaponInfos != null)
+            {
+                foreach (var entry in weaponInfos)
+                {
+                    if (entry.Key == EquipmentSlot.SecondPrimaryWeapon && entry.Value != weapon)
+                    {
+                        baseMod *= 1.15f;
+                        break;
+                    }
+                }
+            }
+
+            return baseMod;
         }
 
         private readonly List<int> _aggroIndexes = new();

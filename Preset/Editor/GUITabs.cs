@@ -5,6 +5,8 @@ using SAIN.Editor.GUISections;
 using SAIN.Helpers;
 using SAIN.Plugin;
 using SAIN.Preset;
+using SAIN.Preset.GearStealthValues;
+using System.Collections.Generic;
 using static SAIN.Editor.SAINLayout;
 
 namespace SAIN.Editor
@@ -94,7 +96,19 @@ namespace SAIN.Editor
 
             EndHorizontal();
 
+            BeginHorizontal();
+            if (Button(
+                "添加新装备条目",
+                "为装备隐蔽值系统添加新的装备类型和隐蔽值",
+                EUISoundType.MenuContextMenu,
+                Height(25f)))
+            {
+                ShowAddStealthEntryDialog();
+            }
+            EndHorizontal();
+
             AttributesGUI.EditAllStealthValues(SAINPlugin.LoadedPreset.GearStealthValuesClass);
+            DrawAddStealthDialog();
             EndVertical();
         }
 
@@ -237,5 +251,80 @@ namespace SAIN.Editor
         private static bool ForceSoloOpen;
         private static bool ForceSquadOpen;
         private static bool ForceSelfOpen;
+
+        // --- 添加新装备隐蔽值条目对话框 ---
+        private static string _newEntryName = "";
+        private static string _newEntryId = "";
+        private static EEquipmentType _newEntryType = EEquipmentType.Headwear;
+        private static float _newEntryValue = 1.0f;
+        private static bool _showAddDialog = false;
+
+        private static void ShowAddStealthEntryDialog()
+        {
+            _showAddDialog = true;
+            _newEntryName = "新装备";
+            _newEntryId = "";
+            _newEntryValue = 1.0f;
+            _newEntryType = EEquipmentType.Headwear;
+        }
+
+        private static void DrawAddStealthDialog()
+        {
+            if (!_showAddDialog) return;
+
+            BeginHorizontal();
+            Box("添加新装备隐蔽值条目");
+            EndHorizontal();
+
+            BeginHorizontal();
+            Label("装备名称");
+            _newEntryName = TextField(_newEntryName, null, Width(200f));
+            EndHorizontal();
+
+            BeginHorizontal();
+            Label("装备类型");
+            _newEntryType = BuilderClass.SelectionGrid(_newEntryType, EnumValues.GetEnum<EEquipmentType>());
+            EndHorizontal();
+
+            BeginHorizontal();
+            Label("ItemID (模板ID)");
+            _newEntryId = TextField(_newEntryId, null, Width(200f));
+            EndHorizontal();
+
+            BeginHorizontal();
+            Label($"隐蔽值: {_newEntryValue:F2}");
+            _newEntryValue = HorizontalSlider(_newEntryValue, 0.1f, 3.0f, null, Width(200f));
+            EndHorizontal();
+
+            BeginHorizontal();
+            if (Button("确认添加", "将此装备添加到隐蔽值系统", EUISoundType.InsuranceInsured, Height(25f)))
+            {
+                if (!string.IsNullOrEmpty(_newEntryName) && !string.IsNullOrEmpty(_newEntryId))
+                {
+                    var newEntry = new ItemStealthValue
+                    {
+                        Name = _newEntryName,
+                        EquipmentType = _newEntryType,
+                        ItemID = _newEntryId,
+                        StealthValue = _newEntryValue
+                    };
+
+                    var values = SAINPlugin.LoadedPreset.GearStealthValuesClass.ItemStealthValues;
+                    if (!values.TryGetValue(_newEntryType, out var list))
+                    {
+                        list = new List<ItemStealthValue>();
+                        values.Add(_newEntryType, list);
+                    }
+                    list.Add(newEntry);
+                    ConfigEditingTracker.Add("StealthEntryAdded", _newEntryName);
+                    _showAddDialog = false;
+                }
+            }
+            if (Button("取消", "", EUISoundType.MenuEscape, Height(25f)))
+            {
+                _showAddDialog = false;
+            }
+            EndHorizontal();
+        }
     }
 }

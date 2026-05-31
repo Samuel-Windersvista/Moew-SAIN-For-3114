@@ -597,5 +597,10 @@ namespace SAIN.Preset.GlobalSettings
             "If it is directly behind them, randomization will be multiplied by the Maximumm value here. " +
             "It is a linear scale between these, so a sound directly to their right or left, will have the difference between the Maximumm and Minimum. " +
             "Setting both the Min and the Max to 1.0 will disable this system.";
+
+        [Name("武器移动噪音")]
+        [Description("重型武器增加移动时被AI听到的距离。默认开启。")]
+        [Category("武器暴露")]
+        public bool WEAPON_NOISE_ENABLED = true;
     }
 }

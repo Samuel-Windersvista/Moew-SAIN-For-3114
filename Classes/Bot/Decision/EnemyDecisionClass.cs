@@ -121,9 +121,7 @@ namespace SAIN.SAINComponent.Classes.Decision
             if (GlobalSettingsClass.Instance.Mind.ANOMALY_AWARENESS_ENABLED && Bot.IsInCombat && enemy?.TimeSinceHeard > 30f)
             {
                 canTakeAggressiveAction = false;
-#if DEBUG
-                DecisionReasons.AppendLine($"2a. Too quiet for 30s in combat, being cautious.");
-#endif
+                if (SAINPlugin.DebugMode) DecisionReasons.AppendLine($"2a. Too quiet for 30s in combat, being cautious.");
             }
 
             if (canTakeAggressiveAction)

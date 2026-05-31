@@ -60,11 +60,19 @@
 | F4-2 | 敌方武器识别：Sniper/DMR 近距阻止 Rush，SMG/Shotgun 远距加速 Rush；狙击手>50m 降速 15% 作规避机动 | `EnemyDecisionClass.cs`, `SAINMoverClass.cs` |
 | F4-3 | 异常区域警觉：战斗中 30s 未听到敌人声音→强制保守决策 `canTakeAggressiveAction=false` | `EnemyDecisionClass.cs` |
 
+### 武器隐蔽值扩展
+
+| ID | 描述 | 文件 |
+|----|------|------|
+| PH0-1 | 装备隐蔽系统重构：删除硬编码方法 + 8 常量 + `initDefaults()`清空 | `AIGearModifierClass.cs`, `GearStealthValuesClass.cs` |
+| PH1 | 武器听觉暴露：按武器类型注入移动噪音(0.90~1.35)，背挂加成 1.15 | `PlayerComponent.cs` |
+| PH2 | 武器视觉暴露：按武器类型影响远距离可见度(1.00~0.55)，背挂加成 0.90 | `AIGearModifierClass.cs` |
+| F6 | 武器暴露 F6 开关 + 装备隐蔽值"添加新条目"按钮 | `HearingSettings.cs`, `VisionDistanceSettings.cs`, `GUITabs.cs` |
+
 ### 统计
 
-- **27 文件**（25 修改 + 2 新建）/ **+819 行** / **-30 行**
 - **0 编译错误** / **0 编译警告**
-- **DLL 大小**: 1,097,216 bytes
+- **DLL 大小**: 1,112,576 bytes
 
 ---
 

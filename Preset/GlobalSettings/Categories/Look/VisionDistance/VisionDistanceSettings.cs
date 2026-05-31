@@ -21,5 +21,10 @@ namespace SAIN.Preset.GlobalSettings
         [MinMax(100f, 600f, 50f)]
         [Advanced]
         public float SCOPE_MAX_RANGE = 400f;
+
+        [Name("武器轮廓影响视觉隐蔽")]
+        [Description("长枪管/重型武器让AI在远距离更容易发现你。默认开启。")]
+        [Category("武器暴露")]
+        public bool WEAPON_VISUAL_STEALTH_ENABLED = true;
     }
 }
