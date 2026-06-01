@@ -24,6 +24,9 @@ namespace SAIN.SAINComponent.Classes.Decision
         private const float FREEZE_MAX_DISTANCE = 70;
         private const float FREEZE_MIN_TIMESINCESEEN = 240f;
         private const float FREEZE_MAX_TIMESINCEHEARD = 80f;
+        private static readonly float OUTDOOR_FREEZE_MAX_DISTANCE = 50f;
+        private const float HEARD_CHARGE_MAX_DIST = 50f;
+        private bool _outdoorFreezeSeekingCover;
 
         public SearchReasonsStruct DebugSearchReasons { get; private set; }
         public float FrozenDuration { get; private set; }
@@ -106,6 +109,18 @@ namespace SAIN.SAINComponent.Classes.Decision
                 }
                 result = ECombatDecision.StandAndShoot;
                 return true;
+            }
+            if (canTakeAggressiveAction)
+            {
+                bool shallEngage = shallMoveToEngage(enemy);
+#if DEBUG
+                if (SAINPlugin.DebugMode) DecisionReasons.AppendLine($"3a. Shall MoveToEngage: [{shallEngage}]");
+#endif
+                if (shallEngage)
+                {
+                    result = ECombatDecision.MoveToEngage;
+                    return true;
+                }
             }
             bool shallShootDistant = shallShootDistantEnemy(enemy, out reason);
 #if DEBUG
@@ -231,8 +246,10 @@ namespace SAIN.SAINComponent.Classes.Decision
             }
             if (!Bot.Memory.Location.IsIndoors)
             {
-                reason = "outside";
-                return false;
+                if (!shallOutdoorFreezeAndWait(enemy, out reason))
+                {
+                    return false;
+                }
             }
             if (enemy.Seen && enemy.TimeSinceSeen < FREEZE_MIN_TIMESINCESEEN)
             {
@@ -254,16 +271,84 @@ namespace SAIN.SAINComponent.Classes.Decision
             {
                 float timeToFreeze = UnityEngine.Random.Range(10f, 120f) / Bot.Info.AggressionMultiplier;
                 FrozenDuration = timeToFreeze;
+                _outdoorFreezeSeekingCover = false;
                 TimeToUnfreeze = Time.time + timeToFreeze;
             }
 
             if (TimeToUnfreeze < Time.time)
             {
+                _outdoorFreezeSeekingCover = false;
                 reason = "frozenTooLong";
                 return false;
             }
             reason = "timeForFreeze";
             return true;
+        }
+
+        /// <summary>
+        /// 室外 Freeze: 必须在听到敌人方向和自身之间找到掩体，跑过去再蹲守。
+        /// 仅 Sneaky 个性（Rat、SnappingTurtle）可用。
+        /// </summary>
+        private bool shallOutdoorFreezeAndWait(Enemy enemy, out string reason)
+        {
+            // 仅谨慎型个性可用
+            if (!Bot.Info.PersonalitySettings.Search.Sneaky)
+            {
+                reason = "outdoor_sneakyOnly";
+                return false;
+            }
+
+            // 距离限制（比室内 70m 更严格）
+            if (enemy.KnownPlaces.BotDistanceFromLastKnown > OUTDOOR_FREEZE_MAX_DISTANCE)
+            {
+                reason = "outdoor_tooFar";
+                return false;
+            }
+
+            // 已经在掩体中 → 可以直接冻结
+            if (Bot.Cover.HasCover)
+            {
+                reason = "outdoor_hasCover";
+                _outdoorFreezeSeekingCover = false;
+                return true;
+            }
+
+            // 正在跑向之前找到的掩体
+            if (_outdoorFreezeSeekingCover && Bot.Cover.CoverPoint_MovingTo != null && Bot.Mover.Moving)
+            {
+                reason = "outdoor_movingToCover";
+                return false;
+            }
+
+            // 尝试在声音方向找掩体
+            if (!_outdoorFreezeSeekingCover)
+            {
+                Vector3 botPos = Bot.Position;
+                Vector3? lastKnown = enemy.KnownPlaces.LastKnownPosition;
+                if (lastKnown == null)
+                {
+                    reason = "outdoor_noLastKnown";
+                    return false;
+                }
+                Vector3 heardPos = lastKnown.Value;
+                // 从声音位置指向 Bot 的方向（寻找 Bot 身后/之间的掩体）
+                Vector3 fromSoundToBot = (botPos - heardPos).normalized;
+
+                var coverPoint = Bot.Cover.FindPointInDirection(fromSoundToBot, dotThreshold: 0.5f, minDistance: 5f);
+                if (coverPoint != null)
+                {
+                    // 找到掩体，开始跑过去
+                    Bot.Mover.GoToCoverPoint(coverPoint, false, Mover.ESprintUrgency.Middle);
+                    _outdoorFreezeSeekingCover = true;
+                    reason = "outdoor_coverFound_moving";
+                    return false;
+                }
+            }
+
+            // 曾经在找掩体但没找到/已到达/失败 → 重置状态
+            _outdoorFreezeSeekingCover = false;
+            reason = "outdoor_noCover";
+            return false;
         }
 
         private bool shallThrowGrenade(Enemy enemy, out string reason)
@@ -297,8 +382,12 @@ namespace SAIN.SAINComponent.Classes.Decision
             if (enemy.Hearing.EnemyHeardFromPeace &&
                 Bot.Info.PersonalitySettings.Search.HeardFromPeaceBehavior == EHeardFromPeaceBehavior.Charge)
             {
-                reason = "heardFromPeaceCharge";
-                return true;
+                if (enemy.RealDistance < HEARD_CHARGE_MAX_DIST)
+                {
+                    reason = "heardFromPeaceCharge";
+                    return true;
+                }
+                // 超出冲锋距离 — 回退到正常 rush 条件检查（需敌人脆弱/负伤/近距才可冲锋）
             }
             if (!Bot.Info.PersonalitySettings.Rush.CanRushEnemyReloadHeal)
             {

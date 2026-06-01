@@ -31,6 +31,11 @@ namespace SAIN.BotController.Classes
 
         public event Action<BotComponent, float> NewLeaderFound;
 
+        /// <summary>
+        /// Squad 成员发现手雷威胁。参数: dangerPoint, isSmoke, isFlash, reportingBot
+        /// </summary>
+        public Action<Vector3, bool, bool, BotComponent> OnMemberSpottedGrenade;
+
         public Dictionary<string, BotComponent> Members { get; } = new Dictionary<string, BotComponent>();
         public Dictionary<string, MemberInfo> MemberInfos { get; } = new Dictionary<string, MemberInfo>();
         public string Id { get; private set; } = string.Empty;

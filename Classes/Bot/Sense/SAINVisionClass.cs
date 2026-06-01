@@ -72,6 +72,16 @@ namespace SAIN.SAINComponent.Classes
 
                 finalVisionDistance = BotOwner.NightVision.UpdateVision(finalVisionDistance);
                 finalVisionDistance = BotOwner.BotLight.UpdateLightEnable(finalVisionDistance);
+
+                // BSG 的 NightVision.UpdateVision 可能会将 NVG 开启时的视觉距离
+                // 设为极高的值（400m+），覆盖 SAIN 的夜间时间修正。
+                // 此处钳制：开启 NVG 时视觉距离不超过夜间基础距离的 3 倍。
+                if (BotOwner.NightVision.UsingNow)
+                {
+                    float baseNightDist = currentVisionDistanceCapped * timeMod;
+                    finalVisionDistance = Mathf.Min(finalVisionDistance, baseNightDist * 3f);
+                }
+
                 lookSensor.VisibleDist = finalVisionDistance;
             }
 

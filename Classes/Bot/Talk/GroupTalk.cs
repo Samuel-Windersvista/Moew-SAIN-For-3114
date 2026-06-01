@@ -5,6 +5,7 @@ using SAIN.Preset;
 using SAIN.SAINComponent.Classes.EnemyClasses;
 using SAIN.SAINComponent.Classes.Info;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace SAIN.SAINComponent.Classes.Talk
@@ -414,6 +415,7 @@ namespace SAIN.SAINComponent.Classes.Talk
                     squad.OnMemberKilled -= friendlyDown;
                     squad.OnMemberHeardEnemy -= enemyHeard;
                     squad.OnMemberDecisionMade -= OnMemberMadeDecision;
+                    squad.OnMemberSpottedGrenade -= grenadeSpottedBySquadMember;
                 }
 
                 var botController = BotManagerComponent.Instance;
@@ -442,6 +444,7 @@ namespace SAIN.SAINComponent.Classes.Talk
                 squad.OnMemberKilled += friendlyDown;
                 squad.OnMemberHeardEnemy += enemyHeard;
                 squad.OnMemberDecisionMade += OnMemberMadeDecision;
+                squad.OnMemberSpottedGrenade += grenadeSpottedBySquadMember;
 
                 BotManagerComponent.Instance.BotHearing.PlayerTalk += EnemyConversation;
 
@@ -1112,5 +1115,52 @@ namespace SAIN.SAINComponent.Classes.Talk
         private float _enemyLocationBehindAngle = 90f;
         private float _enemyLocationSideAngle = 45f;
         private float _enemyLocationFrontAngle = 90f;
+
+        /// <summary>
+        /// 近期收到的手雷报告列表，供 SquadDecisionClass 查询
+        /// </summary>
+        private readonly List<GrenadeReport> _recentGrenadeReports = new();
+
+        private void grenadeSpottedBySquadMember(Vector3 dangerPoint, bool isSmoke, bool isFlash, BotComponent reportingBot)
+        {
+            // 不处理自己报告的手雷
+            if (reportingBot != null && reportingBot.ProfileId == Bot.ProfileId)
+                return;
+
+            _recentGrenadeReports.Add(new GrenadeReport
+            {
+                DangerPoint = dangerPoint,
+                IsSmoke = isSmoke,
+                IsFlash = isFlash,
+                ReportTime = Time.time,
+                ReportingBotPosition = reportingBot?.Position ?? dangerPoint
+            });
+
+            // 清理过期报告（超过5秒）
+            _recentGrenadeReports.RemoveAll(r => Time.time - r.ReportTime > 5f);
+        }
+
+        /// <summary>
+        /// 供 SquadDecisionClass 调用：获取最近且距离最近的手雷报告
+        /// </summary>
+        public GrenadeReport GetClosestRecentGrenadeReport()
+        {
+            return _recentGrenadeReports
+                .Where(r => Time.time - r.ReportTime < 3f)
+                .OrderBy(r => Vector3.Distance(Bot.Position, r.DangerPoint))
+                .FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Squad 手雷报告数据结构
+        /// </summary>
+        public class GrenadeReport
+        {
+            public Vector3 DangerPoint;
+            public bool IsSmoke;
+            public bool IsFlash;
+            public float ReportTime;
+            public Vector3 ReportingBotPosition;
+        }
     }
 }

@@ -52,7 +52,7 @@ namespace SAIN.Preset.Personalities
             var behavior = settings.Behavior;
 
             behavior.General.KickOpenAllDoors = true;
-            behavior.General.AggressionMultiplier = 1;
+            behavior.General.AggressionMultiplier = 2.0f;
             behavior.General.HoldGroundBaseTime = 1.25f;
             behavior.General.HoldGroundMaxRandom = 1.5f;
             behavior.General.HoldGroundMinRandom = 0.65f;
@@ -117,7 +117,7 @@ namespace SAIN.Preset.Personalities
             var behavior = settings.Behavior;
 
             behavior.General.KickOpenAllDoors = true;
-            behavior.General.AggressionMultiplier = 1;
+            behavior.General.AggressionMultiplier = 1.8f;
             behavior.General.HoldGroundBaseTime = 2f;
             behavior.General.HoldGroundMaxRandom = 2.5f;
             behavior.General.HoldGroundMinRandom = 0.75f;
@@ -185,7 +185,7 @@ namespace SAIN.Preset.Personalities
 
             var behavior = settings.Behavior;
 
-            behavior.General.AggressionMultiplier = 1;
+            behavior.General.AggressionMultiplier = 1.2f;
             behavior.General.HoldGroundBaseTime = 1.5f;
             behavior.General.HoldGroundMaxRandom = 1.2f;
             behavior.General.HoldGroundMinRandom = 0.8f;
@@ -251,7 +251,7 @@ namespace SAIN.Preset.Personalities
 
             var behavior = settings.Behavior;
 
-            behavior.General.AggressionMultiplier = 1;
+            behavior.General.AggressionMultiplier = 1.4f;
             behavior.General.HoldGroundBaseTime = 1.5f;
             behavior.General.HoldGroundMaxRandom = 1.5f;
             behavior.General.HoldGroundMinRandom = 0.75f;
@@ -319,7 +319,7 @@ namespace SAIN.Preset.Personalities
 
             var behavior = settings.Behavior;
 
-            behavior.General.AggressionMultiplier = 1;
+            behavior.General.AggressionMultiplier = 0.6f;
             behavior.General.HoldGroundBaseTime = 1f;
             behavior.General.HoldGroundMaxRandom = 1.5f;
             behavior.General.HoldGroundMinRandom = 0.75f;
@@ -393,7 +393,7 @@ namespace SAIN.Preset.Personalities
 
             var behavior = settings.Behavior;
 
-            behavior.General.AggressionMultiplier = 1;
+            behavior.General.AggressionMultiplier = 0.4f;
             behavior.General.HoldGroundBaseTime = 0.5f;
             behavior.General.HoldGroundMaxRandom = 1.5f;
             behavior.General.HoldGroundMinRandom = 0.75f;
@@ -470,7 +470,7 @@ namespace SAIN.Preset.Personalities
 
             var behavior = settings.Behavior;
 
-            behavior.General.AggressionMultiplier = 1;
+            behavior.General.AggressionMultiplier = 0.3f;
             behavior.General.HoldGroundBaseTime = 0.25f;
             behavior.General.HoldGroundMaxRandom = 1.5f;
             behavior.General.HoldGroundMinRandom = 0.75f;
@@ -526,7 +526,7 @@ namespace SAIN.Preset.Personalities
 
             var behavior = settings.Behavior;
 
-            behavior.General.AggressionMultiplier = 1;
+            behavior.General.AggressionMultiplier = 1.0f;
             behavior.General.HoldGroundBaseTime = 1f;
             behavior.General.HoldGroundMaxRandom = 1.5f;
             behavior.General.HoldGroundMinRandom = 0.5f;

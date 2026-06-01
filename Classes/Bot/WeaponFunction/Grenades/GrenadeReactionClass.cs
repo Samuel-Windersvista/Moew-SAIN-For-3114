@@ -1,6 +1,7 @@
 ﻿using EFT;
 using HarmonyLib;
 using SAIN.Components;
+using SAIN.Preset.GlobalSettings;
 using SAIN.SAINComponent.Classes.EnemyClasses;
 using SAIN.SAINComponent.SubComponents;
 using System.Collections.Generic;
@@ -82,10 +83,21 @@ namespace SAIN.SAINComponent.Classes.WeaponFunction
 
         public override void ManualUpdate()
         {
-            foreach (var tracker in EnemyGrenadesList.Values)
+            // 清理已完成/超时的 tracker
+            var toRemove = new List<Throwable>();
+            foreach (var kvp in EnemyGrenadesList)
             {
-                tracker?.Update();
+                if (kvp.Value?.Grenade == null || kvp.Value.HasExpired())
+                    toRemove.Add(kvp.Key);
+                else
+                    kvp.Value.Update();
             }
+            foreach (var key in toRemove)
+                EnemyGrenadesList.Remove(key);
+            
+            // 更新 DangerGrenade 为最紧急威胁
+            UpdateDangerGrenade();
+            
             base.ManualUpdate();
         }
 
@@ -113,7 +125,7 @@ namespace SAIN.SAINComponent.Classes.WeaponFunction
             if (enemy != null &&
                 enemy.RealDistance <= MAX_ENEMY_GRENADE_DIST_TOCARE)
             {
-                EnemyGrenadesList.Add(grenade, new GrenadeTrackerClass(Bot, grenade, dangerPoint, GetReactionTime()));
+                EnemyGrenadesList.Add(grenade, new GrenadeTrackerClass(Bot, grenade, dangerPoint, GetReactionTime(), -1f));
                 grenade.DestroyEvent += RemoveGrenade;
                 return;
             }
@@ -130,11 +142,11 @@ namespace SAIN.SAINComponent.Classes.WeaponFunction
             }
         }
 
-        private void GrenadeDangerUpdated(Grenade grenade, Vector3 Danger)
+        private void GrenadeDangerUpdated(Grenade grenade, Vector3 Danger, float remainingTime)
         {
             if (EnemyGrenadesList.TryGetValue(grenade, out var Tracker))
             {
-                Tracker.UpdateGrenadeDanger(Danger);
+                Tracker.UpdateGrenadeDanger(Danger, remainingTime);
             }
         }
 
@@ -152,7 +164,58 @@ namespace SAIN.SAINComponent.Classes.WeaponFunction
             float reactionTime = 0.25f;
             reactionTime /= Bot.Info.Profile.DifficultyModifier;
             reactionTime *= Random.Range(0.75f, 1.25f);
-            return Mathf.Clamp(reactionTime, 0.2f, 1f);
+            reactionTime *= Bot.Info.PersonalitySettings.General.GRENADE_REACTION_TIME_MODIFIER;
+            return Mathf.Clamp(reactionTime, 0.1f, 2f);
+        }
+
+        /// <summary>
+        /// 检查是否有活跃手雷威胁，供 BotDecisionManager 调用。
+        /// </summary>
+        public bool HasActiveGrenadeThreat(out GrenadeThreatData data)
+        {
+            if (DangerGrenade != null && DangerGrenade.Grenade != null && !DangerGrenade.HasExpired())
+            {
+                if (GlobalSettingsClass.Instance.Grenade.ENABLED)
+                {
+                    data = DangerGrenade.BuildThreatData();
+                    return true;
+                }
+            }
+            
+            // 清理无效威胁
+            if (DangerGrenade != null && (DangerGrenade.Grenade == null || DangerGrenade.HasExpired()))
+            {
+                DangerGrenade = null;
+            }
+            
+            data = null;
+            return false;
+        }
+
+        /// <summary>
+        /// 从 EnemyGrenadesList 中选择最紧急的威胁作为 DangerGrenade。
+        /// 紧急度 = 距离 × 剩余时间（越低越紧急）。
+        /// </summary>
+        private void UpdateDangerGrenade()
+        {
+            GrenadeTrackerClass mostUrgent = null;
+            float bestScore = float.MaxValue;
+
+            foreach (var tracker in EnemyGrenadesList.Values)
+            {
+                if (tracker?.Grenade == null || tracker.HasExpired()) continue;
+                
+                float score = tracker.GrenadeDistance;
+                if (tracker.RemainingTime > 0f)
+                    score *= Mathf.Max(0.1f, tracker.RemainingTime);
+                
+                if (score < bestScore)
+                {
+                    bestScore = score;
+                    mostUrgent = tracker;
+                }
+            }
+            DangerGrenade = mostUrgent;
         }
     }
 }

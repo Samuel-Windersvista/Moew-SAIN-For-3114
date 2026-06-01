@@ -5,6 +5,7 @@ using SAIN.Layers;
 using SAIN.Models.Enums;
 using SAIN.Preset.GlobalSettings;
 using SAIN.SAINComponent.Classes.EnemyClasses;
+using SAIN.SAINComponent.SubComponents;
 using SAIN.SAINComponent.SubComponents.CoverFinder;
 using System;
 using UnityEngine;
@@ -29,6 +30,10 @@ namespace SAIN.SAINComponent.Classes.Decision
         public ESelfActionType PreviousSelfDecision { get; private set; }
 
         public bool HasDecision => HasDecisionToggle.Value;
+
+        /// <summary>活跃的手雷威胁数据。null 表示无威胁。</summary>
+        private GrenadeThreatData _activeGrenadeThreat;
+
         public float ChangeDecisionTime { get; private set; }
         public float CombatEndTime = -1f;
         public float TimeSinceChangeDecision => Time.time - ChangeDecisionTime;
@@ -65,48 +70,22 @@ namespace SAIN.SAINComponent.Classes.Decision
             base.Dispose();
         }
 
-        private bool shallTagillaHammerAttack(Enemy enemy)
-        {
-            if (enemy == null)
-            {
-                return false;
-            }
-            bool alreadyAttacking = CurrentCombatDecision == ECombatDecision.MeleeAttack;
-            ETagStatus status = Bot.Memory.Health.HealthStatus;
-
-            if (!alreadyAttacking)
-            {
-                if (CurrentSelfDecision != ESelfActionType.None)
-                    return false;
-                if (status != ETagStatus.Healthy && status != ETagStatus.Injured)
-                    return false;
-                if (enemy.Path.PathToEnemyStatus != UnityEngine.AI.NavMeshPathStatus.PathComplete)
-                    return false;
-                if (enemy.RealDistance < 30 && enemy.Path.PathLength < 20 && enemy.Status.VulnerableAction != EEnemyAction.None)
-                {
-                    enemy.BotOwner.WeaponManager.Melee.ShallEndRun = false;
-                    return true;
-                }
-                return false;
-            }
-            if (enemy.BotOwner.WeaponManager.Melee.ShallEndRun)
-            {
-                return false;
-            }
-            if (status != ETagStatus.Dying && enemy.RealDistance < 40 && enemy.Path.PathLength < 35)
-            {
-                return true;
-            }
-            return false;
-        }
-
         private void getDecision()
         {
+            // 手雷威胁 — 最高优先级，即使无敌人也必须处理
+            if (GlobalSettingsClass.Instance.Grenade.ENABLED 
+                && Bot.Grenade.GrenadeReactionClass.HasActiveGrenadeThreat(out var grenadeData))
+            {
+                _activeGrenadeThreat = grenadeData;
+                SetDecisions(ECombatDecision.AvoidGrenade, ESquadDecision.None, ESelfActionType.None, null);
+                return;
+            }
+
             Enemy enemy = Bot.EnemyController.ChooseEnemy();
             if (enemy == null)
             {
                 // F2-4: Post-combat recovery
-                if (GlobalSettingsClass.Instance.Mind.POST_COMBAT_RECOVERY && CombatEndTime > 0 && Time.time - CombatEndTime < 10f)
+                if (GlobalSettingsClass.Instance.Mind.POST_COMBAT_RECOVERY && CombatEndTime > 0 && Time.time - CombatEndTime < 30f)
                 {
                     bool needsHeal = Bot.Memory.Health.HealthStatus == ETagStatus.Dying
                         || Bot.Memory.Health.HealthStatus == ETagStatus.BadlyInjured;
@@ -115,6 +94,10 @@ namespace SAIN.SAINComponent.Classes.Decision
                     if (needsHeal)
                     {
                         SetDecisions(ECombatDecision.None, ESquadDecision.None, ESelfActionType.FirstAid, enemy);
+                        return;
+                    }
+                    if (Bot.Decision.CurrentSelfDecision == ESelfActionType.Surgery)
+                    {
                         return;
                     }
                     if (needsReload)
@@ -151,16 +134,8 @@ namespace SAIN.SAINComponent.Classes.Decision
                 return;
             }
 
-            // TODO: rework melee decisions
-            //if (Bot.Info.Profile.WildSpawnType == WildSpawnType.bossTagilla)
-            //{
-            //    if (shallTagillaHammerAttack(enemy))
-            //    {
-            //        SetDecisions(ECombatDecision.MeleeAttack, ESquadDecision.None, ESelfActionType.None, enemy);
-            //        return;
-            //    }
-            //    if (BotOwner.WeaponManager.IsMelee) BotOwner.WeaponManager.Selector.ChangeToMain();
-            //}
+            // Tagilla 近战: BSG 原生 AI 自行管理武器切换（何时拔锤/何时收锤）。
+            // SAIN 仅通过下文的通用 MeleeAttack 决策接管已切换近战武器后的战斗行为。
 
             if (enemy != null && enemy.IsZombie)
             {
@@ -349,6 +324,31 @@ namespace SAIN.SAINComponent.Classes.Decision
                 CoverStatus.CloseToCover => true,
                 _ => !coverMovingTo.CoverData.IsBad,
             };
+        }
+
+        /// <summary>供 DodgeGrenadeAction 读取当前活跃手雷威胁数据。</summary>
+        public GrenadeThreatData ActiveGrenadeThreat => _activeGrenadeThreat;
+
+        /// <summary>由 GrenadeTrackerClass 在 CanReact 触发时调用。</summary>
+        public void SetAvoidGrenade(GrenadeThreatData data)
+        {
+            _activeGrenadeThreat = data;
+        }
+
+        /// <summary>由 GrenadeTrackerClass 在手雷落点更新时调用。</summary>
+        public void UpdateGrenadeDangerPoint(Vector3 newPoint)
+        {
+            if (_activeGrenadeThreat != null)
+            {
+                _activeGrenadeThreat.DangerPoint = newPoint;
+                _activeGrenadeThreat.LastUpdateTime = Time.time;
+            }
+        }
+
+        /// <summary>清除手雷威胁。由 GrenadeReactionClass 在手雷销毁/过期时调用。</summary>
+        public void ClearGrenadeThreat()
+        {
+            _activeGrenadeThreat = null;
         }
 
         private float _nextGetDecisionTime;

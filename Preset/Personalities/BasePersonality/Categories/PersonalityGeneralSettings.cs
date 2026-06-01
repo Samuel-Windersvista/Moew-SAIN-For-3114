@@ -107,5 +107,23 @@ namespace SAIN.Preset.Personalities
         [Description("敌人在此距离内(米)时将不再被视为狙击手。")]
         [MinMax(30f, 250f, 1f)]
         public float ENEMYSNIPER_DISTANCE_END = 75f;
+
+        [Name("手雷反应速度倍率")]
+        [Description("对手雷的反应速度倍率。<1 更快反应，>1 更慢。Rat/Coward 应设 0.7，Timmy 应设 1.5。")]
+        [Category("战斗行为")]
+        [MinMax(0.5f, 2.0f)]
+        public float GRENADE_REACTION_TIME_MODIFIER = 1.0f;
+
+        [Name("手雷安全距离倍率")]
+        [Description("躲避手雷时的安全距离倍率。Rat/Coward 应设 1.3(更远)，GigaChad 应设 0.6(更近)。")]
+        [Category("战斗行为")]
+        [MinMax(0.5f, 3.0f)]
+        public float GRENADE_SAFE_DIST_MODIFIER = 1.0f;
+
+        [Name("手雷硬扛概率")]
+        [Description("完全不躲避手雷的概率。仅 GigaChad 建议设为 0.1。")]
+        [Category("战斗行为")]
+        [MinMax(0.0f, 0.5f)]
+        public float GRENADE_IGNORE_CHANCE = 0.0f;
     }
 }

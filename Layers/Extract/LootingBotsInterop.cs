@@ -23,6 +23,7 @@ namespace LootingBots
         private static MethodInfo _CheckIfInventoryFullMethod;
         private static MethodInfo _GetNetLootValueMethod;
         private static MethodInfo _GetItemPriceMethod;
+        private static MethodInfo _IsBotLootingMethod;
 
         /**
          * Return true if Looting Bots is loaded in the client
@@ -80,6 +81,10 @@ namespace LootingBots
                     _GetItemPriceMethod = AccessTools.Method(
                         _LootingBotsExternalType,
                         "GetItemPrice"
+                    );
+                    _IsBotLootingMethod = AccessTools.Method(
+                        _LootingBotsExternalType,
+                        "IsBotLooting"
                     );
                 }
             }
@@ -182,6 +187,19 @@ namespace LootingBots
             price = GetItemPrice(item);
             _itemPriceCache[tpl] = price;
             return price;
+        }
+
+        /**
+         * Checks if a bot is currently looting something
+         */
+        public static bool IsBotLooting(BotOwner botOwner)
+        {
+            if (!Init())
+                return false;
+            if (_IsBotLootingMethod == null)
+                return false;
+
+            return (bool)_IsBotLootingMethod.Invoke(null, [botOwner]);
         }
     }
 }

@@ -94,6 +94,24 @@ namespace SAIN.SAINComponent.Classes.Decision
                     }
                     catch { }
                 }
+
+                if (weaponManager.info.TryGetValue(EquipmentSlot.Holster, out var holsterInfo) &&
+                    holsterInfo?.weapon != null)
+                {
+                    try
+                    {
+                        var magSlot = holsterInfo.weapon.GetMagazineSlot();
+                        if (magSlot?.ContainedItem is MagazineItemClass mag && mag.Count > 0)
+                        {
+                            if (weaponManager.Selector.TryChangeWeapon(true))
+                            {
+                                _lastReloadTime = Time.time + 1.5f;
+                                return false;
+                            }
+                        }
+                    }
+                    catch { }
+                }
             }
 
             if (weaponManager.IsMelee)
@@ -461,6 +479,22 @@ namespace SAIN.SAINComponent.Classes.Decision
             {
                 return false;
             }
+
+            // 紧急情况：濒死/重伤 + 敌人在近距且有视线 → 不原地治疗，强制走撤退逻辑
+            var healthStatus = Bot.Memory.Health.HealthStatus;
+            if (healthStatus == ETagStatus.Dying || healthStatus == ETagStatus.BadlyInjured)
+            {
+                foreach (Enemy enemy in Bot.EnemyController.KnownEnemies)
+                {
+                    if (enemy != null && enemy.CheckValid()
+                        && enemy.InLineOfSight
+                        && enemy.EPathDistance <= EPathDistance.Close)
+                    {
+                        return false; // 先跑，跑远再治
+                    }
+                }
+            }
+
             foreach (Enemy enemy in Bot.EnemyController.KnownEnemies)
                 if (!ShallFirstAidCheckEnemy(enemy))
                     return false;
@@ -520,43 +554,41 @@ namespace SAIN.SAINComponent.Classes.Decision
             {
                 return true;
             }
-            if (enemy.InLineOfSight)
-            {
-                return false;
-            }
+
             float timeSinceLastKnownUpdated = enemy.TimeSinceLastKnownUpdated;
             ETagStatus healthStatus = Bot.Memory.Health.HealthStatus;
-            if (healthStatus != ETagStatus.BadlyInjured && healthStatus != ETagStatus.Dying && !enemy.Seen && timeSinceLastKnownUpdated > 8f)
+
+            // 紧急情况：濒死/重伤不受敌人距离/视线限制，先保命再战斗
+            if (healthStatus == ETagStatus.Dying || healthStatus == ETagStatus.BadlyInjured)
             {
+                // 敌人很近且有视线 → 再等一小会儿找掩体，但不超过必要时间
+                if (enemy.EPathDistance <= EPathDistance.Close && enemy.InLineOfSight)
+                {
+                    return timeSinceLastKnownUpdated > 5f;
+                }
+                // 敌人较远或无视线 → 立刻治疗
                 return true;
             }
 
-            return healthStatus switch {
-                ETagStatus.Injured => enemy.EPathDistance switch {
-                    EPathDistance.VeryClose => timeSinceLastKnownUpdated > 20f && (!enemy.Seen || enemy.TimeSinceSeen > 20f),
-                    EPathDistance.Close => timeSinceLastKnownUpdated > 15f && (!enemy.Seen || enemy.TimeSinceSeen > 15f),
-                    EPathDistance.Mid => enemy.TimeSinceSeen > 8f && (!enemy.Seen || enemy.TimeSinceSeen > 8f),
-                    EPathDistance.Far => enemy.TimeSinceSeen > 5f && (!enemy.Seen || enemy.TimeSinceSeen > 5f),
-                    EPathDistance.VeryFar => enemy.TimeSinceSeen > 3f && (!enemy.Seen || enemy.TimeSinceSeen > 3f),
+            // 轻伤：敌人远/无视线时治疗，近距有视线时再等等
+            if (enemy.InLineOfSight)
+            {
+                return enemy.EPathDistance switch
+                {
+                    EPathDistance.VeryClose => timeSinceLastKnownUpdated > 8f,
+                    EPathDistance.Close => timeSinceLastKnownUpdated > 5f,
+                    EPathDistance.Mid => timeSinceLastKnownUpdated > 3f,
+                    EPathDistance.Far => true,
+                    EPathDistance.VeryFar => true,
                     _ => false,
-                },
-                ETagStatus.BadlyInjured => enemy.EPathDistance switch {
-                    EPathDistance.VeryClose => timeSinceLastKnownUpdated > 18 && (!enemy.Seen || enemy.TimeSinceSeen > 18),
-                    EPathDistance.Close => timeSinceLastKnownUpdated > 12 && (!enemy.Seen || enemy.TimeSinceSeen > 12),
-                    EPathDistance.Mid => timeSinceLastKnownUpdated > 6 && (!enemy.Seen || enemy.TimeSinceSeen > 6),
-                    EPathDistance.Far => timeSinceLastKnownUpdated > 4 && (!enemy.Seen || enemy.TimeSinceSeen > 4),
-                    EPathDistance.VeryFar => timeSinceLastKnownUpdated > 2 && (!enemy.Seen || enemy.TimeSinceSeen > 2),
-                    _ => false,
-                },
-                ETagStatus.Dying => enemy.EPathDistance switch {
-                    EPathDistance.VeryClose => timeSinceLastKnownUpdated > 15 && (!enemy.Seen || enemy.TimeSinceSeen > 15),
-                    EPathDistance.Close => timeSinceLastKnownUpdated > 10 && (!enemy.Seen || enemy.TimeSinceSeen > 10),
-                    EPathDistance.Mid => timeSinceLastKnownUpdated > 4 && (!enemy.Seen || enemy.TimeSinceSeen > 4),
-                    EPathDistance.Far => timeSinceLastKnownUpdated > 3 && (!enemy.Seen || enemy.TimeSinceSeen > 3),
-                    EPathDistance.VeryFar => timeSinceLastKnownUpdated > 2 && (!enemy.Seen || enemy.TimeSinceSeen > 2),
-                    _ => false,
-                },
-                _ => false,
+                };
+            }
+
+            return enemy.EPathDistance switch
+            {
+                EPathDistance.VeryClose => timeSinceLastKnownUpdated > 3f,
+                EPathDistance.Close => timeSinceLastKnownUpdated > 2f,
+                _ => true,
             };
         }
 

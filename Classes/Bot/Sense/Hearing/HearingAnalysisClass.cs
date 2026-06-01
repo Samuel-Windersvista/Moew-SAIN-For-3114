@@ -39,6 +39,12 @@ namespace SAIN.SAINComponent.Classes
                 return false;
             }
 
+            // 枪声有 10% 概率漏听，模拟注意力不集中或环境噪音遮蔽
+            if (sound.IsGunShot && EFTMath.RandomBool(10f))
+            {
+                return false;
+            }
+
             if (!sound.Enemy.Player.IsAI)
             {
                 //Logger.LogDebug($"Heard Sound : Final Range [{sound.Range.FinalRange}] : Modifier {sound.Range.Modifiers.FinalModifier}");

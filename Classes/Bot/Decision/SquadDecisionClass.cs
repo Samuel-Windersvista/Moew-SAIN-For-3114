@@ -25,6 +25,13 @@ namespace SAIN.SAINComponent.Classes.Decision
                 return false;
             }
 
+            // 队友报告手雷 → 暂停前进
+            if (ShallRetreatFromGrenade(out _))
+            {
+                Decision = ESquadDecision.None;
+                return true;
+            }
+
             if (EnemyDecision(out Decision, enemy))
             {
                 return true;
@@ -37,11 +44,11 @@ namespace SAIN.SAINComponent.Classes.Decision
                 return true;
             }
 
-            //if (shallRegroup())
-            //{
-            //    Decision = SquadDecision.Regroup;
-            //    return true;
-            //}
+            if (shallRegroup())
+            {
+                Decision = ESquadDecision.Regroup;
+                return true;
+            }
 
             return false;
         }
@@ -105,7 +112,7 @@ namespace SAIN.SAINComponent.Classes.Decision
             return false;
         }
 
-        // INT-3: Check if a squadmate is looting — if so, provide overwatch
+        // INT-3: Precise LootingOverwatch — checks if squadmate is actually looting via LootingBots API
         private bool shallLootingOverwatch()
         {
             if (!ModDetection.LootingBotsLoaded) return false;
@@ -114,14 +121,21 @@ namespace SAIN.SAINComponent.Classes.Decision
             foreach (var member in Bot.Squad.Members.Values)
             {
                 if (member == Bot) continue;
-                // Heuristic: member is not in combat and not moving much
+                if (member?.BotOwner == null || member.BotOwner.IsDead) continue;
+
+                float dist = Vector3.Distance(Bot.Position, member.Position);
+                if (dist >= 25f) continue;
+
+                // Precise check: use LootingBots API to verify the member is actually looting
+                if (LootingBots.LootingBotsInterop.IsBotLooting(member.BotOwner))
+                {
+                    return true;
+                }
+
+                // Fallback heuristic: if API unavailable, check traditional heuristics
                 if (!member.IsInCombat && member?.Mover?.Moving == false)
                 {
-                    float dist = Vector3.Distance(Bot.Position, member.Position);
-                    if (dist < 25f)
-                    {
-                        return true; // Overwatch this looting squadmate
-                    }
+                    return true;
                 }
             }
             return false;
@@ -318,6 +332,25 @@ namespace SAIN.SAINComponent.Classes.Decision
                 {
                     return leadDistance > maxDist;
                 }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 判断是否应因 Squad 成员的手雷报告而后撤/暂停前进。
+        /// </summary>
+        public bool ShallRetreatFromGrenade(out Vector3 retreatFrom)
+        {
+            retreatFrom = Vector3.zero;
+
+            var report = Bot.Talk.GroupTalk?.GetClosestRecentGrenadeReport();
+            if (report == null) return false;
+
+            float dist = Vector3.Distance(Bot.Position, report.DangerPoint);
+            if (dist < 30f && !report.IsSmoke && !report.IsFlash)
+            {
+                retreatFrom = report.DangerPoint;
+                return true;
             }
             return false;
         }

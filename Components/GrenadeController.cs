@@ -19,7 +19,7 @@ namespace SAIN.Components
 
         public event Action<Grenade, Vector3, string> OnGrenadeThrown;
 
-        public event Action<Grenade, Vector3> OnGrenadeDangerUpdated;
+        public event Action<Grenade, Vector3, float> OnGrenadeDangerUpdated;
 
         public void Init()
         {
@@ -146,7 +146,8 @@ namespace SAIN.Components
                     }
                 }
                 ActiveGrenades.Add(grenade, RelevantPlayers);
-                BotController.StartCoroutine(GrenadeTracker(grenade, playerComponent, RelevantPlayers, dangerPoint));
+                float estimatedFuseTime = GetGrenadeFuseTime(grenade);
+                BotController.StartCoroutine(GrenadeTracker(grenade, playerComponent, RelevantPlayers, dangerPoint, estimatedFuseTime));
             }
         }
 
@@ -157,7 +158,65 @@ namespace SAIN.Components
             ActiveGrenades.Remove(Grenade);
         }
 
-        private IEnumerator GrenadeTracker(Grenade Grenade, PlayerComponent Thrower, List<PlayerComponent> RelevantPlayers, Vector3 DangerPoint)
+        /// <summary>
+        /// 获取手雷引信时间。反射优先，查表兜底。返回秒数。
+        /// </summary>
+        private float GetGrenadeFuseTime(Grenade grenade)
+        {
+            // 通过反射获取模板 ID（EFT 外部程序集类型可能无法被 LSP 解析）
+            string templateId = "";
+            try
+            {
+                var templateIdProp = AccessTools.Property(typeof(Throwable).BaseType, "TemplateId");
+                if (templateIdProp != null)
+                    templateId = (templateIdProp.GetValue(grenade) as string)?.ToLower() ?? "";
+                if (string.IsNullOrEmpty(templateId))
+                    templateId = grenade?.GetType()?.Name?.ToLower() ?? "";
+            }
+            catch
+            {
+                templateId = grenade?.GetType()?.Name?.ToLower() ?? "";
+            }
+
+            // 检查是否为碰炸手雷
+            if (templateId.Contains("vog"))
+                return 0f;
+
+            // 优先：反射读取
+            try
+            {
+                if (_destroyTimeField != null)
+                {
+                    return Mathf.Max(0f, (float)_destroyTimeField.GetValue(grenade) - Time.time);
+                }
+                if (_explosionTimeField != null)
+                {
+                    return Mathf.Max(0f, (float)_explosionTimeField.GetValue(grenade) - Time.time);
+                }
+                if (_fuseTimeField != null)
+                {
+                    return (float)_fuseTimeField.GetValue(grenade);
+                }
+            }
+            catch
+            {
+                // 反射失败，降级到查表
+            }
+
+            // 兜底：已知引信时间表
+            if (templateId.Contains("f1")) return 3.5f;
+            if (templateId.Contains("rgd")) return 3.5f;
+            if (templateId.Contains("m67")) return 4.0f;
+            if (templateId.Contains("m18")) return 2.0f;
+            if (templateId.Contains("zarya")) return 2.5f;
+            if (templateId.Contains("stun")) return 2.5f;
+            if (templateId.Contains("flash")) return 2.5f;
+            if (templateId.Contains("smoke")) return 2.0f;
+
+            return 3.5f;
+        }
+
+        private IEnumerator GrenadeTracker(Grenade Grenade, PlayerComponent Thrower, List<PlayerComponent> RelevantPlayers, Vector3 DangerPoint, float estimatedFuseTime)
         {
             Rigidbody Rigidbody = (Rigidbody)_rigidBodyField.GetValue(Grenade);
 
@@ -168,12 +227,27 @@ namespace SAIN.Components
 #endif
                 yield break;
             }
+
+            float thrownTime = Time.time;
+
             while (Grenade != null && BotController != null && Rigidbody != null)
             {
                 Vector3 Velocity = Rigidbody.velocity;
+
+                float remainingTime;
+                if (estimatedFuseTime <= 0f)
+                {
+                    remainingTime = 0f; // 碰炸
+                }
+                else
+                {
+                    remainingTime = estimatedFuseTime - (Time.time - thrownTime);
+                    if (remainingTime < 0f) remainingTime = 0f;
+                }
+
                 if (Velocity.magnitude < 0.1f)
                 {
-                    OnGrenadeDangerUpdated?.Invoke(Grenade, Grenade.transform.position);
+                    OnGrenadeDangerUpdated?.Invoke(Grenade, Grenade.transform.position, remainingTime);
                 }
                 else if (Velocity.y < 0)
                 {
@@ -181,7 +255,7 @@ namespace SAIN.Components
                     if (Vector3.Dot(VelocityNormal, Vector3.down) > 0.5f &&
                         Physics.Raycast(Grenade.transform.position, VelocityNormal, out RaycastHit Hit, 5, LayerMaskClass.HighPolyWithTerrainMask))
                     {
-                        OnGrenadeDangerUpdated?.Invoke(Grenade, Hit.point);
+                        OnGrenadeDangerUpdated?.Invoke(Grenade, Hit.point, remainingTime);
                     }
                 }
                 yield return null;
@@ -191,8 +265,14 @@ namespace SAIN.Components
         static GrenadeController()
         {
             _rigidBodyField = AccessTools.Field(typeof(Throwable), "Rigidbody");
+            _explosionTimeField = AccessTools.Field(typeof(Throwable), "_explosionTime");
+            _fuseTimeField = AccessTools.Field(typeof(Throwable), "_fuseTime");
+            _destroyTimeField = AccessTools.Field(typeof(Throwable), "_destroyTime");
         }
 
         private static FieldInfo _rigidBodyField;
+        private static FieldInfo _explosionTimeField;
+        private static FieldInfo _fuseTimeField;
+        private static FieldInfo _destroyTimeField;
     }
 }

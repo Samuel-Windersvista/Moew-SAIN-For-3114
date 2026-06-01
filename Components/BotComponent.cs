@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace SAIN.Components
 {
@@ -179,6 +180,7 @@ namespace SAIN.Components
                     if (active)
                     {
                         TickClassGroup(TickWhenActiveClasses, currentTime);
+                        CheckIdlePatrol();
                     }
 
                     bool inStandBy = !active || BotInStandBy;
@@ -531,5 +533,55 @@ namespace SAIN.Components
 
         private float defaultMoveSpeed;
         private float defaultSprintSpeed;
+
+        // Idle patrol: force bots that have been stationary too long to move
+        private Vector3 _lastIdleCheckPos;
+        private float _lastIdleCheckTime;
+        private float _idleSeconds;
+        private const float IDLE_PATROL_THRESHOLD = 30f;
+        private const float IDLE_MOVE_DIST = 30f;
+
+        private void CheckIdlePatrol()
+        {
+            if (BotInStandBy) return;
+            if (IsInCombat)
+            {
+                _idleSeconds = 0f;
+                return;
+            }
+
+            float now = Time.time;
+            if (_lastIdleCheckTime <= 0f)
+            {
+                _lastIdleCheckTime = now;
+                _lastIdleCheckPos = Position;
+                return;
+            }
+
+            if (now - _lastIdleCheckTime < 10f) return;
+            _lastIdleCheckTime = now;
+
+            float moved = Vector3.Distance(Position, _lastIdleCheckPos);
+            if (moved < 2f)
+            {
+                _idleSeconds += 10f;
+                if (_idleSeconds >= IDLE_PATROL_THRESHOLD)
+                {
+                    Vector3 randomDir = Random.onUnitSphere * IDLE_MOVE_DIST;
+                    randomDir.y = 0;
+                    Vector3 target = Position + randomDir;
+                    if (UnityEngine.AI.NavMesh.SamplePosition(target, out var hit, IDLE_MOVE_DIST, UnityEngine.AI.NavMesh.AllAreas))
+                    {
+                        Mover?.WalkToPoint(hit.position);
+                        _idleSeconds = 0f;
+                    }
+                }
+            }
+            else
+            {
+                _idleSeconds = 0f;
+            }
+            _lastIdleCheckPos = Position;
+        }
     }
 }

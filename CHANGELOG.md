@@ -4,6 +4,65 @@
 
 ---
 
+## v4.3.0 (2026-05-31) — 战斗逻辑全面优化
+
+> 基于对 SAIN 代码库的全面审计（三模型交叉审阅），识别并修复 10 项战斗逻辑问题。
+> 审计报告: `docs/SAIN战斗逻辑综合分析报告.md` | 实施计划: `docs/SAIN第8章问题-实施计划.md`
+
+### 决策系统修复
+
+| ID | 描述 | 文件 |
+|----|------|------|
+| DEC-1 | MoveToEngage 决策激活 — `shallMoveToEngage()` 已有完整实现但从未被调用，Bot 超出有效射程后不会主动推进。已插入到 `GetDecision` 决策链中，被压制的 Bot 不受影响 | `EnemyDecisionClass.cs` |
+| DEC-2 | Regroup 小队集结启用 — `shallRegroup()` 逻辑完整但调用被注释。无敌人时 >125m / 有敌人时 >50m 自动归队，敌人在视距内不触发。Bot 散开后不再永远流浪 | `SquadDecisionClass.cs` |
+
+### 个性系统修正
+
+| ID | 描述 | 文件 |
+|----|------|------|
+| PERS-1 | AggressionMultiplier 差异化激活 — 所有 8 种个性此值均为 1.0（无差异）。现按个性赋予 2.0(GigaChad)~0.3(Coward) 的差异化值，直接影响搜索速度/地面坚守时间/冻结时长 | `PersonalityDefaultsClass.cs` |
+
+### 战斗行为改进
+
+| ID | 描述 | 文件 |
+|----|------|------|
+| CMB-1 | 战后恢复窗口延长 — 10s→30s，手术中的 Bot 不会被提前中断恢复逻辑 | `BotDecisionManager.cs` |
+| CMB-2 | 室外谨慎 Freeze — 谨慎型 Bot(Rat/SnappingTurtle) 室外听到敌人时，先寻找声音方向的掩体，跑过去再蹲守。无掩体则不触发。室内行为不变 | `EnemyDecisionClass.cs` |
+| CMB-3 | 狗斗退出延迟 — 0.5s 最小持续时间锁，防止 Bot 在 10m 阈值边缘频繁切换 DogFight/常规战斗 | `DogFightDecisionClass.cs` |
+
+### 感知与武器
+
+| ID | 描述 | 文件 |
+|----|------|------|
+| PERC-1 | 枪声 10% 概率漏听 — 通过所有距离/修正检查后仍有 10% 概率忽略枪声，模拟注意力不集中或环境噪音遮蔽 | `HearingAnalysisClass.cs` |
+| WPN-1 | 副武器 Holster 槽位统一 — SelfAction 武器切换从仅检查 SecondPrimaryWeapon 扩展为同时检查 Holster | `SelfActionDecisionClass.cs` |
+
+### 手雷系统修复
+
+| ID | 描述 | 文件 |
+|----|------|------|
+| GREN-1 | 手雷爆炸即时过期 — 手雷被销毁/爆炸后立即标记过期，不再仅依赖超时清理 | `GrenadeTrackerClass.cs` |
+
+### 外部整合优化
+
+| ID | 描述 | 文件 |
+|----|------|------|
+| LB-1 | LootingBots 武器切换概率分级 — Boss=40/20, Follower=50/25, Raider=60/30, PMC=70/35, Scav=80/40 | `EnableWeaponSwitchingPatch.cs` (LootingBots 外部) |
+| LB-2 | LootingOverwatch 精确化 — 新增 `IsBotLooting` API，SAIN 优先通过反射调用精确检查队友拾取状态，不可用时回退启发式 | `External.cs` (LootingBots), `LootingBotsInterop.cs` (SAIN), `SquadDecisionClass.cs` |
+
+### 代码清理
+
+| ID | 描述 | 文件 |
+|----|------|------|
+| CLEAN-1 | 移除 Tagilla 自定义近战决策死代码（BSG 原生 AI 自行处理） | `BotDecisionManager.cs` |
+
+### 统计
+
+- **修改文件**: 9 (SAIN 7 + LootingBots 2)
+- **0 编译错误**
+
+---
+
 ## v4.2.0 (2026-05-31) — Moew 兼容版增强更新
 
 ### Bug 修复
@@ -68,6 +127,32 @@
 | PH1 | 武器听觉暴露：按武器类型注入移动噪音(0.90~1.35)，背挂加成 1.15 | `PlayerComponent.cs` |
 | PH2 | 武器视觉暴露：按武器类型影响远距离可见度(1.00~0.55)，背挂加成 0.90 | `AIGearModifierClass.cs` |
 | F6 | 武器暴露 F6 开关 + 装备隐蔽值"添加新条目"按钮 | `HearingSettings.cs`, `VisionDistanceSettings.cs`, `GUITabs.cs` |
+
+### 手雷躲避系统 (Grenade Dodge)
+
+> 设计文档: `docs/SAIN躲避手雷逻辑链改造方案.md` (v2.0) | 实施文档: `docs/SAIN躲避手雷逻辑链改造方案-实施文档.md`
+>
+> 激活了 SAIN 原有但从未生效的 `ECombatDecision.AvoidGrenade` 死代码，实现基于手雷落点的智能躲避系统，替代 EFT 原版的 `BewareGrenade`。
+
+| ID | 描述 | 文件 |
+|----|------|------|
+| GD-1 | 新建 `DodgeGrenadeAction` — 核心躲避行为：根据手雷剩余时间+距离+类型执行分层策略（反向冲刺/掩体寻路/原地扑倒）。扇形采样 9 方向×3 距离级 NavMesh 安全点寻路，带掩体检测（碰撞体尺寸过滤 + 导航路径安全检查） | `DodgeGrenadeAction.cs` (新建) |
+| GD-2 | 引信时间获取 — Harmony 反射读取 `Throwable._explosionTime`/`_fuseTime`/`_destroyTime` 私有字段，反射失败降级查表（6 种手雷类型映射）。碰炸手雷 (VOG) 直接归零，触发紧急扑倒 | `GrenadeController.cs` |
+| GD-3 | 决策链注入 — `getDecision()` 最顶端（`enemy==null` 之前）插入手雷威胁检查，设为最高优先级。无敌人但有飞行中手雷时也能正确触发躲避 | `BotDecisionManager.cs` |
+| GD-4 | 手雷类型分化 — 破片雷反向跑+掩体，闪光弹转身不看+后退，烟雾弹移出烟雾区。通过 `CollisionSounds` 枚举区分 | `GrenadeTrackerClass.cs` |
+| GD-5 | 垂直楼层感知 — 多层建筑中 Y 轴差 >2m 且水平近时，用导航路径距离替代欧几里得距离判断威胁 | `DodgeGrenadeAction.cs` |
+| GD-6 | 紧急反应 — 手雷距离 <8m 且正在接近（`GrenadeDistance` 持续缩小），即使 `CanReact=false` 也触发躲避 | `GrenadeTrackerClass.cs` |
+| GD-7 | 三层降级策略 — SAIN 寻路成功 → 智能躲避 / 失败 → 原地扑倒 / Bot 特殊状态 → EFT 兜底。`GrenadeReactionClass.cs:120` 非敌人手雷保留 EFT 原生 | `DodgeGrenadeAction.cs` |
+| GD-8 | Squad 协同 — 新增 `OnMemberSpottedGrenade` 事件，`CanReact` 触发时广播手雷落点到全体队友。30m 内队友暂停前进。报告 5s 过期自动清理 | `Squad.cs`, `GroupTalk.cs`, `SquadDecisionClass.cs` |
+| GD-9 | 个性差异化 — 3 个新增可配置字段：`GRENADE_REACTION_TIME_MODIFIER`（反应倍率）、`GRENADE_SAFE_DIST_MODIFIER`（安全距离倍率）、`GRENADE_IGNORE_CHANCE`（硬扛概率）。GigaChad 可设 10% 概率不躲 | `PersonalityGeneralSettings.cs` |
+| GD-10 | 全局开关 — `GrenadeSettings.ENABLED`。关闭后三个 `BewareGrenade` 调用入口全部分支回退到 EFT 原版 | `GrenadeSettings.cs` (新建), `GlobalSettingsClass.cs` |
+| GD-11 | 威胁生命周期管理 — 最大 10s 存活限制（`MAX_THREAT_LIFETIME`），超时自动清除。手雷销毁后 `ManualUpdate` 自动清理 `DangerGrenade` 和决策状态，防止决策粘滞 | `GrenadeReactionClass.cs`, `GrenadeTrackerClass.cs` |
+| GD-12 | 多手雷优先级 — `UpdateDangerGrenade()` 按距离×剩余时间评分选最紧急威胁。`EnemyGrenadesList` 中无效 tracker 自动清理 | `GrenadeReactionClass.cs` |
+| GD-13 | `GrenadeThreatData` 数据结构 — 在检测层和决策层之间传递手雷威胁的标准化运行时数据 | `GrenadeThreatData.cs` (新建) |
+
+**数据流**: `GrenadeController`(反射引信)→`GrenadeTrackerClass`(检测/个性)→`BotDecisionManager`(最高优先)→`SAINAvoidThreatLayer`(映射)→`DodgeGrenadeAction`(分层执行)→`Squad`(广播协同)
+
+**改动规模**: 13 文件 / ~550 行新增代码 / 0 编译错误
 
 ### 统计
 

@@ -77,6 +77,9 @@ namespace SAIN.Preset.GlobalSettings
         [Name("战斗力计算")]
         public PowerCalcSettings PowerCalc = new();
 
+        [Name("投掷物设置")]
+        public GrenadeSettings Grenade = new();
+
         public override void InitList()
         {
             SettingsList.Clear();
@@ -93,6 +96,7 @@ namespace SAIN.Preset.GlobalSettings
             Talk.Init(SettingsList);
             SquadTalk.Init(SettingsList);
             PowerCalc.Init(SettingsList);
+            Grenade.Init(SettingsList);
             Steering.Init(SettingsList);
         }
     }

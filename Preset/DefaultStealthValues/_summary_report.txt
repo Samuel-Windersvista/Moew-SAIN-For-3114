@@ -1,0 +1,52 @@
+ITEM STEALTH VALUES GENERATION REPORT
+================================================================================
+
+--- Headwear ---
+  Total items: 49
+  Stealth range: 0.82 - 1.1
+  Representative samples:
+    - helmet_un                                     (AC: PM 2                ) -> 0.82
+    - item_equipment_helmet_vulkan5                 (AC: GOST 5              ) -> 0.85
+    - item_equipment_helmet_diamond_age_bastion     (AC: 17gr V50 ≥ 670m/s   ) -> 0.88
+    - helmet_mich2001_od                            (AC: NIJ IIIA            ) -> 0.92
+    - item_equipment_helmet_tc800                   (AC: NIJ IIIA            ) -> 0.92
+
+--- ArmorVest ---
+  Total items: 34
+  Stealth range: 0.78 - 0.98
+  Representative samples:
+    - heavy                                         (AC: GOST 6A             ) -> 0.78
+    - item_equipment_armor_6b13_digital             (AC: GOST 6A             ) -> 0.78
+    - item_equipment_armor_6b13_flora               (AC: GOST 6A             ) -> 0.78
+    - item_equipment_armor_custom_hexgrid           (AC: NIJ RF3 07          ) -> 0.92
+    - item_equipment_armor_6b2                      (AC: GOST 2A             ) -> 0.95
+
+--- Rig ---
+  Total items: 31
+  Stealth range: 0.9 - 1.05
+  Representative samples:
+    - item_equipment_rig_triton                     (AC:                     ) -> 0.9
+    - item_equipment_rig_boss_birdeye               (AC:                     ) -> 0.9
+    - wartech_mk3                                   (AC:                     ) -> 0.9
+    - item_equipment_rig_umka_m33                   (AC:                     ) -> 0.92
+    - item_equipment_rig_ctactical                  (AC:                     ) -> 0.92
+
+--- BackPack ---
+  Total items: 43
+  Stealth range: 0.82 - 1.05
+  Representative samples:
+    - item_equipment_backpack_betav2                (AC:                     ) -> 0.82
+    - item_equipment_backpack_tehinkom              (AC:                     ) -> 0.82
+    - item_equipment_backpack_f4terminator          (AC:                     ) -> 0.82
+    - backpack_partizan                             (AC:                     ) -> 0.92
+    - backpack_wild                                 (AC:                     ) -> 1.02
+
+--- FaceCover ---
+  Total items: 11
+  Stealth range: 0.9 - 1.02
+  Representative samples:
+    - item_equipment_atomic                         (AC: NIJ IIIA            ) -> 0.9
+    - item_equipment_facecover_glorious             (AC:                     ) -> 0.95
+    - item_equipment_death_mask                     (AC: Unclassified        ) -> 0.95
+    - item_equipment_facecover_shatteredmask        (AC: Unclassified        ) -> 0.95
+    - item_equipment_glasses_npp                    (AC: Anti-Shatter Resistance V50 ≥ 230 m/s) -> 1.02

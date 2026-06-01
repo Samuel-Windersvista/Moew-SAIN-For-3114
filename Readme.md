@@ -92,7 +92,7 @@ SAIN 通过 BigBrain 框架为每种 Bot 类型注册 **5 个自定义行为层*
 | 层 | 类 | 优先级 | 触发条件 |
 |---|---|---|---|
 | DebugLayer | DebugLayer | 99 | 调试模式 |
-| 躲避威胁 | SAINAvoidThreatLayer | 80 | 检测到手雷等威胁 |
+| 躲避威胁 | SAINAvoidThreatLayer | 80 | 手雷检测+智能躲避（破片/闪光/烟雾分化） |
 | 撤离 | ExtractLayer | 可配置 | Bot 需要撤离 |
 | 小队战斗 | CombatSquadLayer | 可配置 | 小队协调行为 |
 | 个人战斗 | CombatSoloLayer | 可配置 | 个人战斗行为 |
@@ -176,6 +176,7 @@ BotManagerComponent
 `BotDecisionManager` 以 **10Hz** 频率运行优先级决策树：
 
 ```
+0. 手雷威胁 → AvoidGrenade (最高优先级，即使无敌人也执行)
 1. 无敌人 → None
 2. SelfAction (治疗/手术/换弹/兴奋剂) → SeekCover + 对应自行动作
 3. DogFight 近战格斗检查
@@ -301,7 +302,40 @@ SAIN 接管了射击的几乎所有方面：
 - **武器故障禁用**: AI 武器永远不会卡壳
 - **部位选择**: 默认瞄准腿部，可配置爆头概率
 
-### 4.8 服务端模组
+### 4.8 手雷躲避系统 (Grenade Dodge) — v4.2.0 新增
+
+激活了 SAIN 原有但从未生效的 `ECombatDecision.AvoidGrenade` 死代码，实现基于手雷落点的智能躲避，替代 EFT 原版 `BewareGrenade`。
+
+**数据流**:
+```
+GrenadeController (Harmony反射引信时间 + 协程追踪落点)
+  → GrenadeTrackerClass (视觉/听觉/紧急反应检测 + 个性参数)
+    → BotDecisionManager (决策链#0最高优先级)
+      → SAINAvoidThreatLayer → DodgeGrenadeAction
+        → 分层表执行: 寻路掩体 / 反向冲刺 / 原地扑倒
+        → Squad 广播 (OnMemberSpottedGrenade)
+```
+
+**核心特性**:
+
+| 特性 | 说明 |
+|------|------|
+| 时间-距离分层 | 剩余 >2s → 反向冲刺+掩体寻路 / 1-2s → 反向跑+扑倒 / <1s → 原地扑倒 |
+| 手雷类型分化 | 破片→反向跑 / 闪光→转身不看 / 烟雾→移出烟雾区 / VOG→立即扑倒 |
+| 引信时间获取 | Harmony反射优先(3个候选私有字段)+查表兜底(6种手雷类型) |
+| 安全点寻路 | 9方向×3距离扇形采样，`CanGoToPoint`验证完整NavMesh路径 |
+| 掩体检测 | 每候选点独立Raycast + 碰撞体尺寸过滤(≥0.5×0.5×1m) + 导航路径安全检查 |
+| 垂直楼层感知 | 不同楼层用导航路径距离替代3D直线距离，避免误判威胁 |
+| 紧急反应 | 距离<8m且正在接近，即使CanReact=false也触发 |
+| 三层降级 | SAIN寻路→原地扑倒→EFT兜底(仅非敌人手雷保留EFT原生) |
+| Squad协同 | `OnMemberSpottedGrenade`事件广播落点坐标，30m内队友暂停前进 |
+| 个性差异化 | 3个可配置字段：反应速度倍率/安全距离倍率/硬扛概率 |
+| 决策粘滞防护 | 手雷销毁/超时(10s)自动清除威胁状态 |
+| 全局开关 | `GrenadeSettings.ENABLED`，关闭即恢复EFT原版行为 |
+
+**设计文档**: `docs/SAIN躲避手雷逻辑链改造方案.md` (v2.0) | **实施文档**: `docs/SAIN躲避手雷逻辑链改造方案-实施文档.md`
+
+### 4.9 服务端模组
 
 TypeScript 服务端模组 (`ServerMod/src/mod.ts`) 执行以下修改：
 
@@ -527,9 +561,33 @@ public static bool Patch(ref bool __result) {
 - **武器听觉暴露**: 重型武器增加移动噪音（机枪 1.30/手枪 0.90 更安静），F6 可调
 - **F6 "添加新装备条目"**: 装备隐蔽值 Tab 新增自定义条目按钮
 
-> **总计**: ~30 文件 / 0 编译错误 / F6 GUI 完全可控
+### Phase 6: 手雷躲避系统 (Grenade Dodge)
+- **智能手雷躲避**: 激活 `AvoidGrenade` 死代码，实现 13 维度手雷威胁响应（时间/距离/类型/掩体/垂直楼层/Squad协同）
+- **手雷类型分化**: 破片反向跑+掩体，闪光转身不看，烟雾移出烟雾区，VOG 立即扑倒
+- **安全点寻路**: 9方向×3距离 NavMesh 扇形采样，掩体检测带碰撞体尺寸过滤
+- **Squad 广播**: 队友检测到手雷后广播落点坐标，30m 内其他成员暂停前进
+- **个性差异化**: GigaChad 可设 10% 概率硬扛，Rat/Coward 跑更远反应更快
+- **全局开关**: `GrenadeSettings.ENABLED`，关闭即完全恢复 EFT 原版 BewareGrenade 行为
+
+### Phase 7: 战斗逻辑全面优化 (v4.3.0 — 2026-05-31)
+
+基于代码库三模型交叉审阅，修复 10 项战斗逻辑问题:
+
+- **MoveToEngage 激活**: `shallMoveToEngage` 从死代码恢复，Bot 超出射程时主动推进
+- **AggressionMultiplier 差异化**: 所有个性从统一 1.0 改为 2.0~0.3 分级，搜索速度/坚守时间/冻结时长按个性缩放
+- **Regroup 小队集结**: `shallRegroup` 解除注释，散开 Bot 自动归队
+- **室外 Freeze**: Rat/SnappingTurtle 室外听到敌人后先跑向掩体再蹲守
+- **枪声 10% 概率漏听**: 模拟注意力不集中或环境噪音遮蔽
+- **战后恢复延长**: 10s→30s，手术中的 Bot 不被中断
+- **Holster 武器切换**: SelfAction 侧统一检查两个副武器槽位
+- **手雷爆炸即时过期**: 手雷销毁后立即清除威胁状态
+- **狗斗退出延迟**: 0.5s 最小持续时间锁防止频繁切换
+- **LootingBots 武器切换分级**: Boss 40% → Scav 80% 五级分级
+- **LootingOverwatch 精确化**: 新增 IsBotLooting API 取代启发式判断
+
+> **总计 (v4.3.0)**: ~50 文件 / 0 编译错误 / F6 GUI 完全可控
 >
-> 详细更新记录见 `CHANGELOG.md`
+> v4.2.0 Phase 1-6 详情见 `CHANGELOG.md`
 
 ---
 

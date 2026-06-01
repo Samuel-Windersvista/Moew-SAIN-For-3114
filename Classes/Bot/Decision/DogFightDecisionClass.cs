@@ -83,6 +83,7 @@ namespace SAIN.SAINComponent.Classes.Decision
                     if (ShallDogfightEnemy(enemy))
                     {
                         _lastDogFightTarget = enemy;
+                        _dogFightStartTime = Time.time;
                         result = enemy;
                         return true;
                     }
@@ -101,6 +102,12 @@ namespace SAIN.SAINComponent.Classes.Decision
 
         private bool shallClearDogfightTarget(Enemy enemy)
         {
+            // 最小狗斗持续时间锁（防止阈值边缘抽搐）
+            if (_dogFightStartTime > 0 && Time.time - _dogFightStartTime < 0.5f)
+            {
+                return false;
+            }
+
             if (!enemy.EnemyKnown || enemy.LastKnownPosition == null)
             {
                 return true;
@@ -118,12 +125,15 @@ namespace SAIN.SAINComponent.Classes.Decision
 
         private Enemy _lastDogFightTarget;
 
+        private float _dogFightStartTime;
+
         private void checkClear(string profileID, Enemy enemy)
         {
             if (_lastDogFightTarget != null &&
                 _lastDogFightTarget.EnemyProfileId == profileID)
             {
                 _lastDogFightTarget = null;
+                _dogFightStartTime = 0f;
             }
         }
     }
