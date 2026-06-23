@@ -4,6 +4,53 @@
 
 ---
 
+## v4.4.0 (2026-06-23) — 四模组协同稳定性与性能优化
+
+> 与 PathToTarkov 6.2.0 / InteractableExfilsAPI 2.1.0 / LootingBots 1.6.2 协同优化批次。
+> 审查报告: `docs/superpowers/reports/sain-optimization-report.md` / `sain-lootingbots-coordination-report.md`
+> 实施计划: `docs/superpowers/implementation-plan.md`
+
+### LootingBots 协同核心修复
+
+| ID | 描述 |
+|---|---|
+| LB-FIX-1 | `LootingBotsInterop` 反射异常保护 — 所有 `Invoke()` try-catch，失败降级不可用 |
+| LB-FIX-2 | 统一 `IsAvailable` 检测 — 插件加载 + 全部 7 个方法反射解析成功 |
+| LB-FIX-3 | `SAINLootingBotsIntegration` 单例化 — 提升至 `BotComponent`，消除 `ExtractLayer`/`PeacefulLayer`/`BotDecisionManager` 三处独立实例 |
+| LB-FIX-4 | `shallLootingOverwatch` fallback 移除 — 删除静止队友误判兜底 |
+| LB-FIX-5 | `LootingOverwatchAction` 实现 — 新增守望动作（面向队友、掩体蹲伏、警戒），替代原 `default: RegroupAction` |
+| LB-FIX-6 | `CheckLootingVigilance` 威胁感知扩展 — 增加枪声/消音枪声/压制残留/手雷报告检测，频率 0.5s -> 0.3s |
+| LB-FIX-7 | `TryEnsureSafeLootingPosition` 安全判断增强 — 增加危险声音/已知敌人/掩体距离 |
+| LB-FIX-8 | 战后拾取与 `POST_COMBAT_RECOVERY` 解耦 — 独立 `LootCombatEndTime` + `POST_COMBAT_LOOTING` 开关 |
+| LB-FIX-9 | `FullOnLoot` 回落逻辑 — 物品价值下降或背包腾空时重置 |
+| LB-FIX-10 | `IsBotInLootAnimation` 反射补齐 — SAIN 侧解析 LootingBots 新 API |
+
+### 性能优化
+
+| ID | 描述 |
+|---|---|
+| PERF-1 | 听觉系统协程改队列 — `BotHearingClass.PlayAISound` 从每声源 `StartCoroutine` 改为 `DelayedBotEvent` 队列 + `Update()` 批量处理；修复 O(n^2) 移除为 `RemoveRange` + Early Break + 512 上限保护 |
+| PERF-2 | 听觉缓存排序零分配 — `HearingInputClass.ProcessAISoundCache` 移除 `List.Sort` lambda，改为单遍阈值收集 |
+| PERF-3 | 决策频率自适应 — 近距交火按 bot 密度 `Lerp(20Hz, 10Hz, clamp(ratio/0.6))`，远距离非战斗 2Hz |
+| PERF-4 | 价格缓存 LRU — `LootingBotsInterop` 60s 全清改为 256 条上限 + 60s 过期淘汰 |
+
+### 可维护性改进
+
+| ID | 描述 |
+|---|---|
+| MNT-1 | 纯 null-guard Harmony Prefix 统一注释 + `GenericHelpers.CheckNotNull` 工具化 |
+| MNT-2 | 魔法数字提取 — `SAINLootingBotsIntegration.cs` / `SquadDecisionClass.cs` / `LootingOverwatchAction.cs` 中 27 处阈值改为命名 const |
+| MNT-3 | 注释调试代码清理 — `HearingSensorClass` / `ActivationClass` / `HearingPatches` / `TalkPatches` / `VisionPatches` ~60 行删除 |
+| MNT-4 | `BotComponent.InitClasses` 分级 — 非关键子类初始化失败仅警告，不复位整体 Dispose |
+
+### 统计
+
+- **修改文件**: 15+
+- **新增文件**: 1 (`LootingOverwatchAction.cs`)
+- **0 编译错误**
+
+---
+
 ## v4.3.0 (2026-05-31) — 战斗逻辑全面优化
 
 > 基于对 SAIN 代码库的全面审计（三模型交叉审阅），识别并修复 10 项战斗逻辑问题。
