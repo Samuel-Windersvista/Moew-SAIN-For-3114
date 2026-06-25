@@ -132,6 +132,11 @@ namespace SAIN.Components
         public SAINInterestPointClass SAINInterestPointClass { get; private set; }
         public AimClass Aim { get; private set; }
 
+        /// <summary>
+        /// Shared LootingBots integration instance for this bot. Initialized after all core classes.
+        /// </summary>
+        public SAINLootingBotsIntegration LootingBotsIntegration { get; private set; }
+
         public ESquadRole SquadRole { get; set; } = ESquadRole.Default;
 
         public bool IsDead => Player?.HealthController?.IsAlive != true;
@@ -223,6 +228,10 @@ namespace SAIN.Components
             {
                 return false;
             }
+
+            // Initialize shared LootingBots integration singleton after other classes are created
+            LootingBotsIntegration = new SAINLootingBotsIntegration(BotOwner, this);
+
             if (!FinishInit(playerComponent))
             {
                 return false;
@@ -230,55 +239,105 @@ namespace SAIN.Components
             return true;
         }
 
+        /// <summary>
+        /// Tiered class creation: critical classes must succeed or the bot is discarded.
+        /// Non-critical classes are wrapped in try-catch — if they fail, the bot continues
+        /// with degraded functionality. This prevents non-essential features (talk, light,
+        /// vault, etc.) from taking down the entire AI.
+        /// </summary>
         private bool CreateClasses()
+        {
+            // Must be first, other classes use it
+            if (!CreateCritical(() => Info = new SAINBotInfoClass(this), nameof(Info)))
+                return false;
+
+            // Non-critical: wrapped individually to allow graceful degradation
+            CreateNonCritical(() => NoBushESP = new SAINNoBushESP(this), nameof(NoBushESP));
+            CreateNonCritical(() => Squad = new BotSquadContainer(this), nameof(Squad));
+            CreateNonCritical(() => BusyHandsDetector = new BotBusyHandsDetector(this), nameof(BusyHandsDetector));
+            CreateNonCritical(() => GlobalEvents = new BotGlobalEventsClass(this), nameof(GlobalEvents));
+            CreateNonCritical(() => Shoot = new SAINShootData(this), nameof(Shoot));
+            CreateNonCritical(() => WeightManagement = new BotWeightManagement(this), nameof(WeightManagement));
+
+            if (!CreateCritical(() => Memory = new SAINMemoryClass(this), nameof(Memory)))
+                return false;
+
+            CreateNonCritical(() => BotStuck = new SAINBotUnstuckClass(this), nameof(BotStuck));
+
+            if (!CreateCritical(() => Hearing = new SAINHearingSensorClass(this), nameof(Hearing)))
+                return false;
+
+            CreateNonCritical(() => Talk = new SAINBotTalkClass(this), nameof(Talk));
+
+            if (!CreateCritical(() => Decision = new SAINDecisionClass(this), nameof(Decision)))
+                return false;
+
+            if (!CreateCritical(() => Cover = new SAINCoverClass(this), nameof(Cover)))
+                return false;
+
+            CreateNonCritical(() => SelfActions = new SAINSelfActionClass(this), nameof(SelfActions));
+            CreateNonCritical(() => Steering = new SAINSteeringClass(this), nameof(Steering));
+            CreateNonCritical(() => Grenade = new BotGrenadeManager(this), nameof(Grenade));
+
+            if (!CreateCritical(() => Mover = new SAINMoverClass(this), nameof(Mover)))
+                return false;
+
+            if (!CreateCritical(() => EnemyController = new SAINEnemyController(this), nameof(EnemyController)))
+                return false;
+
+            CreateNonCritical(() => FriendlyFire = new SAINFriendlyFireClass(this), nameof(FriendlyFire));
+
+            if (!CreateCritical(() => Vision = new SAINVisionClass(this), nameof(Vision)))
+                return false;
+
+            CreateNonCritical(() => Search = new SAINSearchClass(this), nameof(Search));
+            CreateNonCritical(() => Vault = new SAINVaultClass(this), nameof(Vault));
+            CreateNonCritical(() => Suppression = new SAINBotSuppressClass(this), nameof(Suppression));
+            CreateNonCritical(() => AILimit = new SAINAILimit(this), nameof(AILimit));
+            CreateNonCritical(() => AimDownSightsController = new AimDownSightsController(this), nameof(AimDownSightsController));
+            CreateNonCritical(() => SpaceAwareness = new SAINBotSpaceAwareness(this), nameof(SpaceAwareness));
+            CreateNonCritical(() => DoorOpener = new DoorOpener(this), nameof(DoorOpener));
+            CreateNonCritical(() => Medical = new SAINBotMedicalClass(this), nameof(Medical));
+            CreateNonCritical(() => BotLight = new BotLightController(this), nameof(BotLight));
+            CreateNonCritical(() => BackpackDropper = new BotBackpackDropClass(this), nameof(BackpackDropper));
+            CreateNonCritical(() => CurrentTarget = new CurrentTargetClass(this), nameof(CurrentTarget));
+            CreateNonCritical(() => ManualShoot = new ManualShootClass(this), nameof(ManualShoot));
+
+            if (!CreateCritical(() => BotActivation = new SAINActivationClass(this), nameof(BotActivation)))
+                return false;
+
+            CreateNonCritical(() => Aim = new AimClass(this), nameof(Aim));
+            CreateNonCritical(() => SAINInterestPointClass = new SAINInterestPointClass(this), nameof(SAINInterestPointClass));
+
+            return true;
+        }
+
+        /// <summary>Create a critical class; returns false on failure (triggers bot Dispose).</summary>
+        private bool CreateCritical(Action createAction, string className)
         {
             try
             {
-                // Must be first, other classes use it
-                Info = new SAINBotInfoClass(this);
-
-                NoBushESP = new SAINNoBushESP(this);
-
-                Squad = new BotSquadContainer(this);
-                BusyHandsDetector = new BotBusyHandsDetector(this);
-                GlobalEvents = new BotGlobalEventsClass(this);
-                Shoot = new SAINShootData(this);
-                WeightManagement = new BotWeightManagement(this);
-                Memory = new SAINMemoryClass(this);
-                BotStuck = new SAINBotUnstuckClass(this);
-                Hearing = new SAINHearingSensorClass(this);
-                Talk = new SAINBotTalkClass(this);
-                Decision = new SAINDecisionClass(this);
-                Cover = new SAINCoverClass(this);
-                SelfActions = new SAINSelfActionClass(this);
-                Steering = new SAINSteeringClass(this);
-                Grenade = new BotGrenadeManager(this);
-                Mover = new SAINMoverClass(this);
-                EnemyController = new SAINEnemyController(this);
-                FriendlyFire = new SAINFriendlyFireClass(this);
-                Vision = new SAINVisionClass(this);
-                Search = new SAINSearchClass(this);
-                Vault = new SAINVaultClass(this);
-                Suppression = new SAINBotSuppressClass(this);
-                AILimit = new SAINAILimit(this);
-                AimDownSightsController = new AimDownSightsController(this);
-                SpaceAwareness = new SAINBotSpaceAwareness(this);
-                DoorOpener = new DoorOpener(this);
-                Medical = new SAINBotMedicalClass(this);
-                BotLight = new BotLightController(this);
-                BackpackDropper = new BotBackpackDropClass(this);
-                CurrentTarget = new CurrentTargetClass(this);
-                ManualShoot = new ManualShootClass(this);
-                BotActivation = new SAINActivationClass(this);
-                Aim = new AimClass(this);
-                SAINInterestPointClass = new SAINInterestPointClass(this);
+                createAction();
+                return true;
             }
             catch (Exception ex)
             {
-                Logger.LogError($"Error When Creating Classes, Disposing... : {ex}");
+                Logger.LogError($"[CRITICAL] Failed to create class [{className}], disposing bot: {ex}");
                 return false;
             }
-            return true;
+        }
+
+        /// <summary>Create a non-critical class with individual try-catch. On failure, logs warning and continues.</summary>
+        private void CreateNonCritical(Action createAction, string className)
+        {
+            try
+            {
+                createAction();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWarning($"[NON-CRITICAL] Failed to create class [{className}], continuing with degraded functionality: {ex}");
+            }
         }
 
         public void AddBotClass(IBotClass Class)
@@ -337,6 +396,7 @@ namespace SAIN.Components
         {
             foreach (var botClass in BotClasses)
             {
+                if (botClass == null) continue; // Non-critical class failed to init in CreateClasses()
                 try
                 {
                     botClass.Init();
@@ -484,6 +544,7 @@ namespace SAIN.Components
 
             foreach (var botClass in BotClasses)
             {
+                if (botClass == null) continue;
                 try
                 {
                     botClass.Dispose();

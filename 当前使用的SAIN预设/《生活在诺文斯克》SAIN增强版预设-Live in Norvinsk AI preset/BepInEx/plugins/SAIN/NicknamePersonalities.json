@@ -1,0 +1,14 @@
+{
+  "Description": "名称不区分大小写。任何AI名称出现在此处条目时都将被强制使用匹配的个性。",
+  "NicknamePersonalityMatches": {
+    "steve": "Wreckless",
+    "solarint": "GigaChad",
+    "lvndmark": "SnappingTurtle",
+    "chomp": "Chad",
+    "senko": "Chad",
+    "kaeno": "Timmy",
+    "justnu": "Timmy",
+    "ratthew": "Rat",
+    "choccy": "Rat"
+  }
+}

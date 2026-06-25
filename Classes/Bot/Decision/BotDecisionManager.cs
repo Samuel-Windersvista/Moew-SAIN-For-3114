@@ -14,7 +14,8 @@ namespace SAIN.SAINComponent.Classes.Decision
 {
     public class BotDecisionManager(SAINDecisionClass decisionClass) : BotSubClass<SAINDecisionClass>(decisionClass), IBotClass
     {
-        private const float DECISION_FREQUENCY = 1f / 10;
+        // SAIN-3.3: Adaptive decision frequency — computed per-tick based on combat state
+        private const float DECISION_FREQUENCY_FALLBACK = 1f / 10;
 
         public event Action<ECombatDecision, ESquadDecision, ESelfActionType, Enemy, BotComponent> OnDecisionMade;
 
@@ -36,18 +37,9 @@ namespace SAIN.SAINComponent.Classes.Decision
 
         public float ChangeDecisionTime { get; private set; }
         public float CombatEndTime = -1f;
+        /// <summary>独立于 POST_COMBAT_RECOVERY 的战后拾取计时器，始终在战斗结束时设置。</summary>
+        public float LootCombatEndTime = -1f;
         public float TimeSinceChangeDecision => Time.time - ChangeDecisionTime;
-
-        private SAINLootingBotsIntegration _sainLootingBotsIntegration;
-        private SAINLootingBotsIntegration SAINLootingBotsIntegration
-        {
-            get
-            {
-                if (_sainLootingBotsIntegration == null)
-                    _sainLootingBotsIntegration = new SAINLootingBotsIntegration(BotOwner, Bot);
-                return _sainLootingBotsIntegration;
-            }
-        }
 
         public override void Init()
         {
@@ -59,9 +51,47 @@ namespace SAIN.SAINComponent.Classes.Decision
         {
             if (_nextGetDecisionTime < Time.time)
             {
-                _nextGetDecisionTime = Time.time + DECISION_FREQUENCY;
+                // SAIN-3.3: Adaptive decision frequency
+                float interval = ComputeDecisionInterval();
+                _nextGetDecisionTime = Time.time + interval;
                 getDecision();
             }
+        }
+
+        /// <summary>
+        /// Computes the decision update interval based on bot state and global bot density.
+        /// Higher frequency during close combat, lower when idle/far from players.
+        /// Scales down when bot count is high to conserve CPU cycles.
+        /// </summary>
+        private float ComputeDecisionInterval()
+        {
+            bool inCombat = Bot.IsInCombat;
+            Enemy goalEnemy = Bot.GoalEnemy;
+
+            if (inCombat)
+            {
+                // Adaptive: 10Hz at high bot density (>=60% of max), 20Hz at low density
+                int activeBots = BotManagerComponent.Instance?.BotSpawnController?.SAINBots?.Count ?? 0;
+                const int MAX_BOTS_ESTIMATE = 30;
+                float ratio = (activeBots > 0) ? (float)activeBots / MAX_BOTS_ESTIMATE : 0f;
+                // 0% -> 20Hz, 60% -> 10Hz, >60% -> 10Hz (clamped)
+                float freq = Mathf.Lerp(20f, 10f, Mathf.Clamp01(ratio / 0.6f));
+                return 1f / freq;
+            }
+
+            // Out of combat: check distance to nearest human player via AILimit cache
+            if (Bot.AILimit.ClosestPlayerDistanceSqr > 0f)
+            {
+                float dist = Mathf.Sqrt(Bot.AILimit.ClosestPlayerDistanceSqr);
+                if (dist > 100f)
+                {
+                    // Far from any human: 2Hz — decisions barely matter at this range
+                    return 1f / 2;
+                }
+            }
+
+            // Default: 10Hz
+            return 1f / 10;
         }
 
         public override void Dispose()
@@ -108,11 +138,14 @@ namespace SAIN.SAINComponent.Classes.Decision
                     CombatEndTime = -1f;
                 }
 
-                // INT-4: Try to trigger looting after recovery
-                if (CombatEndTime > 0 && Time.time - CombatEndTime > 10f)
+                // INT-4 / SAIN-2.3: Post-combat looting uses LootCombatEndTime (independent of POST_COMBAT_RECOVERY)
+                if (LootCombatEndTime > 0 && Time.time - LootCombatEndTime > 10f)
                 {
-                    SAINLootingBotsIntegration?.TryTriggerPostCombatLoot();
-                    CombatEndTime = -1f;
+                    if (GlobalSettingsClass.Instance.Mind.POST_COMBAT_LOOTING)
+                    {
+                        Bot.LootingBotsIntegration?.TryTriggerPostCombatLoot();
+                    }
+                    LootCombatEndTime = -1f;
                 }
 
                 // F2-5: Kill confirm — maintain aim on recent kill

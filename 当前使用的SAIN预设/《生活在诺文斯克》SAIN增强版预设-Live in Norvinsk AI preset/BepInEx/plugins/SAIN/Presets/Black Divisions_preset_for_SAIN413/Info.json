@@ -1,0 +1,11 @@
+{
+  "Name": "Black Divisions_preset_for_SAIN413",
+  "Description": "《黑色军团预设》这个预设试图将AI设置得更像正式版中的黑色军团。",
+  "Creator": "Samuel是不是好奇猫",
+  "SAINVersion": "4.2.0",
+  "SAINPresetVersion": "4.2.0",
+  "DateCreated": "12/03/2025 00:00:00",
+  "BaseSAINDifficulty": "hard",
+  "IsCustom": true,
+  "CanEditName": true
+}

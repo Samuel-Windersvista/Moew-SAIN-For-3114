@@ -1,0 +1,11 @@
+{
+  "Name": "Live in Tarkov_preset_for_SAIN413",
+  "Description": "生活在诺文斯克整合包专属SAIN预设",
+  "Creator": "Samuel是不是好奇猫",
+  "SAINVersion": "4.2.0",
+  "SAINPresetVersion": "4.2.0",
+  "DateCreated": "08/17/2025 00:00:00",
+  "BaseSAINDifficulty": "deathwish",
+  "IsCustom": true,
+  "CanEditName": true
+}

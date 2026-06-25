@@ -399,29 +399,6 @@ namespace SAIN.Patches.Vision
     }
 
 
-    //public class CheckPartLineOfSightPatch : ModulePatch
-    //{
-    //    protected override MethodBase GetTargetMethod()
-    //    {
-    //        return AccessTools.Method(typeof(EnemyInfo), nameof(EnemyInfo.CheckPartLineOfSight));
-    //    }
-    //
-    //    [PatchPrefix]
-    //    public static bool PatchPrefix(EnemyInfo __instance, ref bool __result, KeyValuePair<EnemyPart, EnemyPartData> part, LayerMask lookSensorMask, float addSensorDistance, ref float visibilityChangeSpeedK)
-    //    {
-    //        if (SAINEnableClass.GetSAIN(__instance.Owner, out var sain))
-    //        {
-    //            Enemy enemy = sain.EnemyController.GetEnemy(__instance.ProfileId, true);
-    //            if (enemy != null)
-    //            {
-    //                __result = enemy.Vision.Angles.CanBeSeen;
-    //                return false;
-    //            }
-    //        }
-    //        return true;
-    //    }
-    //}
-
     public class IsPointInVisibleSectorPatch : ModulePatch
     {
         protected override MethodBase GetTargetMethod()

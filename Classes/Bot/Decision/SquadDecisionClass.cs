@@ -10,6 +10,15 @@ namespace SAIN.SAINComponent.Classes.Decision
 {
     public class SquadDecisionClass : BotBase
     {
+        // SAIN-4.2: Named constants for magic numbers
+        private const float LOOTING_OVERWATCH_MAX_DIST = 25f;
+        private const float GRENADE_RETREAT_DIST = 30f;
+        private const float REGROUP_ENEMY_DOT_THRESHOLD = 0.25f;
+        private const float REGROUP_ENEMY_PROXIMITY_DIST = 30f;
+        private const float MIN_AMMO_SUPPRESS = 0.1f;
+        private const float MIN_AMMO_START_SUPPRESS = 0.5f;
+        private const float QUIT_SUPPRESS_AMMO = 0.5f;
+
         public SquadDecisionClass(BotComponent sain) : base(sain)
         {
             CanEverTick = false;
@@ -115,7 +124,7 @@ namespace SAIN.SAINComponent.Classes.Decision
         // INT-3: Precise LootingOverwatch — checks if squadmate is actually looting via LootingBots API
         private bool shallLootingOverwatch()
         {
-            if (!ModDetection.LootingBotsLoaded) return false;
+            if (!LootingBots.LootingBotsInterop.IsAvailable) return false;
             if (Bot.GoalEnemy != null) return false; // Don't overwatch when engaged
 
             foreach (var member in Bot.Squad.Members.Values)
@@ -124,16 +133,10 @@ namespace SAIN.SAINComponent.Classes.Decision
                 if (member?.BotOwner == null || member.BotOwner.IsDead) continue;
 
                 float dist = Vector3.Distance(Bot.Position, member.Position);
-                if (dist >= 25f) continue;
+                if (dist >= LOOTING_OVERWATCH_MAX_DIST) continue;
 
-                // Precise check: use LootingBots API to verify the member is actually looting
+                // Use LootingBots API to verify the member is actually looting
                 if (LootingBots.LootingBotsInterop.IsBotLooting(member.BotOwner))
-                {
-                    return true;
-                }
-
-                // Fallback heuristic: if API unavailable, check traditional heuristics
-                if (!member.IsInCombat && member?.Mover?.Moving == false)
                 {
                     return true;
                 }
@@ -212,9 +215,9 @@ namespace SAIN.SAINComponent.Classes.Decision
 
             if (Bot.Decision.CurrentSquadDecision == ESquadDecision.Suppress)
             {
-                return memberDistance <= SquadDecision_SuppressFriendlyDistEnd && ammo >= 0.1f;
+                return memberDistance <= SquadDecision_SuppressFriendlyDistEnd && ammo >= MIN_AMMO_SUPPRESS;
             }
-            return memberDistance <= SquadDecision_SuppressFriendlyDistStart && ammo >= 0.5f;
+            return memberDistance <= SquadDecision_SuppressFriendlyDistStart && ammo >= MIN_AMMO_START_SUPPRESS;
         }
 
         private bool shallGroupSearch(BotComponent member)
@@ -290,6 +293,12 @@ namespace SAIN.SAINComponent.Classes.Decision
                 return false;
             }
 
+            // FIX: If I'm the only living member, there's nobody to regroup with
+            if (squad.Members != null && squad.Members.Count <= 1)
+            {
+                return false;
+            }
+
             float maxDist = SquadDecision_Regroup_NoEnemy_StartDist;
             float minDist = SquadDecision_Regroup_NoEnemy_EndDistance;
 
@@ -318,7 +327,7 @@ namespace SAIN.SAINComponent.Classes.Decision
                     float EnemyDistance = directionToEnemy.magnitude;
                     if (EnemyDistance < leadDistance)
                     {
-                        if (EnemyDistance < 30f && Vector3.Dot(directionToEnemy.normalized, directionToLead.normalized) > 0.25f)
+                        if (EnemyDistance < REGROUP_ENEMY_PROXIMITY_DIST && Vector3.Dot(directionToEnemy.normalized, directionToLead.normalized) > REGROUP_ENEMY_DOT_THRESHOLD)
                         {
                             return false;
                         }
@@ -347,7 +356,7 @@ namespace SAIN.SAINComponent.Classes.Decision
             if (report == null) return false;
 
             float dist = Vector3.Distance(Bot.Position, report.DangerPoint);
-            if (dist < 30f && !report.IsSmoke && !report.IsFlash)
+            if (dist < GRENADE_RETREAT_DIST && !report.IsSmoke && !report.IsFlash)
             {
                 retreatFrom = report.DangerPoint;
                 return true;

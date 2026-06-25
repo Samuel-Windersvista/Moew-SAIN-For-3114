@@ -112,17 +112,7 @@ namespace SAIN.Patches.Hearing
         [PatchPrefix]
         public static bool PatchPrefix(Player ____player, ref float ____nextJumpNoise)
         {
-            //if (____player.AIData == null) {
-            //    return false;
-            //}
-            //if (____player.AIData.IsAI && ____player.AIData.BotOwner.BotState != EBotState.Active) {
-            //    return false;
-            //}
-            //if (Time.time > ____nextJumpNoise) {
-            //    ____nextJumpNoise = Time.time + SAINPlugin.LoadedPreset.GlobalSettings.Hearing.JUMP_SOUND_INTERVAL;
-            //    float baseRange = SAINPlugin.LoadedPreset.GlobalSettings.Hearing.JUMP_SOUND_RANGE;
-            //    SAINBotController.Instance?.BotHearing.PlayAISound(____player.ProfileId, SAINSoundType.Jump, ____player.Position, baseRange, 1f);
-            //}
+            // Jump sounds suppressed by SAIN (was replaced by SpecificStepAudioController)
             return false;
         }
     }
@@ -137,19 +127,7 @@ namespace SAIN.Patches.Hearing
         [PatchPostfix]
         public static void Patch(Player __instance, BetterSource ___NestedStepSoundSource, SurfaceSet ____currentSet)
         {
-            ///// Most Copypasted from original function to replicate audio ranges that players experience. This could change in the future, so this function should be checked to make sure the code hasn't changed
-            //SoundBank soundBank = (__instance.Pose == EPlayerPose.Duck) ? ____currentSet.DuckSoundBank : ____currentSet.RunSoundBank;
-            //EAudioMovementState movementState = (__instance.Pose == EPlayerPose.Duck) ? EAudioMovementState.Duck : EAudioMovementState.Run;
-            //float covertMovementVolumeBySpeed = __instance.MovementContext.CovertMovementVolumeBySpeed;
-            //float num2 = __instance.method_55();
-            //float num3 = __instance.method_62(movementState);
-            //float num4 = (__instance.FirstPersonPointOfView || __instance.method_78()) ? soundBank.RandomVolume : 1f;
-            //float num5 = covertMovementVolumeBySpeed * num2 * num3 * num4;
-            //// End of copypaste
-            //
-            //float range = ___NestedStepSoundSource.MaxDistance;
-            //float volume = num5;
-            //SAINBotController.Instance?.BotHearing.PlayAISound(__instance.ProfileId, SAINSoundType.FootStep, __instance.Position, range, volume);
+            // Footstep sounds handled by SpecificStepAudioControllerPatch instead
         }
     }
 
@@ -211,30 +189,7 @@ namespace SAIN.Patches.Hearing
         [PatchPostfix]
         public static void Patch(Player __instance, SoundBank bank, float volume, EAudioMovementState movementState)
         {
-            //SAINSoundType soundType;
-            //switch (movementState) {
-            //    case EAudioMovementState.Run:
-            //        soundType = SAINSoundType.FootStep;
-            //        break;
-            //
-            //    case EAudioMovementState.Sprint:
-            //        soundType = SAINSoundType.Sprint;
-            //        break;
-            //
-            //    case EAudioMovementState.Land:
-            //        soundType = SAINSoundType.Land;
-            //        break;
-            //
-            //    case EAudioMovementState.Turn:
-            //        soundType = SAINSoundType.TurnSound;
-            //        break;
-            //
-            //    default:
-            //        soundType = SAINSoundType.Generic;
-            //        return;
-            //}
-            //
-            //SAINBotController.Instance?.BotHearing.PlayAISound(__instance.ProfileId, soundType, __instance.Position, bank.Rolloff, volume);
+            // Movement sound handled by SpecificStepAudioControllerPatch
         }
     }
 

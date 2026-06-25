@@ -83,6 +83,8 @@ namespace SAIN.SAINComponent.Classes
                 {
                     Bot.Decision.DecisionManager.CombatEndTime = Time.time;
                 }
+                // SAIN-2.3: Always set LootCombatEndTime for post-combat looting (independent of POST_COMBAT_RECOVERY)
+                Bot.Decision.DecisionManager.LootCombatEndTime = Time.time;
             }
             _wasInCombat = Bot.IsInCombat;
         }
@@ -112,20 +114,7 @@ namespace SAIN.SAINComponent.Classes
             bool standby = BotOwner?.StandBy?.StandByType != BotStandByType.active;
             if (standby)
             {
-                //if (Bot.HasEnemy)
-                //{
-                //    //Logger.LogWarning($"Had to activate bot manually because they were in stand by.");
-                //    BotOwner.StandBy.Activate();
-                //    standby = false;
-                //}
-                //else if (CheckAllEnemies())
-                //{
-#if DEBUG       //
-                //    Logger.LogDebug($"[{BotOwner.name}] disabled standby due to enemies being near.");
-#endif          //
-                //    BotOwner.StandBy.Activate();
-                //    standby = false;
-                //}
+                // SAIN-4.3: Removed old standby-auto-disable logic (commented out)
             }
 
             if (standby)

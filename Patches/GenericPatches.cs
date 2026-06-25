@@ -26,6 +26,17 @@ namespace SAIN.Patches.Generic
                 botOwner.Transform != null &&
                 !botOwner.IsDead;
         }
+
+        /// <summary>
+        /// Generic null-guard for Harmony PatchPrefix methods. Returns false if any arg is null,
+        /// which causes Harmony to skip the original method. Helps avoid scattered null checks.
+        /// </summary>
+        public static bool CheckNotNull(params object[] objs)
+        {
+            for (int i = 0; i < objs.Length; i++)
+                if (objs[i] == null) return false;
+            return true;
+        }
     }
 
     namespace SetInHands
@@ -237,20 +248,7 @@ namespace SAIN.Patches.Generic
             {
                 return true;
             }
-            // ORIGINAL METHOD:
-            //if (__instance.Settings.FileSettings.Boss.EFFECT_PAINKILLER)
-            //{
-            //	__instance.GetPlayer.ActiveHealthController.DoPainKiller();
-            //}
-            //if (__instance.Settings.FileSettings.Boss.DISABLE_METABOLISM)
-            //{
-            //	__instance.GetPlayer.HealthController.DisableMetabolism();
-            //}
-            //if (__instance.Settings.FileSettings.Boss.EFFECT_REGENERATION_PER_MIN > 0f)
-            //{
-            //	__instance.GetPlayer.ActiveHealthController.DoScavRegeneration(__instance.Settings.FileSettings.Boss.EFFECT_REGENERATION_PER_MIN);
-            //}
-            // END ORIGINAL METHOD
+            // SAIN-4.3: Removed original method body — SAIN replaces with disabled metabolism
             __instance.GetPlayer.HealthController.DisableMetabolism();
             return false;
         }

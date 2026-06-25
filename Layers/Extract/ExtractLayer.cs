@@ -140,20 +140,16 @@ namespace SAIN.Layers
                 return false;
             }
 
-            // No integration setup yet, set it up
-            if (SAINLootingBotsIntegration == null)
-            {
-                SAINLootingBotsIntegration = new SAINLootingBotsIntegration(BotOwner, Bot);
-            }
+            var lootingIntegration = Bot.LootingBotsIntegration;
 
-            SAINLootingBotsIntegration?.Update();
+            lootingIntegration?.Update();
 
             if (FullOnLoot && HasActiveThreat() == false)
             {
                 if (!_loggedExtractLoot)
                 {
                     _loggedExtractLoot = true;
-                    Logger.LogInfo($"[{BotOwner.name}] Is Moving to Extract because of Loot found in raid. Net Loot Value: [{SAINLootingBotsIntegration?.NetLootValue}]");
+                    Logger.LogInfo($"[{BotOwner.name}] Is Moving to Extract because of Loot found in raid. Net Loot Value: [{lootingIntegration?.NetLootValue}]");
                 }
                 Bot.Memory.Extract.ExtractReason = EExtractReason.Loot;
                 return true;
@@ -163,9 +159,7 @@ namespace SAIN.Layers
 
         private bool _loggedExtractLoot;
 
-        private bool FullOnLoot => SAINLootingBotsIntegration?.FullOnLoot == true;
-
-        private SAINLootingBotsIntegration SAINLootingBotsIntegration;
+        private bool FullOnLoot => Bot.LootingBotsIntegration?.FullOnLoot == true;
 
         private bool HasActiveThreat()
         {

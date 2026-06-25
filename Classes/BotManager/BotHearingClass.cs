@@ -1,7 +1,7 @@
 ﻿using EFT;
 using SAIN.Components.PlayerComponentSpace;
 using System;
-using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Profiling;
 
@@ -14,6 +14,18 @@ namespace SAIN.Components.BotControllerSpace.Classes
         public event Action<SAINSoundType, Vector3, PlayerComponent, float, float> AISoundPlayed;
 
         public event Action<EftBulletClass> BulletImpact;
+
+        // SAIN-3.1: Queue-based delayed bot events (replaces per-sound coroutine)
+        private struct DelayedBotEvent
+        {
+            public PlayerComponent PlayerComponent;
+            public Vector3 Position;
+            public float Range;
+            public SAINSoundType SoundType;
+            public float PlayTime;
+        }
+
+        private readonly List<DelayedBotEvent> _pendingBotEvents = new();
 
         public BotHearingClass(BotManagerComponent botController) : base(botController)
         {
@@ -85,15 +97,58 @@ namespace SAIN.Components.BotControllerSpace.Classes
             //{
             //    Logger.LogDebug($"SoundType [{soundType}] FinalRange: {range * volume} Base Range {range} : Volume: {volume}");
             //}
-            BotController.StartCoroutine(WaitDelayThenPlayDefaultBotEvent(soundType, playerComponent, position, range, volume));
+            // SAIN-3.1: Enqueue delayed event instead of starting a coroutine per sound
+            _pendingBotEvents.Add(new DelayedBotEvent
+            {
+                PlayerComponent = playerComponent,
+                Position = position,
+                Range = range * volume,
+                SoundType = soundType,
+                PlayTime = Time.time + 0.1f
+            });
         }
 
-        private IEnumerator WaitDelayThenPlayDefaultBotEvent(SAINSoundType soundType, PlayerComponent playerComponent, Vector3 position, float range, float volume, float delay = 0.1f)
+        /// <summary>
+        /// Called each frame from BotManagerComponent.ManualUpdate. Processes queued delayed bot events
+        /// in insertion order, removing the coroutine-per-sound overhead.
+        /// Uses batch RemoveRange to avoid O(n^2) from per-item RemoveAt.
+        /// </summary>
+        public void Update()
         {
-            yield return new WaitForSeconds(delay);
-            if (playerComponent?.Player?.HealthController?.IsAlive == true && playerComponent.IsActive)
+            float now = Time.time;
+            int count = _pendingBotEvents.Count;
+            if (count == 0) return;
+
+            // Safety net: if queue is huge, force-clean expired/dead events
+            const int MAX_QUEUE = 512;
+            if (count > MAX_QUEUE)
             {
-                playBotEvent(playerComponent.Player, position, range * volume, soundType);
+                _pendingBotEvents.RemoveAll(e => e.PlayTime < now || e.PlayerComponent?.Player?.HealthController?.IsAlive != true);
+            }
+
+            int processed = 0;
+            for (int i = 0; i < _pendingBotEvents.Count; i++)
+            {
+                DelayedBotEvent evt = _pendingBotEvents[i];
+                if (now >= evt.PlayTime)
+                {
+                    // Same null/active checks as the old coroutine
+                    if (evt.PlayerComponent?.Player?.HealthController?.IsAlive == true && evt.PlayerComponent.IsActive)
+                    {
+                        playBotEvent(evt.PlayerComponent.Player, evt.Position, evt.Range, evt.SoundType);
+                    }
+                    processed++;
+                }
+                else
+                {
+                    // Events are queued in insertion order; PlayTime is monotonic, so remaining aren't ready
+                    break;
+                }
+            }
+
+            if (processed > 0)
+            {
+                _pendingBotEvents.RemoveRange(0, processed); // Single O(n) batch removal
             }
         }
 

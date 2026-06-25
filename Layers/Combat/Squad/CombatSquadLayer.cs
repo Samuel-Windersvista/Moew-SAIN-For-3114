@@ -37,6 +37,9 @@ namespace SAIN.Layers.Combat.Squad
                 case ESquadDecision.PushSuppressedEnemy:
                     return new Action(typeof(RushEnemyAction), $"{LastActionDecision}");
 
+                case ESquadDecision.LootingOverwatch:
+                    return new Action(typeof(LootingOverwatchAction), $"{LastActionDecision}");
+
                 default:
                     return new Action(typeof(RegroupAction), $"DEFAULT!");
             }

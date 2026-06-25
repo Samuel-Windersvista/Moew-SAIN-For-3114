@@ -72,7 +72,6 @@ namespace SAIN.SAINComponent.Classes
                 }
                 EstimatedPosition = Dispersion.CalcRandomizedPosition(sound, 1f);
                 Bot.Squad.SquadInfo?.AddPointToSearch(sound.Enemy, EstimatedPosition, sound, Bot);
-                CheckCalcGoal();
                 OnEnemySoundHeard?.Invoke(sound, sound.Enemy);
             }
         }
@@ -103,19 +102,6 @@ namespace SAIN.SAINComponent.Classes
             Bot.Suppression.CheckAddSuppression(enemy, ProjectionPointDistance);
             enemy.Status.RegisterEnemyFlyBy();
             Bot.Squad.SquadInfo?.AddPointToSearch(enemy, EstimatedPosition, sound, Bot);
-            CheckCalcGoal();
-        }
-
-        private void CheckCalcGoal()
-        {
-            //if (BotOwner.Memory.GoalEnemy == null || Bot.GoalEnemy?.IsVisible != true)
-            //{
-            //    try
-            //    {
-            //        BotOwner.BotsGroup.CalcGoalForBot(BotOwner);
-            //    }
-            //    catch { /* Gotta love eft code throwing errors randomly */ }
-            //}
         }
     }
 }

@@ -174,6 +174,10 @@ namespace SAIN.Patches.Generic.Fixes
         }
     }
 
+    /// <summary>
+    /// Null-guard: prevents BotItemTaker.method_12 from executing on a destroyed bot.
+    /// Pure null-guard — returns CheckNotNull() to skip original if bot is dead/null.
+    /// </summary>
     internal class FixItemTakerPatch : ModulePatch
     {
         protected override MethodBase GetTargetMethod()
@@ -188,6 +192,10 @@ namespace SAIN.Patches.Generic.Fixes
         }
     }
 
+    /// <summary>
+    /// Null-guard: prevents BotItemTaker.RefreshClosestItems from executing on a destroyed bot.
+    /// Same pattern as FixItemTakerPatch.
+    /// </summary>
     internal class FixItemTakerPatch2 : ModulePatch
     {
         protected override MethodBase GetTargetMethod()
@@ -219,6 +227,11 @@ namespace SAIN.Patches.Generic.Fixes
         }
     }
 
+    /// <summary>
+    /// Guard: prevents BotsGroup.AddEnemy from processing null or zombie AI IPlayers
+    /// (AI with BotState != Active, e.g. during despawn). Not a pure null-check —
+    /// also validates that the AI player has an active BotOwner.
+    /// </summary>
     internal class BotGroupAddEnemyPatch : ModulePatch
     {
         protected override MethodBase GetTargetMethod()
@@ -238,6 +251,10 @@ namespace SAIN.Patches.Generic.Fixes
         }
     }
 
+    /// <summary>
+    /// Guard: prevents BotMemoryClass.AddEnemy from processing null or zombie AI IPlayers.
+    /// Mirror of BotGroupAddEnemyPatch for the memory system.
+    /// </summary>
     internal class BotMemoryAddEnemyPatch : ModulePatch
     {
         protected override MethodBase GetTargetMethod()

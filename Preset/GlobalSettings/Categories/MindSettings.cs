@@ -300,6 +300,11 @@ namespace SAIN.Preset.GlobalSettings.Categories
         [Category("v4.2.0 战斗行为")]
         public bool POST_COMBAT_RECOVERY = true;
 
+        [Name("战后自动搜刮")]
+        [Description("战斗结束后自动触发 LootingBots 搜刮。独立于战后恢复开关，默认开启。")]
+        [Category("v4.2.0 战斗行为")]
+        public bool POST_COMBAT_LOOTING = true;
+
         [Name("击杀确认行为")]
         [Description("击倒敌人后短暂保持瞄准确认死亡。默认开启。")]
         [Category("v4.2.0 战斗行为")]

@@ -566,6 +566,7 @@ namespace SAIN.BotController.Classes
                     LeaderKilled?.Invoke(lastAggressor, lastDamageInfoStruct, Time.time);
                     TimeThatLeaderDied = Time.time;
                     LeaderComponent = null;
+                    LeaderId = string.Empty;
                 }
             }
 

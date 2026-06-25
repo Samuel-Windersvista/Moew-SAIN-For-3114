@@ -188,17 +188,23 @@ namespace SAIN.SAINComponent.Classes
 
         private float _BotDeafedTime = -1;
 
+        /// <summary>
+        /// PERF: Single-pass iteration eliminating List.Sort delegate allocation.
+        /// These lists are typically small (< 20 items), so sorting is unnecessary overhead.
+        /// We simply iterate and collect qualifying items where PlayerDistance <= BaseRangeWithVolume.
+        /// Items are processed in insertion order (approximately capture order), which is sufficient
+        /// since the distance-based filter is the primary selection criterion.
+        /// </summary>
         private static bool ProcessSounds(List<AISoundData> Sounds, bool PreviouslyDeaf, float DeafenCoef, List<AISoundData> Results)
         {
             bool DeafeningShot = false;
             int Count = Sounds.Count;
             if (Count > 0)
             {
-                Sounds.Sort((a, b) => a.PlayerDistance.CompareTo(b.PlayerDistance));
                 for (int i = 0; i < Count; i++)
                 {
                     AISoundData Sound = Sounds[i];
-                    // If Sounds is closer than or equal to the input fraction of the Baserange of this sound, always report it. If we are checking gunshots, then this sound will deafen the bot for a duration.
+                    // If Sounds is closer than or equal to the input fraction of the Baserange of this sound, always report it.
                     if (Sound.PlayerDistance <= Sound.Sound.BaseRangeWithVolume)
                     {
                         if (PreviouslyDeaf && Sound.PlayerDistance > Sound.Sound.BaseRangeWithVolume * DeafenCoef)
@@ -211,17 +217,20 @@ namespace SAIN.SAINComponent.Classes
             return DeafeningShot;
         }
 
+        /// <summary>
+        /// PERF: Same single-pass approach as ProcessSounds. Sorting was previously used only for
+        /// approximate distance ordering, but the filter is purely distance-threshold based.
+        /// Lists are small; iteration is O(n) with zero allocation vs Sort's O(n log n) + delegate.
+        /// </summary>
         private static bool ProcessGunshots(List<AISoundData> Sounds, bool previouslyDeaf, float DeafenCoef, List<AISoundData> Results)
         {
             bool DeafeningShot = false;
             int Count = Sounds.Count;
             if (Count > 0)
             {
-                Sounds.Sort((a, b) => a.PlayerDistance.CompareTo(b.PlayerDistance));
                 for (int i = 0; i < Count; i++)
                 {
                     AISoundData Sound = Sounds[i];
-                    // If Sounds is closer than or equal to the input fraction of the Baserange of this sound, always report it. If we are checking gunshots, then this sound will deafen the bot for a duration.
                     if (Sound.PlayerDistance <= Sound.Sound.BaseRangeWithVolume)
                     {
                         bool thisShotDeafened = Sound.PlayerDistance <= Sound.Sound.BaseRangeWithVolume * DeafenCoef;

@@ -85,6 +85,9 @@ namespace SAIN.Components
 
         public void ManualUpdate(float currentTime, float deltaTime)
         {
+            // SAIN-3.1: Process queued delayed bot events each frame
+            BotHearing.Update();
+
             BotSpawnController.ManualUpdate(currentTime, deltaTime);
             BotExtractManager.Update(currentTime, deltaTime);
             TimeVision.Update(currentTime, deltaTime);
