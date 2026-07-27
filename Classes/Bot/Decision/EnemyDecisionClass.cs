@@ -97,6 +97,17 @@ namespace SAIN.SAINComponent.Classes.Decision
             if (SAINPlugin.DebugMode) DecisionReasons.AppendLine($"2. CanTakeAggroActions?: [{canTakeAggressiveAction}, {reason}]");
 #endif
 
+            // F4-4: Cultist Hit-and-Run — engage within window, then disengage to reposition
+            bool shallHitAndRun = shallCultistHitAndRun(enemy, out reason);
+#if DEBUG
+            if (SAINPlugin.DebugMode) DecisionReasons.AppendLine($"2a. CultistHitAndRun: [{shallHitAndRun}, {reason}]");
+#endif
+            if (shallHitAndRun)
+            {
+                result = ECombatDecision.SeekCover;
+                return true;
+            }
+
             bool shallShoot = shallStandAndShoot(enemy, out reason, knownEnemies);
 #if DEBUG
             if (SAINPlugin.DebugMode) DecisionReasons.AppendLine($"2. Shall Shoot: [{shallShoot}, {reason}]");
@@ -230,6 +241,40 @@ namespace SAIN.SAINComponent.Classes.Decision
             }
 
             return canTakeAggressiveAction;
+        }
+
+        private float _cultistEngageStartTime = -1f;
+
+        /// <summary>
+        /// 邪教徒"打了就跑"判断：交战窗口内射击，超时后 SeekCover 转移再交战。
+        /// 注意：_cultistEngageStartTime 为每 bot 单实例字段，非按 enemy 键控。
+        /// 触发后立即复位且 bot 通常仍被发现，因此实际行为是"交战窗口→SeekCover 转移→再交战"的周期性振荡，
+        /// 即设计预期的"打了就跑"节奏。
+        /// </summary>
+        private bool shallCultistHitAndRun(Enemy enemy, out string reason)
+        {
+            reason = null;
+            if (!Helpers.EnumValues.WildSpawn.IsCultist(Bot.Info.Profile.WildSpawnType))
+                return false;
+            var settings = GlobalSettingsClass.Instance.Mind;
+            if (!settings.CULTIST_HIT_AND_RUN_ENABLED)
+                return false;
+
+            bool botIsSpotted = enemy.IsVisible || enemy.TimeSinceSeen < settings.CULTIST_HIT_AND_RUN_DISENGAGE_TIME;
+            if (!botIsSpotted)
+            {
+                _cultistEngageStartTime = -1f;
+                return false;
+            }
+            if (_cultistEngageStartTime < 0f)
+                _cultistEngageStartTime = Time.time;
+            if (Time.time - _cultistEngageStartTime > settings.CULTIST_HIT_AND_RUN_ENGAGE_WINDOW)
+            {
+                reason = "CultistHitAndRun";
+                _cultistEngageStartTime = -1f;
+                return true;
+            }
+            return false;
         }
 
         private bool shallFreezeAndWait(Enemy enemy, out string reason)

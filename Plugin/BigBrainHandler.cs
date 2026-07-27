@@ -96,6 +96,7 @@ namespace SAIN
                 addCustomLayersToBosses();
                 addCustomLayersToFollowers();
                 addCustomLayersToGoons();
+                addCustomLayersToPartisan();
                 addCustomLayersToOthers();
 
                 ToggleVanillaLayersForPMCs(false);
@@ -111,6 +112,8 @@ namespace SAIN
                 ToggleVanillaLayersForBloodHounds(_vanillaBotSettings.VanillaBloodHounds);
                 ToggleVanillaLayersForBosses(_vanillaBotSettings.VanillaBosses);
                 ToggleVanillaLayersForFollowers(_vanillaBotSettings.VanillaFollowers);
+                // "Kill logic" 也存在于 Gluhar/Sanitar 随从大脑（ForceAttack 事件层），仅对邪教徒战士单独移除
+                toggleVanillaLayers(new List<string>() { Brain.SectantWarrior.ToString() }, new List<string>() { "Kill logic" }, _vanillaBotSettings.VanillaFollowers);
                 ToggleVanillaLayersForGoons(_vanillaBotSettings.VanillaGoons);
             }
 
@@ -244,6 +247,18 @@ namespace SAIN
                     "KolontayFight",
                     "KlnTrg",
                     "BossSanitarFight",
+                    // Partisan 战斗/潜行层（3.11 新增 Boss，上游 SAIN 遗漏）
+                    "PrtFight",
+                    "PrtPst",
+                    "PrtStalk",
+                    "PrtMany",
+                    "PrtBadTrg",
+                    "PrtZrSvg",
+                    "PrtFMN",
+                    // 邪教徒祭司战斗层（逃跑隐匿/自爆）
+                    "GrenSuicide",
+                    "R&H_IN",
+                    "R&H_OUT",
                 };
                 LayersToToggle.AddRange(commonVanillaLayersToRemove);
                 toggleVanillaLayers(brainList, LayersToToggle, useVanillaLayers);
@@ -266,6 +281,12 @@ namespace SAIN
                     "KolontayAP",
                     "KlnTrg",
                     "FlSanFight",
+                    // 邪教徒战士战斗层（持刀冲刺/伏击射击/跑打/击杀逻辑）
+                    "MeleeS_IN",
+                    "MeleeS_OUT",
+                    "SupShootSect_IN",
+                    "SupShootSect_OUT",
+                    "Run&Strike",
                 };
                 LayersToToggle.AddRange(commonVanillaLayersToRemove);
 
@@ -438,6 +459,13 @@ namespace SAIN
                 BrainManager.AddCustomLayer(typeof(SAINAvoidThreatLayer), brainList, 80);
                 BrainManager.AddCustomLayer(typeof(CombatSquadLayer), brainList, 64);
                 BrainManager.AddCustomLayer(typeof(CombatSoloLayer), brainList, 62);
+            }
+
+            private static void addCustomLayersToPartisan()
+            {
+                List<string> brainList = new List<string>() { Brain.BossPartisan.ToString() };
+                // 45: 低于 PartisanMine(60)/PartMineAll(50)，高于 HoldOrCoverT(40)/StayAtPos(11)
+                BrainManager.AddCustomLayer(typeof(SAIN.Layers.Peace.PeacefulLayer), brainList, 45);
             }
 
             private static void checkExtractEnabled(List<string> layersToRemove)

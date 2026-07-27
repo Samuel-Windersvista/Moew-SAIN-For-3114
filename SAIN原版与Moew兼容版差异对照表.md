@@ -106,4 +106,22 @@
 
 ---
 
+## 九、v4.4.1 Partisan 与邪教徒接管修复
+
+> 根因分析：`docs/SAIN行为异常调查-Partisan与邪教徒.md` | 实施方案：`docs/SAIN-Partisan与邪教徒接管-实施方案.md`
+
+| 修复项 | 原版/上游状态 | 兼容版修复 |
+|--------|--------------|-----------|
+| Partisan 强制 Rat 个性 | `PERS_BOSSES` 硬编码 Rat → Freeze 17~200s + 搜索延迟 4~9 分钟，永不索敌 | 移除强制条目，回落 Normal 全能力个性 |
+| Partisan 双层政府 | 上游 Boss 移除列表与 Partisan 7 个战斗层（PrtFight/PrtPst/PrtStalk/PrtMany/PrtBadTrg/PrtZrSvg/PrtFMN）零交集 | 移除列表补全，战斗归 SAIN；埋雷层 PartisanMine/PartMineAll 保留，无敌人时原版布雷逻辑自然接管 |
+| Partisan 和平期行为 | PeacefulLayer 存在但从未注册（死代码） | 以优先级 45 单独注册给 BossPartisan：布雷(60/50) > 兴趣点游荡(45) > 驻守(40/11) |
+| SectantWarrior 大脑遗漏 | `AIBrains.Followers` 缺 SectantWarrior（**上游同源 bug**），战士半接管混乱态 | 补一行，纳入正常注入/清理管线 |
+| 邪教徒双层政府 | 邪教战斗层（MeleeS/SupShootSect/R&H/GrenSuicide/Run&Strike/Kill logic）未被移除 | Boss/Follower 移除列表补全；保留 Utility peace/StayAtPos 等和平层，潜伏草丛行为不变 |
+| 近战死循环"滑铲" | `IsMelee → MeleeAttack` 无条件分支，持刀必冲刺 | 近战门控：有主武器且敌人已察觉/超 8m（F6 `近战交战最大距离`）先切枪；背刺/近距离保留突袭 |
+| 邪教打了就跑 | 无，SAIN 接管后死磕或死循环 | 新增 `shallCultistHitAndRun`：被发现交火超窗口期强制 SeekCover 脱离，再由潜行搜索回圈；F6 三项可调 |
+
+**v4.4.1 统计**: SAIN 5 文件 / 0 编译错误
+
+---
+
 > **总计**: 原版 v4.1.3 与兼容版 v4.3.0 差异 50+ 项，零编译错误，全部 F6 GUI 可控。

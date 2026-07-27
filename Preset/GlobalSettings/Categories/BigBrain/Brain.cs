@@ -138,6 +138,7 @@ namespace SAIN.Preset.GlobalSettings.Categories
             Brain.FollowerKolontaySecurity,
             Brain.FlBoarCl,
             Brain.FlBoarSt,
+            Brain.SectantWarrior,
         };
     }
 }

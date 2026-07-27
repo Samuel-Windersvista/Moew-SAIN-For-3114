@@ -4,6 +4,30 @@
 
 ---
 
+## v4.4.1 (2026-07-23) — Partisan 与邪教徒 SAIN 接管修复
+
+> 根因分析: `docs/SAIN行为异常调查-Partisan与邪教徒.md`
+> 实施方案: `docs/SAIN-Partisan与邪教徒接管-实施方案.md`
+
+### Partisan（bossPartisan）
+
+| ID | 描述 |
+|---|---|
+| PRT-1 | 移除 `PERS_BOSSES` 中 bossPartisan 的强制 Rat 个性 — 修复站桩不索敌（上游 issue #298 同源） |
+| PRT-2 | Boss 移除列表补全 7 个 Partisan 战斗/潜行层（PrtFight/PrtPst/PrtStalk/PrtMany/PrtBadTrg/PrtZrSvg/PrtFMN），战斗归 SAIN；埋雷层保留，原版绊雷逻辑在无敌人时接管 |
+| PRT-3 | PeacefulLayer 以优先级 45 注册给 BossPartisan — 和平期兴趣点游荡（布雷 > 游荡 > 驻守） |
+
+### 邪教徒（sectantPriest / sectantWarrior）
+
+| ID | 描述 |
+|---|---|
+| CULT-1 | 修复 `AIBrains.Followers` 遗漏 `Brain.SectantWarrior`（上游同源 bug）— 战士大脑正常注入/清理 |
+| CULT-2 | 移除邪教原版战斗层（MeleeS_IN/OUT、SupShootSect_IN/OUT、R&H_IN/OUT、GrenSuicide、Run&Strike、Kill logic）；保留和平层，潜伏草丛行为不变 |
+| CULT-3 | 近战门控 — 持刀且有主武器时，敌人已察觉且超距离（默认 8m）先切枪；背刺/贴脸保留突袭。F6 `近战交战最大距离` 可调 |
+| CULT-4 | 新增邪教 Hit-and-Run 决策 — 被发现交火超窗口期（默认 3s）强制脱离转移，潜行回圈。F6 `邪教徒战术` 三项可调 |
+
+---
+
 ## v4.4.0 (2026-06-23) — 四模组协同稳定性与性能优化
 
 > 与 PathToTarkov 6.2.0 / InteractableExfilsAPI 2.1.0 / LootingBots 1.6.2 协同优化批次。

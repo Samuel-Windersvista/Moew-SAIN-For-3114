@@ -48,7 +48,6 @@ namespace SAIN.Preset.GlobalSettings.Categories
             { WildSpawnType.bossGluhar, EPersonality.SnappingTurtle},
 
             { WildSpawnType.bossKojaniy, EPersonality.Rat},
-            { WildSpawnType.bossPartisan, EPersonality.Rat},
 
             { WildSpawnType.bossBully, EPersonality.Coward},
             { WildSpawnType.bossSanitar, EPersonality.Coward},
@@ -309,6 +308,29 @@ namespace SAIN.Preset.GlobalSettings.Categories
         [Description("击倒敌人后短暂保持瞄准确认死亡。默认开启。")]
         [Category("v4.2.0 战斗行为")]
         public bool KILL_CONFIRM_ENABLED = true;
+
+        [Name("近战交战最大距离")]
+        [Description("手持近战武器但主武器可用时，敌人距离小于此值才允许持刀冲锋(米)。背刺/敌人未察觉时不受限。")]
+        [Category("v4.2.0 战斗行为")]
+        [MinMax(1f, 30f, 100f)]
+        public float MELEE_ENGAGE_MAX_DIST = 8f;
+
+        [Name("邪教打了就跑")]
+        [Description("邪教徒被发现交火超过窗口期后强制脱离转移，复刻原版伏击-转移节奏。默认开启。")]
+        [Category("邪教徒战术")]
+        public bool CULTIST_HIT_AND_RUN_ENABLED = true;
+
+        [Name("邪教交战窗口(秒)")]
+        [Description("邪教徒被发现后允许持续交火的秒数，超过则脱离转移。")]
+        [Category("邪教徒战术")]
+        [MinMax(0.5f, 15f, 100f)]
+        public float CULTIST_HIT_AND_RUN_ENGAGE_WINDOW = 3f;
+
+        [Name("邪教脱离判定时间(秒)")]
+        [Description("敌人最近多少秒内被看见过视为'被发现'。")]
+        [Category("邪教徒战术")]
+        [MinMax(0.5f, 10f, 100f)]
+        public float CULTIST_HIT_AND_RUN_DISENGAGE_TIME = 2f;
 
         [Name("闪光弹战术")]
         [Description("近距离室内敌人有概率使用闪光弹。实验性功能，默认关闭。")]

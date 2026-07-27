@@ -191,8 +191,26 @@ namespace SAIN.SAINComponent.Classes.Decision
             }
             if (BotOwner.WeaponManager.IsMelee)
             {
-                SetDecisions(ECombatDecision.MeleeAttack, ESquadDecision.None, ESelfActionType.None, enemy);
-                return;
+                // 近战切枪门控仅适用邪教徒；Tagilla 等由 BSG 原生 AI 自管武器切换
+                if (Helpers.EnumValues.WildSpawn.IsCultist(Bot.Info.Profile.WildSpawnType))
+                {
+                    bool enemyUnaware = enemy.EnemyNotLooking || (!enemy.IsVisible && enemy.TimeSinceLastKnownUpdated > 3f);
+                    bool meleeViable = enemyUnaware || enemy.RealDistance <= GlobalSettingsClass.Instance.Mind.MELEE_ENGAGE_MAX_DIST;
+                    if (!meleeViable && BotOwner.WeaponManager.Selector.TryChangeToMain())
+                    {
+                        // 切枪成功，落入下方正常射击决策链
+                    }
+                    else
+                    {
+                        SetDecisions(ECombatDecision.MeleeAttack, ESquadDecision.None, ESelfActionType.None, enemy);
+                        return;
+                    }
+                }
+                else
+                {
+                    SetDecisions(ECombatDecision.MeleeAttack, ESquadDecision.None, ESelfActionType.None, enemy);
+                    return;
+                }
             }
             if (ContinueMoveToCover())
             {
